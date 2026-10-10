@@ -1,0 +1,50 @@
+/* Ink & Signal tokens. Semantic names, so themes can be added without renaming. */
+:root {
+  --ff-brand-ink: #0e1726;
+  --ff-action-primary: #2f43c8;
+  --ff-action-primary-hover: #2536a8;
+  --ff-action-primary-soft: #eceffd;
+  --ff-ai-accent: #6b3bc2;
+  --ff-ai-soft: #f3eefc;
+
+  --ff-bg-app: #f6f7f9;
+  --ff-bg-surface: #ffffff;
+  --ff-bg-sunken: #f1f3f6;
+  --ff-bg-sidebar: #0e1726;
+  --ff-bg-sidebar-raised: #152038;
+  --ff-bg-sidebar-active: #1c2740;
+  --ff-border-default: #e3e5ea;
+  --ff-border-strong: #c9ced8;
+  --ff-border-on-ink: #24304b;
+
+  --ff-text-primary: #0e1726;
+  --ff-text-secondary: #3d4757;
+  --ff-text-muted: #5e6878;
+  --ff-text-on-ink: #c9cfda;
+  --ff-text-on-ink-muted: #8b95a8;
+  --ff-focus-ring: #2f43c8;
+  --ff-selection: #dce1fb;
+
+  --ff-success: #1c7044;
+  --ff-success-soft: #e7f4ec;
+  --ff-warning: #9a5200;
+  --ff-warning-soft: #fdf1e2;
+  --ff-error: #b42318;
+  --ff-error-soft: #fdecea;
+  --ff-info: #1d5faf;
+  --ff-info-soft: #e8f1fb;
+
+  --ff-radius-sm: 4px;
+  --ff-radius-md: 6px;
+  --ff-radius-lg: 10px;
+  --ff-radius-xl: 14px;
+
+  --ff-motion-fast: 120ms;
+  --ff-motion-base: 200ms;
+  --ff-motion-slow: 280ms;
+  --ff-ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  --ff-sidebar-width: 248px;
+  --ff-rail-width: 64px;
+  --ff-topbar-height: 56px;
+}

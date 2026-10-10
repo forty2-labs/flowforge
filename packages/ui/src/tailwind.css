@@ -1,0 +1,44 @@
+/* Maps Ink & Signal tokens onto Tailwind theme keys. Import after "tailwindcss". */
+@import "./tokens.css";
+
+@source "./";
+
+@theme inline {
+  --color-ink: var(--ff-brand-ink);
+  --color-primary: var(--ff-action-primary);
+  --color-primary-hover: var(--ff-action-primary-hover);
+  --color-primary-soft: var(--ff-action-primary-soft);
+  --color-ai: var(--ff-ai-accent);
+  --color-ai-soft: var(--ff-ai-soft);
+
+  --color-app: var(--ff-bg-app);
+  --color-surface: var(--ff-bg-surface);
+  --color-sunken: var(--ff-bg-sunken);
+  --color-sidebar: var(--ff-bg-sidebar);
+  --color-sidebar-raised: var(--ff-bg-sidebar-raised);
+  --color-sidebar-active: var(--ff-bg-sidebar-active);
+  --color-line: var(--ff-border-default);
+  --color-line-strong: var(--ff-border-strong);
+  --color-line-on-ink: var(--ff-border-on-ink);
+
+  --color-fg: var(--ff-text-primary);
+  --color-fg-secondary: var(--ff-text-secondary);
+  --color-fg-muted: var(--ff-text-muted);
+  --color-on-ink: var(--ff-text-on-ink);
+  --color-on-ink-muted: var(--ff-text-on-ink-muted);
+  --color-selection: var(--ff-selection);
+
+  --color-success: var(--ff-success);
+  --color-success-soft: var(--ff-success-soft);
+  --color-warning: var(--ff-warning);
+  --color-warning-soft: var(--ff-warning-soft);
+  --color-error: var(--ff-error);
+  --color-error-soft: var(--ff-error-soft);
+  --color-info: var(--ff-info);
+  --color-info-soft: var(--ff-info-soft);
+
+  --radius-sm: var(--ff-radius-sm);
+  --radius-md: var(--ff-radius-md);
+  --radius-lg: var(--ff-radius-lg);
+  --radius-xl: var(--ff-radius-xl);
+}

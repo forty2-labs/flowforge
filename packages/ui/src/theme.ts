@@ -1,0 +1,36 @@
+// Typed mirror of tokens.css for places that cannot read CSS variables.
+export const theme = {
+  color: {
+    brandInk: '#0E1726',
+    actionPrimary: '#2F43C8',
+    actionPrimaryHover: '#2536A8',
+    actionPrimarySoft: '#ECEFFD',
+    aiAccent: '#6B3BC2',
+    aiSoft: '#F3EEFC',
+    bgApp: '#F6F7F9',
+    bgSurface: '#FFFFFF',
+    bgSunken: '#F1F3F6',
+    bgSidebarActive: '#1C2740',
+    borderDefault: '#E3E5EA',
+    borderStrong: '#C9CED8',
+    textPrimary: '#0E1726',
+    textSecondary: '#3D4757',
+    textMuted: '#5E6878',
+    textOnInk: '#C9CFDA',
+    focusRing: '#2F43C8',
+    selection: '#DCE1FB',
+    success: '#1C7044',
+    successSoft: '#E7F4EC',
+    warning: '#9A5200',
+    warningSoft: '#FDF1E2',
+    error: '#B42318',
+    errorSoft: '#FDECEA',
+    info: '#1D5FAF',
+    infoSoft: '#E8F1FB',
+  },
+  space: { 1: 4, 2: 8, 3: 12, 4: 16, 5: 20, 6: 24, 8: 32, 10: 40, 12: 48, 16: 64 },
+  radius: { sm: 4, md: 6, lg: 10, xl: 14, full: 999 },
+  breakpoint: { tablet: 768, desktop: 1280 },
+} as const;
+
+export type Theme = typeof theme;
