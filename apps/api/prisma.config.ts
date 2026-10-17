@@ -9,8 +9,11 @@ export default defineConfig({
   schema: 'prisma/schema.prisma',
   migrations: { path: 'prisma/migrations' },
   datasource: {
+    // Migrations can't run through Supabase's transaction pooler, so fall back
+    // to the integration's non-pooling URL rather than POSTGRES_URL.
     url:
-      process.env.DATABASE_URL ??
+      process.env.DATABASE_URL ||
+      process.env.POSTGRES_URL_NON_POOLING ||
       'postgresql://flowforge:flowforge@localhost:5432/flowforge',
   },
 });
