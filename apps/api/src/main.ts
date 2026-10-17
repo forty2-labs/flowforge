@@ -8,4 +8,6 @@ async function bootstrap() {
   configureApp(app);
   await app.listen(env.port);
 }
-await bootstrap();
+// No top-level await: Vercel's launcher loads this file with require(), which
+// can't load an ES module that uses it.
+void bootstrap();
