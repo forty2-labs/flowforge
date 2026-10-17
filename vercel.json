@@ -1,0 +1,24 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "services": {
+    "web": {
+      "root": "apps/web",
+      "framework": "nextjs",
+      "buildCommand": "cd ../.. && npx turbo run build --filter=@flowforge/web",
+      "bindings": [
+        { "type": "service", "service": "api", "format": "url", "env": "API_URL" }
+      ]
+    },
+    "api": {
+      "root": "apps/api",
+      "framework": "nestjs",
+      "buildCommand": "cd ../.. && npx turbo run build --filter=@flowforge/api"
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": { "service": "web" }
+    }
+  ]
+}
