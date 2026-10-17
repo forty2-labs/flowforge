@@ -12,7 +12,7 @@
     "api": {
       "root": "apps/api",
       "framework": "nestjs",
-      "buildCommand": "cd ../.. && npx turbo run build --filter=@flowforge/api"
+      "buildCommand": "cd ../.. && npx turbo run build --filter=@flowforge/api && if [ \"$VERCEL_ENV\" = production ]; then npm run db:deploy -w @flowforge/api; fi"
     }
   },
   "rewrites": [

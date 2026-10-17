@@ -77,6 +77,18 @@ the end of the relevant section.
   `flowforge_test`, never the development database.
 - **Cost:** migrations are applied to two databases locally.
 
+### Production deploys apply migrations during the build
+
+- **Why:** the `api` build in [vercel.json](../vercel.json) runs
+  `prisma migrate deploy` when `VERCEL_ENV` is `production`, so no one has to
+  remember to. A failed migration fails the build, and Vercel keeps the
+  previous deployment live. Preview deploys skip it, so a pull request cannot
+  change the production database.
+- **Cost:** the old deployment serves traffic against the new schema until
+  the build finishes, so each migration must work with the code before it.
+  Removing or renaming a column takes two deploys. Previews run against the
+  production schema, not their own.
+
 ## Interface
 
 ### Colours are CSS variables first
