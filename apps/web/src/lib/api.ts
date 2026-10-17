@@ -5,7 +5,16 @@ import { cookies } from "next/headers";
 export const SESSION_COOKIE = "ff_session";
 export const SESSION_MAX_AGE_SECONDS = 30 * 24 * 60 * 60;
 
-const API_URL = process.env.API_URL ?? "http://localhost:4000";
+// On Vercel, API_URL is injected by the service binding to `api` at runtime
+// (not during builds). Locally it falls back to the Nest dev server.
+function apiUrl(path: string): URL {
+  const base =
+    process.env.API_URL ??
+    (process.env.NODE_ENV === "production" ? undefined : "http://localhost:4000");
+  if (!base) throw new Error("API_URL is not set.");
+  // Resolve relative to a trailing slash so any path on the base URL is kept.
+  return new URL(path.replace(/^\//, ""), base.endsWith("/") ? base : `${base}/`);
+}
 
 export class ApiRequestError extends Error {
   constructor(
@@ -27,7 +36,7 @@ export async function apiRequest(
   if (token) headers.cookie = `${SESSION_COOKIE}=${token}`;
   if (init.body !== undefined) headers["content-type"] = "application/json";
 
-  const response = await fetch(`${API_URL}${path}`, {
+  const response = await fetch(apiUrl(path), {
     method: init.method ?? "GET",
     headers,
     body: init.body === undefined ? undefined : JSON.stringify(init.body),
