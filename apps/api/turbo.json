@@ -1,0 +1,9 @@
+{
+  "$schema": "https://turborepo.com/schema.json",
+  "extends": ["//"],
+  "tasks": {
+    "build": {
+      "passThroughEnv": ["$TURBO_EXTENDS$", "DATABASE_URL", "POSTGRES_URL_NON_POOLING"]
+    }
+  }
+}
