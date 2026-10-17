@@ -77,17 +77,20 @@ the end of the relevant section.
   `flowforge_test`, never the development database.
 - **Cost:** migrations are applied to two databases locally.
 
-### Production deploys apply migrations during the build
+### Deploys apply migrations during the build
 
 - **Why:** the `api` build in [vercel.json](../vercel.json) runs
-  `prisma migrate deploy` when `VERCEL_ENV` is `production`, so no one has to
-  remember to. A failed migration fails the build, and Vercel keeps the
-  previous deployment live. Preview deploys skip it, so a pull request cannot
-  change the production database.
+  `prisma migrate deploy` for production and preview deploys, so no one has
+  to remember to. A failed migration fails the build, and Vercel keeps the
+  previous deployment live. Previews use a separate Supabase staging project,
+  set through Preview-scoped `POSTGRES_URL` and `POSTGRES_URL_NON_POOLING` in
+  Vercel, so a pull request's migrations reach staging, never production.
 - **Cost:** the old deployment serves traffic against the new schema until
   the build finishes, so each migration must work with the code before it.
-  Removing or renaming a column takes two deploys. Previews run against the
-  production schema, not their own.
+  Removing or renaming a column takes two deploys. All previews share one
+  staging database, so a migration from an abandoned pull request stays
+  there; reset staging when it drifts from `main`. If the Preview variables
+  ever point at production again, pull requests migrate production.
 
 ## Interface
 
