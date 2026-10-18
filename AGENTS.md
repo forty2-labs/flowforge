@@ -92,12 +92,13 @@ Rules that follow from this:
 
 Read [docs/design.md](docs/design.md) before changing anything a person sees, on the web or, later, in the mobile app. The goal is an interface that is distinctive and plainly functional, and that never looks like a generic AI or SaaS template.
 
-- **Direction: Ink & Signal, sharpened.** Ink for structure, one cobalt signal for the next action, violet only for AI. Interface text is Schibsted Grotesk; anything a business publishes is shown in Newsreader. The lifecycle dot (an empty ring for draft, a filled dot for published) is the one loud element.
+- **Direction: Ink & Signal, sharpened, on glass.** Frosted glass panels (`glass`, `glass-strong`) over an ambient ground (`ground`), one cobalt signal for the next action, a lime highlight only for counts and trend chips, violet only for AI. Interface text is Schibsted Grotesk; anything a business publishes is shown in Newsreader. The lifecycle dot (an empty ring for draft, a filled dot for published) is the signature.
+- **Light, dark and system themes.** Every colour is a token with a light and a dark value in `tokens.css`; components never branch on the theme. Check every screen in both themes. Keep the glass fallbacks for reduced transparency and high contrast.
 - **Tokens only.** No hex values, pixel font sizes (`text-[13.5px]`) or one-off shadows in components. Use the named type sizes (`text-page`, `text-body`…). A new token goes into `tokens.css`, `tailwind.css` and `theme.ts` together.
-- **Build from `packages/ui`.** Add a missing component there instead of styling it inside a page.
-- **Not allowed:** Geist, Inter or Roboto for the interface; all-caps letter-spaced labels; arrows appended to buttons; chips chained with arrows; identical soft-shadow cards for everything; gradients, glows, emoji icons and sparkles; scroll-in animations on every section. The full list is in docs/design.md.
+- **Build from `packages/ui`.** Add a missing component there instead of styling it inside a page. Complex interactive components come from shadcn (`npx shadcn@latest add <name>` in `packages/ui`) and must be restyled to our tokens before use. Merge classes with `cn`/`cx`, and register any new type size in `packages/ui/src/lib/utils.ts`.
+- **Not allowed:** Geist, Inter or Roboto for the interface; all-caps letter-spaced labels; arrows appended to buttons; chips chained with arrows; identical soft-shadow cards for everything; decorative gradients and glows; glass over content the app does not control; emoji icons and sparkles; scroll-in animations on every section. The full list is in docs/design.md.
 - **The functional floor:** WCAG 2.2 AA contrast, full keyboard use with visible focus, ARIA Authoring Practices for menus and dialogs, 44 px touch targets, layouts that work from 360 px, a skeleton while loading, a toast after saving, and `ConfirmDialog` (never `window.confirm`) before anything destructive.
-- **Check it.** Before calling UI work done, look at it at 390 px and 1440 px and run `npm run test:visual -w @flowforge/web`. Use the `frontend-design` skill for new screens when it is available.
+- **Check it.** Before calling UI work done, look at it at 390 px and 1440 px in light and dark, and run `npm run test:visual -w @flowforge/web` (it covers both widths and both themes). Use the `frontend-design` skill for new screens when it is available.
 
 ### API conventions
 

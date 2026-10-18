@@ -118,6 +118,45 @@ the end of the relevant section.
 - **Cost:** every status everywhere must go through `StatusMark`, including in
   the mobile app.
 
+### Surfaces are frosted glass over an ambient ground
+
+- **Why:** the owner chose a translucent look for the web app and the admin
+  screens. Glass reads well only when the app controls what is behind it, so
+  every page draws a calm gradient ground and the glass sits on that, never
+  on photos or customer content. That keeps text contrast measurable.
+- **Cost:** contrast must be checked against the blended glass colour in both
+  themes, `backdrop-filter` costs some GPU time on low-end phones, and the
+  fallbacks in `glass.css` (no blur support, reduced transparency, more
+  contrast) must stay. A popular Dribbble style, so the identity relies on
+  the type, the lifecycle dot and the ink proof panel to stay our own.
+
+### Light, dark and system themes from one set of tokens
+
+- **Why:** people expect their device setting to be followed, and an admin
+  tool is used for long sessions. Semantic token names meant dark mode was a
+  second set of values, not a rewrite.
+- **Cost:** every new colour token needs a dark value checked for contrast,
+  and the dark block in `tokens.css` appears twice (media query and
+  attribute), which must stay identical. The choice lives in `localStorage`,
+  so it does not follow the person to another device.
+
+### A highlight colour for numbers, separate from the action colour
+
+- **Why:** counts and trends need to catch the eye without looking clickable.
+  Cobalt stays the only action colour.
+- **Cost:** a second accent invites overuse. It is limited to small pills and
+  chips.
+
+### Complex components come from shadcn, restyled
+
+- **Why:** menus, popovers, comboboxes and date pickers are hard to make
+  accessible. shadcn copies Radix-based source we own, and its theming uses
+  CSS variables like ours, so its names are aliases of our tokens.
+- **Cost:** each copied component must be restyled before use, and
+  `tailwind-merge` must be told every custom type size, or it drops classes.
+  Token names must not collide with shadcn's colour names (`text-input` was
+  renamed `text-control` for this reason).
+
 ### The UI package ships TypeScript source
 
 - **Why:** no build step for the UI package. Next.js compiles it, via

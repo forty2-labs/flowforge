@@ -20,6 +20,9 @@ The design rules these plans implement are in [docs/design.md](../docs/design.md
 | 007 | Make the workspace switcher an accessible menu | P2 | S | — | DONE |
 | 008 | Make the workspace shell responsive | P2 | M | 004, 007 | DONE |
 | 009 | Replace "Loading…" with skeletons | P3 | S | 003 | DONE |
+| 010 | Add light, dark and system themes | P1 | M | 003 | DONE |
+| 011 | Make translucent glass the standard surface | P1 | M | 004, 010 | DONE |
+| 012 | Set up shadcn in packages/ui, restyled to our tokens | P2 | S | 010 | DONE |
 
 Status values: TODO | IN PROGRESS | DONE | BLOCKED (with one-line reason) | REJECTED (with one-line rationale)
 
@@ -32,10 +35,13 @@ Status values: TODO | IN PROGRESS | DONE | BLOCKED (with one-line reason) | REJE
 - 008 restyles the sidebar that 004 changes, and moves the switcher that 007
   rewrites. Doing it last avoids three rounds of conflicts in `sidebar.tsx`.
 
+- 010 to 012 were added after the owner asked for a translucent look with
+  themes (see `docs/decisions.md`). 011 needs 010's dark tokens to check glass
+  contrast in both themes; 012 aliases shadcn's colour names to those tokens.
+
 ## Findings considered and rejected
 
-- Rewriting the UI on shadcn/ui or Radix: rejected. It would bring exactly the
-  stock look the brief wants to avoid, for a component set of about ten
-  pieces. Native `<dialog>` and small hand-written components cover phase 1.
-- Dark mode now: deferred. Plan 003 removes the hex values that block it; the
-  theme itself is not needed for phase 2.
+- Rewriting every component on shadcn/ui: rejected. Simple components stay
+  ours; shadcn is used, restyled, for complex interactive ones (plan 012).
+- Swapping ConfirmDialog and Toast for shadcn's Dialog and Sonner: not now.
+  Ours are tested; revisit if nested dialogs or stacked toasts are needed.
