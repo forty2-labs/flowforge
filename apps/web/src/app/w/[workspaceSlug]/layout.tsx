@@ -11,8 +11,8 @@ export default function WorkspaceLayout({
       <Suspense fallback={<SidebarFallback />}>
         <WorkspaceSidebar params={params} />
       </Suspense>
-      <main className="min-w-0 flex-1 px-4 py-8 md:px-8">
-        <div className="mx-auto flex w-full max-w-[1200px] flex-col gap-6">
+      <main className="min-w-0 flex-1 px-4 py-6 md:px-6 md:py-8 xl:px-8">
+        <div className="mx-auto flex w-full max-w-300 flex-col gap-6">
           {children}
         </div>
       </main>
@@ -32,7 +32,7 @@ function SidebarFallback() {
   return (
     <div
       aria-hidden="true"
-      className="h-16 bg-sidebar md:min-h-screen md:w-[var(--ff-sidebar-width)] md:flex-none"
+      className="h-(--ff-topbar-height) bg-sidebar md:h-screen md:w-(--ff-sidebar-width) md:flex-none"
     />
   );
 }

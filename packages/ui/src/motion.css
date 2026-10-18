@@ -66,3 +66,24 @@
     animation-name: ff-fade-in;
   }
 }
+
+/* The phone menu slides in from the left edge it is attached to. */
+@keyframes ff-drawer-in {
+  from {
+    transform: translateX(-100%);
+  }
+}
+
+.ff-drawer[open] {
+  animation: ff-drawer-in var(--ff-motion-slow) var(--ff-ease-out);
+}
+
+.ff-drawer[open]::backdrop {
+  animation: ff-fade-in var(--ff-motion-base) var(--ff-ease-out);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ff-drawer[open] {
+    animation-name: ff-fade-in;
+  }
+}
