@@ -156,6 +156,10 @@ the end of the relevant section.
   `tailwind-merge` must be told every custom type size, or it drops classes.
   Token names must not collide with shadcn's colour names (`text-input` was
   renamed `text-control` for this reason).
+- **Not done:** rebuilding simple components (buttons, fields, badges) on
+  shadcn, since ours already follow the tokens. Replacing `ConfirmDialog` and
+  `Toast` with shadcn's Dialog and Sonner, since ours are tested; revisit if
+  nested dialogs or stacked toasts are needed.
 
 ### The UI package ships TypeScript source
 
