@@ -5,6 +5,7 @@ export { Button, type ButtonProps } from './button';
 export { ConfirmDialog } from './confirm-dialog';
 export { cx } from './cx';
 export { LogoMark, Wordmark } from './logo';
+export { Skeleton } from './skeleton';
 export { StatusMark, type Status } from './status-mark';
 export { ToastProvider, useToast } from './toast';
 export { TextField, type TextFieldProps } from './text-field';

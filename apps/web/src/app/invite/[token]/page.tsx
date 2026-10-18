@@ -1,5 +1,5 @@
 import { ROLE_LABELS, type InvitationPreviewDto } from "@flowforge/types";
-import { Alert, Wordmark } from "@flowforge/ui";
+import { Alert, Skeleton, Wordmark } from "@flowforge/ui";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
@@ -14,7 +14,7 @@ export default function InvitePage({ params }: PageProps<"/invite/[token]">) {
     <main className="flex flex-1 items-center justify-center px-4 py-12">
       <div className="flex w-full max-w-[440px] flex-col gap-6 rounded-xl border border-line bg-surface p-7">
         <Wordmark />
-        <Suspense fallback={<p className="text-body text-fg-muted">Loading invitation…</p>}>
+        <Suspense fallback={<InvitationSkeleton />}>
           <Invitation params={params} />
         </Suspense>
       </div>
@@ -103,4 +103,15 @@ function Message({ title, children }: { title: string; children: React.ReactNode
 
 function article(word: string): string {
   return /^[aeiou]/i.test(word) ? "an" : "a";
+}
+
+function InvitationSkeleton() {
+  return (
+    <div role="status" aria-busy="true" className="ff-delayed flex flex-col gap-3">
+      <span className="sr-only">Loading invitation</span>
+      <Skeleton className="h-8 w-64 max-w-full" />
+      <Skeleton className="h-4 w-full" />
+      <Skeleton className="mt-3 h-11 w-full" />
+    </div>
+  );
 }

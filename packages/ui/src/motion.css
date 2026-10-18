@@ -87,3 +87,14 @@
     animation-name: ff-fade-in;
   }
 }
+
+/* Loading placeholders appear only if loading takes longer than 300 ms. */
+.ff-delayed {
+  animation: ff-fade-in var(--ff-motion-base) var(--ff-ease-out) 300ms both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ff-delayed {
+    animation: none;
+  }
+}
