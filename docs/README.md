@@ -10,6 +10,7 @@ architecture page.
 | [Architecture](architecture.md) | Which package does what, and how does a request travel through them? |
 | [Decisions](decisions.md) | Why was each significant choice made, and what does it cost? |
 | [Tooling](tooling.md) | How do npm workspaces, Turborepo, Prisma and the test setup work here? |
+| [Deployment](deployment.md) | How do I deploy to Vercel with a Supabase database, set its environment variables and run migrations? |
 
 When a new decision is made, add it to [Decisions](decisions.md) with its
 reason and its cost.
