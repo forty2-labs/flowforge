@@ -48,3 +48,21 @@
     animation-name: ff-fade-in;
   }
 }
+
+/* Toasts slide up a little from the edge they sit on. */
+@keyframes ff-toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+.ff-toast {
+  animation: ff-toast-in var(--ff-motion-base) var(--ff-ease-out);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ff-toast {
+    animation-name: ff-fade-in;
+  }
+}

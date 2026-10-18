@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist_Mono, Newsreader, Schibsted_Grotesk } from "next/font/google";
+import { ToastProvider } from "@flowforge/ui";
 import "./globals.css";
 
 // Interface chrome. Drawn for a news publisher, which suits a publishing tool.
@@ -33,7 +34,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="en"
       className={`${schibsted.variable} ${geistMono.variable} ${newsreader.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col font-sans">{children}</body>
+      <body className="min-h-full flex flex-col font-sans">
+        <ToastProvider>{children}</ToastProvider>
+      </body>
     </html>
   );
 }

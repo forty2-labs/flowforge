@@ -7,7 +7,7 @@ export default function WorkspaceLayout({
   params,
 }: LayoutProps<"/w/[workspaceSlug]">) {
   return (
-    <div className="flex min-h-screen flex-1 flex-col md:flex-row">
+    <div data-shell="workspace" className="flex min-h-screen flex-1 flex-col md:flex-row">
       <Suspense fallback={<SidebarFallback />}>
         <WorkspaceSidebar params={params} />
       </Suspense>

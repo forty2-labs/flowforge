@@ -84,9 +84,21 @@ for (const width of WIDTHS) {
     await expect(dialog).toBeHidden();
     await expect(revoke).toBeFocused();
 
+    // Copying confirms on the button.
+    await page.context().grantPermissions(["clipboard-read", "clipboard-write"]);
+    await page.getByRole("button", { name: "Copy link" }).click();
+    await expect(page.getByRole("button", { name: "Copied" })).toBeVisible();
+
     const inviteUrl = new URL((await link.textContent()) ?? "");
     await page.goto(inviteUrl.pathname);
     await page.getByRole("heading").first().waitFor();
     await check(page, width, "07-invitation");
+
+    // Revoking for real ends in a toast that names what changed.
+    await page.goto(`${base}/team`);
+    await page.getByRole("button", { name: "Revoke", exact: true }).click();
+    await page.getByRole("button", { name: "Revoke invitation" }).click();
+    await expect(page.getByRole("status").getByText("revoked.")).toBeVisible();
+    await check(page, width, "08-revoked-toast");
   });
 }

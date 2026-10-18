@@ -44,6 +44,7 @@
   --color-warning-soft: var(--ff-warning-soft);
   --color-error: var(--ff-error);
   --color-error-strong: var(--ff-error-strong);
+  --color-error-on-ink: var(--ff-error-on-ink);
   --color-error-soft: var(--ff-error-soft);
   --color-info: var(--ff-info);
   --color-info-strong: var(--ff-info-strong);

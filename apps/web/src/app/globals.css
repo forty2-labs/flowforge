@@ -12,6 +12,12 @@ body {
   color: var(--ff-text-primary);
 }
 
+/* Toasts clear the sidebar on workspace screens. The inset only applies
+   from the md breakpoint, where the toast region uses it. */
+body:has([data-shell="workspace"]) {
+  --ff-toast-inset: calc(var(--ff-sidebar-width) + 24px);
+}
+
 ::selection {
   background: var(--ff-selection);
 }

@@ -6,5 +6,6 @@ export { ConfirmDialog } from './confirm-dialog';
 export { cx } from './cx';
 export { LogoMark, Wordmark } from './logo';
 export { StatusMark, type Status } from './status-mark';
+export { ToastProvider, useToast } from './toast';
 export { TextField, type TextFieldProps } from './text-field';
 export { theme, type Theme } from './theme';

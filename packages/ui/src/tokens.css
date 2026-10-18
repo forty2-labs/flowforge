@@ -43,6 +43,7 @@
   --ff-warning-soft: #fdf1e2;
   --ff-error: #b42318;
   --ff-error-strong: #5c130c;
+  --ff-error-on-ink: #ff9a8f;
   --ff-error-soft: #fdecea;
   --ff-info: #1d5faf;
   --ff-info-strong: #17508f;
@@ -94,4 +95,6 @@
   --ff-sidebar-width: 248px;
   --ff-rail-width: 64px;
   --ff-topbar-height: 56px;
+  /* Where toasts sit on wide screens; the workspace shell moves them past the sidebar. */
+  --ff-toast-inset: 24px;
 }

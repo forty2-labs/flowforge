@@ -1,7 +1,7 @@
 "use client";
 
 import { ROLE_LABELS, type InvitationDto } from "@flowforge/types";
-import { Badge, Button, ConfirmDialog, StatusMark } from "@flowforge/ui";
+import { Badge, Button, ConfirmDialog, StatusMark, useToast } from "@flowforge/ui";
 import { useState, useTransition } from "react";
 import {
   resendInvitation,
@@ -22,6 +22,7 @@ export function InvitationRow({
   const [pending, startTransition] = useTransition();
   const [state, setState] = useState<InviteState>({});
   const [confirming, setConfirming] = useState(false);
+  const toast = useToast();
 
   return (
     <li className="flex flex-col gap-2 border-b border-line py-3 last:border-b-0">
@@ -71,7 +72,11 @@ export function InvitationRow({
         onConfirm={() => {
           setConfirming(false);
           startTransition(async () => {
-            setState(await revokeInvitation(slug, invitation.id));
+            const result = await revokeInvitation(slug, invitation.id);
+            setState(result);
+            if (!result.error) {
+              toast({ message: `Invitation to ${invitation.email} revoked.` });
+            }
           });
         }}
       >

@@ -1,7 +1,7 @@
 "use client";
 
 import { ROLE_LABELS, ROLES, type MemberDto, type Role } from "@flowforge/types";
-import { Avatar, Badge, Button, ConfirmDialog } from "@flowforge/ui";
+import { Avatar, Badge, Button, ConfirmDialog, useToast } from "@flowforge/ui";
 import { useState, useTransition } from "react";
 import { changeMemberRole, removeMember } from "@/lib/actions/team";
 
@@ -21,17 +21,20 @@ export function MemberRow({
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string>();
   const [confirming, setConfirming] = useState(false);
+  const toast = useToast();
 
   // Only an Owner can change an Owner or hand out ownership.
   const viewerIsOwner = viewerRole === "OWNER";
   const canEdit = canManage && (viewerIsOwner || member.role !== "OWNER");
   const roleOptions = ROLES.filter((role) => viewerIsOwner || role !== "OWNER");
 
-  const run = (action: () => Promise<{ error?: string }>) => {
+  // Errors stay next to the row they belong to; success is a toast.
+  const run = (action: () => Promise<{ error?: string }>, success: string) => {
     setError(undefined);
     startTransition(async () => {
       const result = await action();
       setError(result.error);
+      if (!result.error) toast({ message: success });
     });
   };
 
@@ -53,10 +56,13 @@ export function MemberRow({
             value={member.role}
             disabled={pending}
             onChange={(event) => {
-              const role = event.target.value;
-              run(() => changeMemberRole(slug, member.userId, role));
+              const role = event.target.value as Role;
+              run(
+                () => changeMemberRole(slug, member.userId, role),
+                `${member.name} is now ${ROLE_LABELS[role]}.`,
+              );
             }}
-            className="h-11 rounded-md border border-line-input md:h-9 pointer-coarse:h-11 bg-surface px-2 text-input md:text-body"
+            className="h-11 rounded-md border border-line-input bg-surface px-2 text-input md:h-9 md:text-body pointer-coarse:h-11"
           >
             {roleOptions.map((role) => (
               <option key={role} value={role}>
@@ -87,7 +93,10 @@ export function MemberRow({
         onClose={() => setConfirming(false)}
         onConfirm={() => {
           setConfirming(false);
-          run(() => removeMember(slug, member.userId, isSelf));
+          run(
+            () => removeMember(slug, member.userId, isSelf),
+            `${member.name} was removed.`,
+          );
         }}
       >
         {isSelf

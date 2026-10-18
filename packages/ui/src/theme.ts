@@ -39,6 +39,7 @@ export const theme = {
     warningSoft: '#FDF1E2',
     error: '#B42318',
     errorStrong: '#5C130C',
+    errorOnInk: '#FF9A8F',
     errorSoft: '#FDECEA',
     info: '#1D5FAF',
     infoStrong: '#17508F',
@@ -72,7 +73,7 @@ export const theme = {
     dialog: '0 24px 64px -12px rgb(14 23 38 / 0.32)',
   },
   motion: { fast: 120, base: 200, slow: 280, easeOut: [0.2, 0.8, 0.2, 1] },
-  layout: { sidebarWidth: 248, railWidth: 64, topbarHeight: 56 },
+  layout: { sidebarWidth: 248, railWidth: 64, topbarHeight: 56, toastInset: 24 },
   breakpoint: { tablet: 768, desktop: 1280 },
 } as const;
 
