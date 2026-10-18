@@ -34,6 +34,32 @@
   --ff-info: #1d5faf;
   --ff-info-soft: #e8f1fb;
 
+  /* Type scale. Interface sizes use the sans face; article sizes use the serif. */
+  --ff-text-display-size: 40px;
+  --ff-text-display-line: 48px;
+  --ff-text-display-tracking: -0.025em;
+  --ff-text-page-size: 28px;
+  --ff-text-page-line: 36px;
+  --ff-text-page-tracking: -0.015em;
+  --ff-text-section-size: 18px;
+  --ff-text-section-line: 26px;
+  --ff-text-section-tracking: -0.005em;
+  --ff-text-title-size: 15px;
+  --ff-text-title-line: 22px;
+  --ff-text-body-size: 14px;
+  --ff-text-body-line: 20px;
+  --ff-text-label-size: 13px;
+  --ff-text-label-line: 18px;
+  --ff-text-helper-size: 12px;
+  --ff-text-helper-line: 16px;
+  --ff-text-input-size: 16px;
+  --ff-text-input-line: 24px;
+  --ff-text-article-size: 19px;
+  --ff-text-article-line: 32px;
+  --ff-text-article-title-size: 26px;
+  --ff-text-article-title-line: 34px;
+  --ff-text-article-title-tracking: -0.01em;
+
   --ff-radius-sm: 4px;
   --ff-radius-md: 6px;
   --ff-radius-lg: 10px;

@@ -15,9 +15,9 @@ export default function InvitePage({ params }: PageProps<"/invite/[token]">) {
       <div className="flex w-full max-w-[440px] flex-col gap-6 rounded-xl border border-line bg-surface p-7">
         <div className="flex items-center gap-2.5">
           <LogoMark />
-          <span className="text-base font-semibold">Flowforge</span>
+          <span className="text-title">Flowforge</span>
         </div>
-        <Suspense fallback={<p className="text-sm text-fg-muted">Loading invitation…</p>}>
+        <Suspense fallback={<p className="text-body text-fg-muted">Loading invitation…</p>}>
           <Invitation params={params} />
         </Suspense>
       </div>
@@ -59,10 +59,10 @@ async function Invitation({ params }: Pick<PageProps<"/invite/[token]">, "params
   return (
     <>
       <div className="flex flex-col gap-1.5">
-        <h1 className="text-[28px] leading-9 font-semibold tracking-[-0.015em]">
+        <h1 className="text-page">
           Join {invitation.workspaceName}
         </h1>
-        <p className="text-sm text-fg-secondary">
+        <p className="text-body text-fg-secondary">
           You’ve been invited as {article(ROLE_LABELS[invitation.role])}{" "}
           <b className="font-semibold text-fg">{ROLE_LABELS[invitation.role]}</b>. The
           invitation was sent to {invitation.email}.
@@ -72,11 +72,11 @@ async function Invitation({ params }: Pick<PageProps<"/invite/[token]">, "params
         <div className="flex flex-col gap-3">
           <Link
             href={`/signup?next=${next}`}
-            className="inline-flex h-11 items-center justify-center rounded-md bg-primary px-4 text-[15px] font-medium text-white hover:bg-primary-hover hover:text-white"
+            className="inline-flex h-11 items-center justify-center rounded-md bg-primary px-4 text-title font-medium text-white hover:bg-primary-hover hover:text-white"
           >
             Create an account to accept
           </Link>
-          <p className="text-[13.5px] text-fg-secondary">
+          <p className="text-body text-fg-secondary">
             Already have one?{" "}
             <Link href={`/signin?next=${next}`} className="font-medium">
               Sign in
@@ -98,8 +98,8 @@ async function Invitation({ params }: Pick<PageProps<"/invite/[token]">, "params
 function Message({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div className="flex flex-col gap-1.5">
-      <h1 className="text-[22px] leading-8 font-semibold tracking-[-0.01em]">{title}</h1>
-      <p className="text-sm text-fg-secondary">{children}</p>
+      <h1 className="text-section">{title}</h1>
+      <p className="text-body text-fg-secondary">{children}</p>
     </div>
   );
 }

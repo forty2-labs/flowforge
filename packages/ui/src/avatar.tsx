@@ -19,7 +19,7 @@ export function Avatar({
     <span
       aria-hidden="true"
       className={cx(
-        'inline-flex h-8 w-8 flex-none items-center justify-center bg-selection text-xs font-semibold text-primary-hover',
+        'inline-flex h-8 w-8 flex-none items-center justify-center bg-selection text-helper font-semibold text-primary-hover',
         shape === 'circle' ? 'rounded-full' : 'rounded-[7px]',
         className,
       )}

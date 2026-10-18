@@ -27,7 +27,7 @@ export function Sidebar({
     >
       <Link href={base} className="flex items-center gap-2.5 px-1 py-0.5 text-white hover:text-white">
         <LogoMark />
-        <span className="text-base font-semibold tracking-[-0.01em]">Flowforge</span>
+        <span className="text-title">Flowforge</span>
       </Link>
 
       <WorkspaceSwitcher current={workspace} workspaces={session.workspaces} />
@@ -37,7 +37,7 @@ export function Sidebar({
           Overview
         </NavLink>
         <div className="flex flex-col gap-0.5">
-          <span className="px-2.5 pb-1 text-[11px] font-semibold tracking-[0.08em] text-[#6F7A8F] uppercase">
+          <span className="px-2.5 pb-1 text-helper font-medium text-[#6F7A8F]">
             Workspace
           </span>
           <NavLink href={`${base}/team`} icon={ICONS.team}>
@@ -54,17 +54,17 @@ export function Sidebar({
         <div className="flex items-center gap-2.5 px-1.5 py-1">
           <Avatar name={session.user.name} />
           <span className="flex min-w-0 flex-1 flex-col">
-            <span className="truncate text-[13.5px] font-medium text-white">
+            <span className="truncate text-label font-medium text-white">
               {session.user.name}
             </span>
-            <span className="truncate text-xs text-on-ink-muted">
+            <span className="truncate text-helper text-on-ink-muted">
               {ROLE_LABELS[workspace.role]} · {workspace.name}
             </span>
           </span>
           <form action={signOut}>
             <button
               type="submit"
-              className="rounded-md px-2 py-1.5 text-xs font-medium text-on-ink hover:bg-sidebar-active hover:text-white"
+              className="rounded-md px-2 py-1.5 text-helper font-medium text-on-ink hover:bg-sidebar-active hover:text-white"
             >
               Sign out
             </button>

@@ -37,6 +37,36 @@
   --color-info: var(--ff-info);
   --color-info-soft: var(--ff-info-soft);
 
+  --text-display: var(--ff-text-display-size);
+  --text-display--line-height: var(--ff-text-display-line);
+  --text-display--letter-spacing: var(--ff-text-display-tracking);
+  --text-display--font-weight: 600;
+  --text-page: var(--ff-text-page-size);
+  --text-page--line-height: var(--ff-text-page-line);
+  --text-page--letter-spacing: var(--ff-text-page-tracking);
+  --text-page--font-weight: 600;
+  --text-section: var(--ff-text-section-size);
+  --text-section--line-height: var(--ff-text-section-line);
+  --text-section--letter-spacing: var(--ff-text-section-tracking);
+  --text-section--font-weight: 600;
+  --text-title: var(--ff-text-title-size);
+  --text-title--line-height: var(--ff-text-title-line);
+  --text-title--font-weight: 600;
+  --text-body: var(--ff-text-body-size);
+  --text-body--line-height: var(--ff-text-body-line);
+  --text-label: var(--ff-text-label-size);
+  --text-label--line-height: var(--ff-text-label-line);
+  --text-helper: var(--ff-text-helper-size);
+  --text-helper--line-height: var(--ff-text-helper-line);
+  --text-input: var(--ff-text-input-size);
+  --text-input--line-height: var(--ff-text-input-line);
+  --text-article: var(--ff-text-article-size);
+  --text-article--line-height: var(--ff-text-article-line);
+  --text-article-title: var(--ff-text-article-title-size);
+  --text-article-title--line-height: var(--ff-text-article-title-line);
+  --text-article-title--letter-spacing: var(--ff-text-article-title-tracking);
+  --text-article-title--font-weight: 600;
+
   --radius-sm: var(--ff-radius-sm);
   --radius-md: var(--ff-radius-md);
   --radius-lg: var(--ff-radius-lg);

@@ -66,6 +66,7 @@ never appear without a label or glyph. Text on any background meets 4.5:1, or
 | `text-body` | Schibsted Grotesk | 14 / 20 | 400 | Default text |
 | `text-label` | Schibsted Grotesk | 13 / 18 | 500 | Form labels, buttons (sm) |
 | `text-helper` | Schibsted Grotesk | 12 / 16 | 400 | Hints, meta. 12 px is the floor |
+| `text-input` | Schibsted Grotesk | 16 / 24 | 400 | Text inside inputs and selects. Below 16 px, iOS Safari zooms the page on focus |
 | `text-article` | Newsreader | 19 / 32 | 400 | Published content and previews |
 | `text-article-title` | Newsreader | 26 / 34 | 600 | Content titles shown as content |
 | `font-mono` | Geist Mono | inherit | 400 | Literal machine values only: URLs, slugs, keys |

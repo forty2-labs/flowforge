@@ -2,5 +2,5 @@
 // already mounted when moving between sections, so it would not show. New
 // sections re-export this from their own loading.tsx.
 export default function Loading() {
-  return <p className="text-sm text-fg-muted">Loading…</p>;
+  return <p className="text-body text-fg-muted">Loading…</p>;
 }

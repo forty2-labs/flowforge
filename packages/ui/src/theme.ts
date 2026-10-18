@@ -28,6 +28,20 @@ export const theme = {
     info: '#1D5FAF',
     infoSoft: '#E8F1FB',
   },
+  // size / lineHeight in px, tracking in em. Article sizes use the serif face.
+  typography: {
+    display: { size: 40, lineHeight: 48, weight: 600, tracking: -0.025 },
+    page: { size: 28, lineHeight: 36, weight: 600, tracking: -0.015 },
+    section: { size: 18, lineHeight: 26, weight: 600, tracking: -0.005 },
+    title: { size: 15, lineHeight: 22, weight: 600, tracking: 0 },
+    body: { size: 14, lineHeight: 20, weight: 400, tracking: 0 },
+    label: { size: 13, lineHeight: 18, weight: 500, tracking: 0 },
+    helper: { size: 12, lineHeight: 16, weight: 400, tracking: 0 },
+    // 16 px keeps iOS Safari from zooming when a field gets focus.
+    input: { size: 16, lineHeight: 24, weight: 400, tracking: 0 },
+    article: { size: 19, lineHeight: 32, weight: 400, tracking: 0 },
+    articleTitle: { size: 26, lineHeight: 34, weight: 600, tracking: -0.01 },
+  },
   space: { 1: 4, 2: 8, 3: 12, 4: 16, 5: 20, 6: 24, 8: 32, 10: 40, 12: 48, 16: 64 },
   radius: { sm: 4, md: 6, lg: 10, xl: 14, full: 999 },
   breakpoint: { tablet: 768, desktop: 1280 },

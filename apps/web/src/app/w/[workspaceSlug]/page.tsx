@@ -19,13 +19,13 @@ export default async function OverviewPage({
         description={`Your role in ${workspace.name} is ${ROLE_LABELS[workspace.role]}.`}
       />
       <Card title="Team">
-        <p className="text-sm text-fg-secondary">
+        <p className="text-body text-fg-secondary">
           {members.length === 1
             ? "You’re the only person here so far."
             : `${members.length} people work in this workspace.`}
         </p>
         <div>
-          <Link href={`/w/${workspace.slug}/team`} className="text-sm font-medium">
+          <Link href={`/w/${workspace.slug}/team`} className="text-body font-medium">
             {can(workspace.role, "team.manage") ? "Invite your team" : "See the team"}
           </Link>
         </div>

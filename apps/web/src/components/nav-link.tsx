@@ -23,7 +23,7 @@ export function NavLink({
       href={href}
       aria-current={active ? "page" : undefined}
       className={cx(
-        "flex min-h-[34px] items-center gap-2.5 rounded-md px-2.5 text-sm hover:text-white",
+        "flex min-h-[34px] items-center gap-2.5 rounded-md px-2.5 text-body hover:text-white",
         active ? "bg-sidebar-active font-medium text-white" : "text-on-ink",
       )}
     >

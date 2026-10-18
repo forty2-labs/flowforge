@@ -26,14 +26,14 @@ export function InviteForm({ slug }: { slug: string }) {
           />
         </div>
         <div className="flex flex-col gap-1.5">
-          <label htmlFor="invite-role" className="text-[13px] font-medium">
+          <label htmlFor="invite-role" className="text-label font-medium">
             Role
           </label>
           <select
             id="invite-role"
             name="role"
             defaultValue="EDITOR"
-            className="h-[42px] rounded-lg border border-line-strong bg-surface px-3 text-[15px]"
+            className="h-[42px] rounded-lg border border-line-strong bg-surface px-3 text-input"
           >
             {ROLES.filter((role) => role !== "OWNER").map((role) => (
               <option key={role} value={role}>

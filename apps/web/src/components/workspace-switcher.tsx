@@ -47,8 +47,8 @@ export function WorkspaceSwitcher({
       >
         <Avatar name={current.name} shape="square" className="h-[30px] w-[30px]" />
         <span className="flex min-w-0 flex-1 flex-col">
-          <span className="truncate text-[13.5px] font-semibold">{current.name}</span>
-          <span className="text-xs text-on-ink-muted">{ROLE_LABELS[current.role]}</span>
+          <span className="truncate text-label font-semibold">{current.name}</span>
+          <span className="text-helper text-on-ink-muted">{ROLE_LABELS[current.role]}</span>
         </span>
         <svg
           width="16"
@@ -83,8 +83,8 @@ export function WorkspaceSwitcher({
                   >
                     <Avatar name={workspace.name} shape="square" className="h-7 w-7" />
                     <span className="flex min-w-0 flex-1 flex-col">
-                      <span className="truncate text-[13.5px] font-medium">{workspace.name}</span>
-                      <span className="text-xs text-fg-muted">{ROLE_LABELS[workspace.role]}</span>
+                      <span className="truncate text-label font-medium">{workspace.name}</span>
+                      <span className="text-helper text-fg-muted">{ROLE_LABELS[workspace.role]}</span>
                     </span>
                   </Link>
                 </li>
@@ -95,7 +95,7 @@ export function WorkspaceSwitcher({
           <Link
             href="/workspaces/new"
             onClick={() => setOpen(false)}
-            className="rounded-md px-2 py-1.5 text-[13.5px] font-medium hover:bg-sunken"
+            className="rounded-md px-2 py-1.5 text-label font-medium hover:bg-sunken"
           >
             Create workspace
           </Link>

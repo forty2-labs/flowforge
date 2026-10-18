@@ -22,7 +22,7 @@ export function Alert({
   return (
     <div
       role={tone === 'error' ? 'alert' : 'status'}
-      className={cx('rounded-lg px-3 py-2.5 text-[13.5px] leading-snug', TONES[tone], className)}
+      className={cx('rounded-lg px-3 py-2.5 text-body', TONES[tone], className)}
     >
       {children}
     </div>

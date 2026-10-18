@@ -48,11 +48,11 @@ export function MemberRow({
       <div className="flex flex-wrap items-center gap-3">
         <Avatar name={member.name} />
         <div className="flex min-w-0 flex-[1_1_160px] flex-col">
-          <span className="text-[15px] font-semibold">
+          <span className="text-title">
             {member.name}
             {isSelf && <span className="font-normal text-fg-muted"> (you)</span>}
           </span>
-          <span className="truncate text-[13px] text-fg-muted">{member.email}</span>
+          <span className="truncate text-label text-fg-muted">{member.email}</span>
         </div>
         {canEdit ? (
           <select
@@ -63,7 +63,7 @@ export function MemberRow({
               const role = event.target.value;
               run(() => changeMemberRole(slug, member.userId, role));
             }}
-            className="h-9 rounded-md border border-line-strong bg-surface px-2 text-sm"
+            className="h-9 rounded-md border border-line-strong bg-surface px-2 text-input md:text-body"
           >
             {roleOptions.map((role) => (
               <option key={role} value={role}>
@@ -83,7 +83,7 @@ export function MemberRow({
         )}
       </div>
       {error && (
-        <p role="alert" className="text-[13px] text-error">
+        <p role="alert" className="text-label text-error">
           {error}
         </p>
       )}

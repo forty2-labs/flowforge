@@ -26,8 +26,8 @@ export function InvitationRow({
     <li className="flex flex-col gap-2 border-b border-line py-3 last:border-b-0">
       <div className="flex flex-wrap items-center gap-3">
         <div className="flex min-w-0 flex-[1_1_160px] flex-col">
-          <span className="truncate text-[15px] font-semibold">{invitation.email}</span>
-          <span className="text-[13px] text-fg-muted">{expiresLabel}</span>
+          <span className="truncate text-title">{invitation.email}</span>
+          <span className="text-label text-fg-muted">{expiresLabel}</span>
         </div>
         <Badge>{ROLE_LABELS[invitation.role]}</Badge>
         <Button
@@ -56,7 +56,7 @@ export function InvitationRow({
         </Button>
       </div>
       {state.error && (
-        <p role="alert" className="text-[13px] text-error">
+        <p role="alert" className="text-label text-error">
           {state.error}
         </p>
       )}

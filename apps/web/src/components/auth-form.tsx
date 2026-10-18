@@ -22,11 +22,11 @@ export function AuthForm({ mode }: { mode: "signin" | "signup" }) {
       <div className="flex flex-col gap-1.5">
         <h1
           id="auth-heading"
-          className="text-[28px] leading-9 font-semibold tracking-[-0.015em]"
+          className="text-page"
         >
           {isSignUp ? "Create your account" : "Sign in"}
         </h1>
-        <p className="text-[14.5px] text-fg-secondary">
+        <p className="text-body text-fg-secondary">
           {isSignUp ? "Already have an account? " : "New to Flowforge? "}
           <Link href={otherHref} className="font-medium">
             {isSignUp ? "Sign in" : "Create an account"}
