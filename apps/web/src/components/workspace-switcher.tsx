@@ -1,11 +1,16 @@
 "use client";
 
 import { ROLE_LABELS, type WorkspaceDto } from "@flowforge/types";
-import { Avatar } from "@flowforge/ui";
+import { Avatar, cx } from "@flowforge/ui";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState, type KeyboardEvent } from "react";
 
+// A disclosure of navigation links (ARIA Authoring Practices): the items
+// navigate, so they stay links rather than menu items. The list opens in
+// place and pushes the navigation down rather than covering it. Opening
+// moves focus to the current workspace, arrow keys move between links, and
+// Esc closes and returns focus to the button.
 export function WorkspaceSwitcher({
   current,
   workspaces,
@@ -15,47 +20,90 @@ export function WorkspaceSwitcher({
 }) {
   const [open, setOpen] = useState(false);
   const container = useRef<HTMLDivElement>(null);
+  const trigger = useRef<HTMLButtonElement>(null);
+  const listId = useId();
   // Switching keeps you on the same section: Team stays Team.
   const section = usePathname().split("/")[3];
 
+  const links = () =>
+    Array.from(container.current?.querySelectorAll<HTMLAnchorElement>("[data-switcher-item]") ?? []);
+
+  const close = (returnFocus: boolean) => {
+    setOpen(false);
+    if (returnFocus) trigger.current?.focus();
+  };
+
   useEffect(() => {
     if (!open) return;
-    const close = (event: MouseEvent | KeyboardEvent) => {
-      if (event instanceof KeyboardEvent) {
-        if (event.key === "Escape") setOpen(false);
-      } else if (!container.current?.contains(event.target as Node)) {
-        setOpen(false);
-      }
+    const items = Array.from(
+      container.current?.querySelectorAll<HTMLAnchorElement>("[data-switcher-item]") ?? [],
+    );
+    (items.find((link) => link.getAttribute("aria-current")) ?? items[0])?.focus();
+
+    const onPointerDown = (event: PointerEvent) => {
+      if (!container.current?.contains(event.target as Node)) setOpen(false);
     };
-    document.addEventListener("mousedown", close);
-    document.addEventListener("keydown", close);
-    return () => {
-      document.removeEventListener("mousedown", close);
-      document.removeEventListener("keydown", close);
-    };
+    document.addEventListener("pointerdown", onPointerDown);
+    return () => document.removeEventListener("pointerdown", onPointerDown);
   }, [open]);
 
+  const onListKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+    const items = links();
+    const index = items.indexOf(document.activeElement as HTMLAnchorElement);
+    const move = (to: number) => {
+      event.preventDefault();
+      items[(to + items.length) % items.length]?.focus();
+    };
+    switch (event.key) {
+      case "ArrowDown":
+        return move(index + 1);
+      case "ArrowUp":
+        return move(index - 1);
+      case "Home":
+        return move(0);
+      case "End":
+        return move(items.length - 1);
+      case "Escape":
+        event.preventDefault();
+        return close(true);
+    }
+  };
+
   return (
-    <div ref={container} className="relative">
+    <div
+      ref={container}
+      // Tabbing out of the open list closes it.
+      onBlur={(event) => {
+        if (open && !container.current?.contains(event.relatedTarget as Node)) setOpen(false);
+      }}
+    >
       <button
+        ref={trigger}
         type="button"
         aria-expanded={open}
-        aria-controls="workspace-switcher-list"
+        aria-controls={open ? listId : undefined}
         aria-label={`Switch workspace. Current: ${current.name}`}
         onClick={() => setOpen((value) => !value)}
-        className="flex w-full items-center gap-2.5 rounded-lg border border-line-on-ink bg-sidebar-raised px-2.5 py-2 text-left text-white"
+        onKeyDown={(event) => {
+          if (event.key === "ArrowDown" && !open) {
+            event.preventDefault();
+            setOpen(true);
+          }
+        }}
+        className="flex w-full items-center gap-2.5 rounded-lg border border-line bg-glass-hover px-2.5 py-2 text-left text-fg hover:border-line-strong"
       >
-        <Avatar name={current.name} shape="square" className="h-[30px] w-[30px]" />
+        <Avatar name={current.name} shape="square" className="h-7.5 w-7.5" />
         <span className="flex min-w-0 flex-1 flex-col">
-          <span className="truncate text-[13.5px] font-semibold">{current.name}</span>
-          <span className="text-xs text-on-ink-muted">{ROLE_LABELS[current.role]}</span>
+          <span className="truncate text-label font-semibold">{current.name}</span>
+          <span className="text-helper text-fg-muted">{ROLE_LABELS[current.role]}</span>
         </span>
         <svg
           width="16"
           height="16"
           viewBox="0 0 24 24"
           fill="none"
-          stroke="#8B95A8"
+          stroke="currentColor"
+          className="text-fg-muted"
           strokeWidth="2"
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -67,24 +115,29 @@ export function WorkspaceSwitcher({
 
       {open && (
         <div
-          id="workspace-switcher-list"
-          className="absolute top-full right-0 left-0 z-10 mt-1.5 flex flex-col gap-0.5 rounded-lg border border-line bg-surface p-1.5 text-fg shadow-lg"
+          id={listId}
+          onKeyDown={onListKeyDown}
+          className="mt-1.5 flex flex-col gap-0.5 rounded-lg border border-line bg-raised p-1.5 text-fg"
         >
-          <ul className="flex flex-col gap-0.5">
+          <ul aria-label="Your workspaces" className="flex flex-col gap-0.5">
             {workspaces.map((workspace) => {
               const isCurrent = workspace.slug === current.slug;
               return (
                 <li key={workspace.id}>
                   <Link
+                    data-switcher-item
                     href={`/w/${workspace.slug}${section ? `/${section}` : ""}`}
                     aria-current={isCurrent ? "true" : undefined}
                     onClick={() => setOpen(false)}
-                    className={`flex items-center gap-2.5 rounded-md px-2 py-1.5 text-fg hover:bg-sunken hover:text-fg ${isCurrent ? "bg-primary-soft" : ""}`}
+                    className={cx(
+                      "flex items-center gap-2.5 rounded-md px-2 py-1.5 text-fg hover:bg-sunken hover:text-fg",
+                      isCurrent && "bg-primary-soft text-on-primary-soft",
+                    )}
                   >
                     <Avatar name={workspace.name} shape="square" className="h-7 w-7" />
                     <span className="flex min-w-0 flex-1 flex-col">
-                      <span className="truncate text-[13.5px] font-medium">{workspace.name}</span>
-                      <span className="text-xs text-fg-muted">{ROLE_LABELS[workspace.role]}</span>
+                      <span className="truncate text-label font-medium">{workspace.name}</span>
+                      <span className="text-helper text-fg-muted">{ROLE_LABELS[workspace.role]}</span>
                     </span>
                   </Link>
                 </li>
@@ -93,9 +146,10 @@ export function WorkspaceSwitcher({
           </ul>
           <div className="my-1 h-px bg-line" />
           <Link
+            data-switcher-item
             href="/workspaces/new"
             onClick={() => setOpen(false)}
-            className="rounded-md px-2 py-1.5 text-[13.5px] font-medium hover:bg-sunken"
+            className="rounded-md px-2 py-1.5 text-label font-medium hover:bg-sunken"
           >
             Create workspace
           </Link>

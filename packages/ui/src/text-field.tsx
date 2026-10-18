@@ -24,7 +24,7 @@ export function TextField({
   return (
     <div className="flex flex-col gap-1.5">
       <div className="flex items-baseline justify-between">
-        <label htmlFor={fieldId} className="text-[13px] font-medium text-fg">
+        <label htmlFor={fieldId} className="text-label font-medium text-fg">
           {label}
         </label>
         {labelAside}
@@ -34,19 +34,19 @@ export function TextField({
         aria-invalid={error ? true : undefined}
         aria-describedby={describedBy}
         className={cx(
-          'h-[42px] rounded-lg border bg-surface px-3 text-[15px] text-fg',
+          'h-11 rounded-lg border bg-surface px-3 text-control text-fg',
           'disabled:bg-sunken disabled:text-fg-muted',
-          error ? 'border-error' : 'border-line-strong',
+          error ? 'border-error' : 'border-line-input',
           className,
         )}
         {...rest}
       />
       {error ? (
-        <p id={`${fieldId}-error`} className="text-xs text-error">
+        <p id={`${fieldId}-error`} className="text-helper text-error">
           {error}
         </p>
       ) : hint ? (
-        <p id={`${fieldId}-hint`} className="text-xs text-fg-muted">
+        <p id={`${fieldId}-hint`} className="text-helper text-fg-muted">
           {hint}
         </p>
       ) : null}

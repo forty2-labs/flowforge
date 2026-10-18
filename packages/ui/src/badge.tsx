@@ -5,7 +5,7 @@ type Tone = 'neutral' | 'primary' | 'success' | 'warning' | 'error' | 'info';
 
 const TONES: Record<Tone, string> = {
   neutral: 'bg-sunken text-fg-secondary',
-  primary: 'bg-primary-soft text-primary-hover',
+  primary: 'bg-primary-soft text-on-primary-soft',
   success: 'bg-success-soft text-success',
   warning: 'bg-warning-soft text-warning',
   error: 'bg-error-soft text-error',
@@ -24,7 +24,7 @@ export function Badge({
   return (
     <span
       className={cx(
-        'inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold whitespace-nowrap',
+        'inline-flex items-center rounded-sm px-1.5 py-0.5 text-helper font-semibold whitespace-nowrap',
         TONES[tone],
         className,
       )}

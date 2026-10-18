@@ -1,3 +1,2 @@
-export function cx(...parts: Array<string | false | null | undefined>): string {
-  return parts.filter(Boolean).join(' ');
-}
+// The name used across this repo for `cn` (shadcn's name for the same helper).
+export { cn as cx } from './lib/utils';

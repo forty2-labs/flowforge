@@ -2,32 +2,13 @@
 @import "@flowforge/ui/tailwind.css";
 
 @theme inline {
-  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-schibsted), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, monospace;
   --font-serif: var(--font-newsreader), Georgia, serif;
 }
 
-body {
-  background: var(--ff-bg-app);
-  color: var(--ff-text-primary);
-}
-
-::selection {
-  background: var(--ff-selection);
-}
-
-/* 2px ring with a 2px offset, on every focusable control. */
-:focus-visible {
-  outline: 2px solid var(--ff-focus-ring);
-  outline-offset: 2px;
-}
-
-/* In the base layer so colour utilities on a link still win. */
-@layer base {
-  a {
-    color: var(--ff-action-primary);
-  }
-  a:hover {
-    color: var(--ff-action-primary-hover);
-  }
+/* Toasts clear the sidebar on workspace screens. The inset only applies
+   from the md breakpoint, where the toast region uses it. */
+body:has([data-shell="workspace"]) {
+  --ff-toast-inset: calc(var(--ff-sidebar-width) + 36px);
 }

@@ -1,7 +1,8 @@
-import { ROLE_LABELS, type SessionDto, type WorkspaceDto } from "@flowforge/types";
-import { Avatar, LogoMark } from "@flowforge/ui";
+import type { SessionDto, WorkspaceDto } from "@flowforge/types";
+import { Wordmark } from "@flowforge/ui";
 import Link from "next/link";
-import { signOut } from "@/lib/actions/auth";
+import { AccountMenu } from "./account-menu";
+import { MobileNav } from "./mobile-nav";
 import { NavLink } from "./nav-link";
 import { WorkspaceSwitcher } from "./workspace-switcher";
 
@@ -12,6 +13,9 @@ const ICONS = {
     "M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6",
 };
 
+// From the md breakpoint the navigation is a floating glass panel that stays
+// in view. Below it, a top bar opens the same navigation in a drawer, so
+// phones see the page first.
 export function Sidebar({
   session,
   workspace,
@@ -19,15 +23,35 @@ export function Sidebar({
   session: SessionDto;
   workspace: WorkspaceDto;
 }) {
+  return (
+    <>
+      <MobileNav workspace={workspace}>
+        <SidebarContent session={session} workspace={workspace} inDrawer />
+      </MobileNav>
+      <nav
+        aria-label="Main"
+        className="glass sticky top-3 m-3 mr-0 hidden h-[calc(100dvh-1.5rem)] w-(--ff-sidebar-width) flex-none overflow-y-auto rounded-xl px-3 pt-4 pb-3 md:flex md:flex-col"
+      >
+        <SidebarContent session={session} workspace={workspace} />
+      </nav>
+    </>
+  );
+}
+
+function SidebarContent({
+  session,
+  workspace,
+  inDrawer = false,
+}: {
+  session: SessionDto;
+  workspace: WorkspaceDto;
+  inDrawer?: boolean;
+}) {
   const base = `/w/${workspace.slug}`;
   return (
-    <nav
-      aria-label="Main"
-      className="flex flex-col gap-4 bg-sidebar px-3.5 pt-4 pb-5 text-on-ink md:min-h-screen md:w-[var(--ff-sidebar-width)] md:flex-none"
-    >
-      <Link href={base} className="flex items-center gap-2.5 px-1 py-0.5 text-white hover:text-white">
-        <LogoMark />
-        <span className="text-base font-semibold tracking-[-0.01em]">Flowforge</span>
+    <div className="flex flex-1 flex-col gap-4">
+      <Link href={base} className="self-start rounded-md px-1 py-0.5 text-fg hover:text-fg">
+        <Wordmark />
       </Link>
 
       <WorkspaceSwitcher current={workspace} workspaces={session.workspaces} />
@@ -37,7 +61,7 @@ export function Sidebar({
           Overview
         </NavLink>
         <div className="flex flex-col gap-0.5">
-          <span className="px-2.5 pb-1 text-[11px] font-semibold tracking-[0.08em] text-[#6F7A8F] uppercase">
+          <span className="px-2.5 pb-1 text-helper font-medium text-fg-muted">
             Workspace
           </span>
           <NavLink href={`${base}/team`} icon={ICONS.team}>
@@ -49,28 +73,10 @@ export function Sidebar({
         </div>
       </div>
 
-      <div className="mt-auto flex flex-col gap-3">
-        <div className="h-px bg-[#1E2A44]" />
-        <div className="flex items-center gap-2.5 px-1.5 py-1">
-          <Avatar name={session.user.name} />
-          <span className="flex min-w-0 flex-1 flex-col">
-            <span className="truncate text-[13.5px] font-medium text-white">
-              {session.user.name}
-            </span>
-            <span className="truncate text-xs text-on-ink-muted">
-              {ROLE_LABELS[workspace.role]} · {workspace.name}
-            </span>
-          </span>
-          <form action={signOut}>
-            <button
-              type="submit"
-              className="rounded-md px-2 py-1.5 text-xs font-medium text-on-ink hover:bg-sidebar-active hover:text-white"
-            >
-              Sign out
-            </button>
-          </form>
-        </div>
+      <div className="mt-auto flex flex-col gap-2">
+        <div className="h-px bg-line" />
+        <AccountMenu user={session.user} inline={inDrawer} />
       </div>
-    </nav>
+    </div>
   );
 }

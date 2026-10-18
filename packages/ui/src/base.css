@@ -1,0 +1,26 @@
+/* Element defaults every app built on Ink & Signal shares. */
+
+::selection {
+  background: var(--ff-selection);
+}
+
+/* 2px ring with a 2px offset, on every focusable control. */
+:focus-visible {
+  outline: 2px solid var(--ff-focus-ring);
+  outline-offset: 2px;
+}
+
+/* Cobalt is under 3:1 against ink, so focus on ink surfaces is lighter. */
+[data-surface="ink"] :focus-visible {
+  outline-color: var(--ff-focus-ring-on-ink);
+}
+
+/* In the base layer so colour utilities on a link still win. */
+@layer base {
+  a {
+    color: var(--ff-link);
+  }
+  a:hover {
+    color: var(--ff-link-hover);
+  }
+}

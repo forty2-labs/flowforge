@@ -11,16 +11,17 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const VARIANTS: Record<Variant, string> = {
-  primary: 'bg-primary text-white hover:bg-primary-hover',
-  secondary: 'border border-line-strong bg-surface text-fg hover:bg-sunken',
+  primary: 'bg-primary text-on-primary hover:bg-primary-hover',
+  secondary: 'border border-line-strong bg-raised text-fg hover:bg-sunken',
   ghost: 'text-fg-secondary hover:bg-sunken',
-  danger: 'bg-error text-white hover:brightness-90',
+  danger: 'bg-danger text-on-primary hover:brightness-110',
 };
 
+// Touch screens get 44 px targets whatever the visual size.
 const SIZES: Record<Size, string> = {
-  sm: 'h-8 px-3 text-[13px]',
-  md: 'h-9 px-3.5 text-sm',
-  lg: 'h-11 px-4 text-[15px]',
+  sm: 'h-8 px-3 text-label pointer-coarse:h-11',
+  md: 'h-9 px-3.5 text-body pointer-coarse:h-11',
+  lg: 'h-11 px-4 text-title',
 };
 
 export function Button({

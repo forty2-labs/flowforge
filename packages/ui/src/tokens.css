@@ -1,43 +1,129 @@
-/* Ink & Signal tokens. Semantic names, so themes can be added without renaming. */
+/* Ink & Signal tokens. Semantic names, so a theme changes values, never names.
+
+   Themes: light is the default. Dark applies when the person picks Dark, or
+   picks System (no data-theme) on a device set to dark. The dark block is
+   repeated because CSS cannot share one block between a media query and an
+   attribute selector; keep the two copies identical. */
 :root {
+  color-scheme: light;
+
   --ff-brand-ink: #0e1726;
   --ff-action-primary: #2f43c8;
   --ff-action-primary-hover: #2536a8;
   --ff-action-primary-soft: #eceffd;
+  --ff-on-primary-soft: #2536a8;
+  --ff-on-primary: #ffffff;
+  /* Links are text, so they need 4.5:1 where the button colour may not. */
+  --ff-link: #2f43c8;
+  --ff-link-hover: #2536a8;
+  --ff-action-danger: #b42318;
   --ff-ai-accent: #6b3bc2;
   --ff-ai-soft: #f3eefc;
+  /* Highlights draw the eye to a number or a new thing. Never an action. */
+  --ff-highlight: #d4f25a;
+  --ff-on-highlight: #0e1726;
 
-  --ff-bg-app: #f6f7f9;
+  /* The ambient ground the glass sits on. It is what makes glass visible. */
+  --ff-bg-app: #edf0ef;
+  /* Visible corner glows, mirroring dark mode. Strong enough that muted text
+     must not sit on the bare ground: use fg or fg-secondary there. */
+  --ff-ground-image:
+    radial-gradient(55% 50% at 8% 4%, rgb(47 67 200 / 0.16) 0%, transparent 70%),
+    radial-gradient(55% 55% at 94% 100%, rgb(30 138 120 / 0.16) 0%, transparent 70%);
   --ff-bg-surface: #ffffff;
-  --ff-bg-sunken: #f1f3f6;
-  --ff-bg-sidebar: #0e1726;
-  --ff-bg-sidebar-raised: #152038;
-  --ff-bg-sidebar-active: #1c2740;
-  --ff-border-default: #e3e5ea;
-  --ff-border-strong: #c9ced8;
-  --ff-border-on-ink: #24304b;
+  --ff-bg-sunken: #e9ece9;
+  --ff-bg-raised: #ffffff;
+
+  /* Frosted glass. Strong glass is for layers that float over other glass. */
+  --ff-glass: rgb(255 255 255 / 0.62);
+  --ff-glass-strong: rgb(255 255 255 / 0.86);
+  --ff-glass-solid: #f8f9fa;
+  --ff-glass-border: rgb(255 255 255 / 0.85);
+  --ff-glass-edge: rgb(14 23 38 / 0.07);
+  --ff-glass-hover: rgb(255 255 255 / 0.55);
+  --ff-glass-active: rgb(255 255 255 / 0.95);
+
+  --ff-border-default: rgb(14 23 38 / 0.09);
+  --ff-border-strong: rgb(14 23 38 / 0.18);
+  /* Input outlines need 3:1 against the surface to read as controls. */
+  --ff-border-input: #868c97;
 
   --ff-text-primary: #0e1726;
   --ff-text-secondary: #3d4757;
   --ff-text-muted: #5e6878;
-  --ff-text-on-ink: #c9cfda;
-  --ff-text-on-ink-muted: #8b95a8;
   --ff-focus-ring: #2f43c8;
   --ff-selection: #dce1fb;
 
   --ff-success: #1c7044;
+  --ff-success-strong: #1c6a41;
   --ff-success-soft: #e7f4ec;
   --ff-warning: #9a5200;
+  --ff-warning-strong: #8a4a00;
   --ff-warning-soft: #fdf1e2;
   --ff-error: #b42318;
+  --ff-error-strong: #5c130c;
   --ff-error-soft: #fdecea;
   --ff-info: #1d5faf;
+  --ff-info-strong: #17508f;
   --ff-info-soft: #e8f1fb;
 
+  --ff-shadow-menu: 0 12px 32px -8px rgb(14 23 38 / 0.18), 0 0 0 1px rgb(14 23 38 / 0.06);
+  --ff-shadow-dialog: 0 24px 64px -12px rgb(14 23 38 / 0.32);
+  --ff-backdrop: rgb(14 23 38 / 0.4);
+
+  /* The auth proof panel is ink in every theme. */
+  --ff-bg-ink-raised: #152038;
+  --ff-text-on-ink: #c9cfda;
+  --ff-text-on-ink-muted: #8b95a8;
+  --ff-text-on-ink-subtle: #7f8aa0;
+  --ff-focus-ring-on-ink: #a9b6ff;
+  --ff-success-on-ink: #6fd69c;
+  --ff-warning-on-ink: #f0b36a;
+
+  --ff-glass-blur: 24px;
+
+  /* Fixed swatches of each theme's ground, for the theme picker. */
+  --ff-swatch-light: #edf0ef;
+  --ff-swatch-dark: #0a0f18;
+
+  /* Type scale. Interface sizes use the sans face; article sizes use the serif. */
+  --ff-text-display-size: 40px;
+  --ff-text-display-line: 48px;
+  --ff-text-display-tracking: -0.025em;
+  /* Big figures on dashboard tiles. */
+  --ff-text-stat-size: 44px;
+  --ff-text-stat-line: 48px;
+  --ff-text-stat-tracking: -0.03em;
+  --ff-text-page-size: 28px;
+  --ff-text-page-line: 36px;
+  --ff-text-page-tracking: -0.015em;
+  --ff-text-section-size: 18px;
+  --ff-text-section-line: 26px;
+  --ff-text-section-tracking: -0.005em;
+  --ff-text-title-size: 15px;
+  --ff-text-title-line: 22px;
+  --ff-text-body-size: 14px;
+  --ff-text-body-line: 20px;
+  --ff-text-label-size: 13px;
+  --ff-text-label-line: 18px;
+  --ff-text-helper-size: 12px;
+  --ff-text-helper-line: 16px;
+  --ff-text-control-size: 16px;
+  --ff-text-control-line: 24px;
+  --ff-text-article-size: 19px;
+  --ff-text-article-line: 32px;
+  --ff-text-article-display-size: 40px;
+  --ff-text-article-display-line: 46px;
+  --ff-text-article-display-tracking: -0.01em;
+  --ff-text-article-title-size: 26px;
+  --ff-text-article-title-line: 34px;
+  --ff-text-article-title-tracking: -0.01em;
+
+  /* Radius follows hierarchy: controls, then panels, then floating layers. */
   --ff-radius-sm: 4px;
-  --ff-radius-md: 6px;
-  --ff-radius-lg: 10px;
-  --ff-radius-xl: 14px;
+  --ff-radius-md: 8px;
+  --ff-radius-lg: 16px;
+  --ff-radius-xl: 20px;
 
   --ff-motion-fast: 120ms;
   --ff-motion-base: 200ms;
@@ -47,4 +133,122 @@
   --ff-sidebar-width: 248px;
   --ff-rail-width: 64px;
   --ff-topbar-height: 56px;
+  /* Where toasts sit on wide screens; the workspace shell moves them past the sidebar. */
+  --ff-toast-inset: 24px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+
+    --ff-action-primary: #4559e6;
+    --ff-action-primary-hover: #3a4dd6;
+    --ff-action-primary-soft: #1f2856;
+    --ff-on-primary-soft: #c4ccff;
+    --ff-link: #a3b0ff;
+    --ff-link-hover: #c4ccff;
+    --ff-action-danger: #c8372e;
+    --ff-ai-accent: #b79af0;
+    --ff-ai-soft: #2a1f45;
+
+    --ff-bg-app: #0a0f18;
+    --ff-ground-image:
+      radial-gradient(55% 45% at 12% 6%, rgb(47 67 200 / 0.28) 0%, transparent 70%),
+      radial-gradient(50% 50% at 92% 100%, rgb(30 138 120 / 0.16) 0%, transparent 70%);
+    --ff-bg-surface: #121a29;
+    --ff-bg-sunken: #1b2436;
+    --ff-bg-raised: #1a2335;
+
+    --ff-glass: rgb(22 30 46 / 0.62);
+    --ff-glass-strong: rgb(26 35 53 / 0.9);
+    --ff-glass-solid: #151d2d;
+    --ff-glass-border: rgb(255 255 255 / 0.08);
+    --ff-glass-edge: rgb(0 0 0 / 0.35);
+    --ff-glass-hover: rgb(255 255 255 / 0.05);
+    --ff-glass-active: rgb(255 255 255 / 0.1);
+
+    --ff-border-default: rgb(255 255 255 / 0.09);
+    --ff-border-strong: rgb(255 255 255 / 0.18);
+    --ff-border-input: #6f7a93;
+
+    --ff-text-primary: #e8ecf3;
+    --ff-text-secondary: #b6bfce;
+    --ff-text-muted: #8e99ad;
+    --ff-focus-ring: #a3b0ff;
+    --ff-selection: #2a3570;
+
+    --ff-success: #5fd08f;
+    --ff-success-strong: #9be5b9;
+    --ff-success-soft: #12301f;
+    --ff-warning: #f0b36a;
+    --ff-warning-strong: #f7cf9c;
+    --ff-warning-soft: #33240f;
+    --ff-error: #ff8a80;
+    --ff-error-strong: #ffb4ac;
+    --ff-error-soft: #3a1512;
+    --ff-info: #7db3f5;
+    --ff-info-strong: #afd0fa;
+    --ff-info-soft: #10253f;
+
+    --ff-shadow-menu: 0 16px 40px -8px rgb(0 0 0 / 0.55), 0 0 0 1px rgb(255 255 255 / 0.06);
+    --ff-shadow-dialog: 0 28px 72px -12px rgb(0 0 0 / 0.65);
+    --ff-backdrop: rgb(0 0 0 / 0.55);
+  }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --ff-action-primary: #4559e6;
+  --ff-action-primary-hover: #3a4dd6;
+  --ff-action-primary-soft: #1f2856;
+  --ff-on-primary-soft: #c4ccff;
+  --ff-link: #a3b0ff;
+  --ff-link-hover: #c4ccff;
+  --ff-action-danger: #c8372e;
+  --ff-ai-accent: #b79af0;
+  --ff-ai-soft: #2a1f45;
+
+  --ff-bg-app: #0a0f18;
+  --ff-ground-image:
+    radial-gradient(55% 45% at 12% 6%, rgb(47 67 200 / 0.28) 0%, transparent 70%),
+    radial-gradient(50% 50% at 92% 100%, rgb(30 138 120 / 0.16) 0%, transparent 70%);
+  --ff-bg-surface: #121a29;
+  --ff-bg-sunken: #1b2436;
+  --ff-bg-raised: #1a2335;
+
+  --ff-glass: rgb(22 30 46 / 0.62);
+  --ff-glass-strong: rgb(26 35 53 / 0.9);
+  --ff-glass-solid: #151d2d;
+  --ff-glass-border: rgb(255 255 255 / 0.08);
+  --ff-glass-edge: rgb(0 0 0 / 0.35);
+  --ff-glass-hover: rgb(255 255 255 / 0.05);
+  --ff-glass-active: rgb(255 255 255 / 0.1);
+
+  --ff-border-default: rgb(255 255 255 / 0.09);
+  --ff-border-strong: rgb(255 255 255 / 0.18);
+  --ff-border-input: #6f7a93;
+
+  --ff-text-primary: #e8ecf3;
+  --ff-text-secondary: #b6bfce;
+  --ff-text-muted: #8e99ad;
+  --ff-focus-ring: #a3b0ff;
+  --ff-selection: #2a3570;
+
+  --ff-success: #5fd08f;
+  --ff-success-strong: #9be5b9;
+  --ff-success-soft: #12301f;
+  --ff-warning: #f0b36a;
+  --ff-warning-strong: #f7cf9c;
+  --ff-warning-soft: #33240f;
+  --ff-error: #ff8a80;
+  --ff-error-strong: #ffb4ac;
+  --ff-error-soft: #3a1512;
+  --ff-info: #7db3f5;
+  --ff-info-strong: #afd0fa;
+  --ff-info-soft: #10253f;
+
+  --ff-shadow-menu: 0 16px 40px -8px rgb(0 0 0 / 0.55), 0 0 0 1px rgb(255 255 255 / 0.06);
+  --ff-shadow-dialog: 0 28px 72px -12px rgb(0 0 0 / 0.65);
+  --ff-backdrop: rgb(0 0 0 / 0.55);
 }

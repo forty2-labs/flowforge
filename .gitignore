@@ -11,3 +11,10 @@ coverage
 .DS_Store
 npm-debug.log*
 apps/api/src/generated
+
+# Playwright output
+apps/web/test-results/
+apps/web/playwright-report/
+
+# Working plans from /improve (not committed)
+plans/

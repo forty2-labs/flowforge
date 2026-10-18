@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { InvitationRow } from "@/components/invitation-row";
 import { InviteForm } from "@/components/invite-form";
 import { MemberRow } from "@/components/member-row";
-import { Card, PageHeader } from "@/components/page-header";
+import { PageHeader, Section } from "@/components/page-header";
 import { api } from "@/lib/api";
 import { requireWorkspace } from "@/lib/session";
 
@@ -36,12 +36,12 @@ export default async function TeamPage({
       />
 
       {canManage && (
-        <Card title="Invite someone">
+        <Section title="Invite someone">
           <InviteForm slug={workspace.slug} />
-        </Card>
+        </Section>
       )}
 
-      <Card title={`Members · ${members.length}`}>
+      <Section title="Members" count={members.length} flush>
         <ul className="flex flex-col">
           {members.map((member) => (
             <MemberRow
@@ -54,10 +54,10 @@ export default async function TeamPage({
             />
           ))}
         </ul>
-      </Card>
+      </Section>
 
       {canManage && invitations.length > 0 && (
-        <Card title={`Pending invitations · ${invitations.length}`}>
+        <Section title="Pending invitations" count={invitations.length} flush>
           <ul className="flex flex-col">
             {invitations.map((invitation) => (
               <InvitationRow
@@ -68,7 +68,7 @@ export default async function TeamPage({
               />
             ))}
           </ul>
-        </Card>
+        </Section>
       )}
     </>
   );
