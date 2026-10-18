@@ -33,6 +33,11 @@ body:has([data-shell="workspace"]) {
   outline-color: var(--ff-focus-ring-on-ink);
 }
 
+/* A light panel opened from a dark surface, such as a menu in the sidebar. */
+[data-surface="ink"] [data-surface="light"] :focus-visible {
+  outline-color: var(--ff-focus-ring);
+}
+
 /* In the base layer so colour utilities on a link still win. */
 @layer base {
   a {

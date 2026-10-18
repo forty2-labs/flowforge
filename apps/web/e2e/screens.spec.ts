@@ -60,6 +60,18 @@ for (const width of WIDTHS) {
     const base = new URL(page.url()).pathname;
     await check(page, width, "04-overview");
 
+    // The workspace switcher works from the keyboard alone.
+    const switcher = page.getByRole("button", { name: /Switch workspace/ });
+    await switcher.focus();
+    await page.keyboard.press("Enter");
+    await expect(page.getByRole("link", { name: /Northstar Studio/ })).toBeFocused();
+    await page.keyboard.press("ArrowDown");
+    await expect(page.getByRole("link", { name: "Create workspace" })).toBeFocused();
+    await check(page, width, "04b-switcher-open");
+    await page.keyboard.press("Escape");
+    await expect(switcher).toBeFocused();
+    await expect(page.getByRole("link", { name: "Create workspace" })).toBeHidden();
+
     await page.goto(`${base}/settings`);
     await page.getByRole("heading", { name: "Settings" }).waitFor();
     await check(page, width, "05-settings");
