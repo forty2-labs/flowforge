@@ -2,6 +2,7 @@ export { Alert } from './alert';
 export { Avatar, initials } from './avatar';
 export { Badge } from './badge';
 export { Button, type ButtonProps } from './button';
+export { ConfirmDialog } from './confirm-dialog';
 export { cx } from './cx';
 export { LogoMark, Wordmark } from './logo';
 export { StatusMark, type Status } from './status-mark';

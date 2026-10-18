@@ -1,7 +1,7 @@
 "use client";
 
 import { ROLE_LABELS, type InvitationDto } from "@flowforge/types";
-import { Badge, Button, StatusMark } from "@flowforge/ui";
+import { Badge, Button, ConfirmDialog, StatusMark } from "@flowforge/ui";
 import { useState, useTransition } from "react";
 import {
   resendInvitation,
@@ -21,6 +21,7 @@ export function InvitationRow({
 }) {
   const [pending, startTransition] = useTransition();
   const [state, setState] = useState<InviteState>({});
+  const [confirming, setConfirming] = useState(false);
 
   return (
     <li className="flex flex-col gap-2 border-b border-line py-3 last:border-b-0">
@@ -49,11 +50,7 @@ export function InvitationRow({
           variant="ghost"
           size="sm"
           disabled={pending}
-          onClick={() =>
-            startTransition(async () => {
-              setState(await revokeInvitation(slug, invitation.id));
-            })
-          }
+          onClick={() => setConfirming(true)}
         >
           Revoke
         </Button>
@@ -66,6 +63,20 @@ export function InvitationRow({
       {state.acceptUrl && state.email && (
         <InviteLink email={state.email} url={state.acceptUrl} />
       )}
+      <ConfirmDialog
+        open={confirming}
+        title={`Revoke the invitation to ${invitation.email}?`}
+        confirmLabel="Revoke invitation"
+        onClose={() => setConfirming(false)}
+        onConfirm={() => {
+          setConfirming(false);
+          startTransition(async () => {
+            setState(await revokeInvitation(slug, invitation.id));
+          });
+        }}
+      >
+        The link stops working straight away. You can invite them again later.
+      </ConfirmDialog>
     </li>
   );
 }

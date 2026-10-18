@@ -1,7 +1,7 @@
 "use client";
 
 import { ROLE_LABELS, ROLES, type MemberDto, type Role } from "@flowforge/types";
-import { Avatar, Badge, Button } from "@flowforge/ui";
+import { Avatar, Badge, Button, ConfirmDialog } from "@flowforge/ui";
 import { useState, useTransition } from "react";
 import { changeMemberRole, removeMember } from "@/lib/actions/team";
 
@@ -20,6 +20,7 @@ export function MemberRow({
 }) {
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string>();
+  const [confirming, setConfirming] = useState(false);
 
   // Only an Owner can change an Owner or hand out ownership.
   const viewerIsOwner = viewerRole === "OWNER";
@@ -34,14 +35,6 @@ export function MemberRow({
     });
   };
 
-  const confirmRemove = () => {
-    const question = isSelf
-      ? "Leave this workspace? You’ll lose access immediately."
-      : `Remove ${member.name}? They’ll lose access immediately.`;
-    if (window.confirm(question)) {
-      run(() => removeMember(slug, member.userId, isSelf));
-    }
-  };
 
   return (
     <li className="flex flex-col gap-2 border-b border-line py-3 last:border-b-0">
@@ -77,7 +70,7 @@ export function MemberRow({
           </Badge>
         )}
         {(canEdit || isSelf) && (
-          <Button variant="ghost" size="sm" disabled={pending} onClick={confirmRemove}>
+          <Button variant="ghost" size="sm" disabled={pending} onClick={() => setConfirming(true)}>
             {isSelf ? "Leave" : "Remove"}
           </Button>
         )}
@@ -87,6 +80,20 @@ export function MemberRow({
           {error}
         </p>
       )}
+      <ConfirmDialog
+        open={confirming}
+        title={isSelf ? "Leave this workspace?" : `Remove ${member.name}?`}
+        confirmLabel={isSelf ? "Leave workspace" : "Remove member"}
+        onClose={() => setConfirming(false)}
+        onConfirm={() => {
+          setConfirming(false);
+          run(() => removeMember(slug, member.userId, isSelf));
+        }}
+      >
+        {isSelf
+          ? "You’ll lose access immediately. An Owner or Admin can invite you back."
+          : `${member.name} will lose access immediately. You can invite them again later.`}
+      </ConfirmDialog>
     </li>
   );
 }

@@ -13,6 +13,10 @@ async function check(page: Page, width: number, name: string) {
   await page.waitForLoadState("networkidle");
   // Next.js's dev badge is not part of the app.
   await page.addStyleTag({ content: "nextjs-portal { display: none !important; }" });
+  // Contrast is measured on the settled screen, not mid-fade.
+  await page.waitForFunction(() =>
+    document.getAnimations().every((animation) => animation.playState !== "running"),
+  );
   const { violations } = await new AxeBuilder({ page })
     .withTags(["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"])
     .analyze();
@@ -67,6 +71,18 @@ for (const width of WIDTHS) {
     const link = page.locator("code").first();
     await link.waitFor();
     await check(page, width, "06-team");
+
+    // Destructive actions ask first: focus starts on Cancel, Esc closes the
+    // dialog and focus goes back to the button that opened it.
+    const revoke = page.getByRole("button", { name: "Revoke", exact: true });
+    await revoke.click();
+    const dialog = page.getByRole("dialog");
+    await expect(dialog).toBeVisible();
+    await expect(dialog.getByRole("button", { name: "Cancel" })).toBeFocused();
+    await check(page, width, "06b-revoke-dialog");
+    await page.keyboard.press("Escape");
+    await expect(dialog).toBeHidden();
+    await expect(revoke).toBeFocused();
 
     const inviteUrl = new URL((await link.textContent()) ?? "");
     await page.goto(inviteUrl.pathname);

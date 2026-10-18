@@ -20,3 +20,31 @@
     animation: none;
   }
 }
+
+/* Dialogs rise slightly as they open; under reduced motion they only fade. */
+@keyframes ff-dialog-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+}
+
+@keyframes ff-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+.ff-dialog[open] {
+  animation: ff-dialog-in var(--ff-motion-slow) var(--ff-ease-out);
+}
+
+.ff-dialog[open]::backdrop {
+  animation: ff-fade-in var(--ff-motion-base) var(--ff-ease-out);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ff-dialog[open] {
+    animation-name: ff-fade-in;
+  }
+}
