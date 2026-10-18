@@ -87,6 +87,17 @@ Rules that follow from this:
 - `cacheComponents` is on, so data fetched per request must sit inside a loading boundary. Each new section under `/w/[workspaceSlug]` needs its own `loading.tsx` that re-exports the shared one (`export { default } from "../loading";`). The boundary in the workspace layout does not count when moving between sections.
 - `packages/ui` ships TypeScript source with no build step; Next.js compiles it through `transpilePackages`. Colours are CSS variables in `tokens.css`, mapped to Tailwind class names in `tailwind.css`. Adding a colour means editing both.
 
+### Interface design
+
+Read [docs/design.md](docs/design.md) before changing anything a person sees, on the web or, later, in the mobile app. The goal is an interface that is distinctive and plainly functional, and that never looks like a generic AI or SaaS template.
+
+- **Direction: Ink & Signal, sharpened.** Ink for structure, one cobalt signal for the next action, violet only for AI. Interface text is Schibsted Grotesk; anything a business publishes is shown in Newsreader. The lifecycle dot (an empty ring for draft, a filled dot for published) is the one loud element.
+- **Tokens only.** No hex values, pixel font sizes (`text-[13.5px]`) or one-off shadows in components. Use the named type sizes (`text-page`, `text-body`…). A new token goes into `tokens.css`, `tailwind.css` and `theme.ts` together.
+- **Build from `packages/ui`.** Add a missing component there instead of styling it inside a page.
+- **Not allowed:** Geist, Inter or Roboto for the interface; all-caps letter-spaced labels; arrows appended to buttons; chips chained with arrows; identical soft-shadow cards for everything; gradients, glows, emoji icons and sparkles; scroll-in animations on every section. The full list is in docs/design.md.
+- **The functional floor:** WCAG 2.2 AA contrast, full keyboard use with visible focus, ARIA Authoring Practices for menus and dialogs, 44 px touch targets, layouts that work from 360 px, a skeleton while loading, a toast after saving, and `ConfirmDialog` (never `window.confirm`) before anything destructive.
+- **Check it.** Before calling UI work done, look at it at 390 px and 1440 px and run `npm run test:visual -w @flowforge/web`. Use the `frontend-design` skill for new screens when it is available.
+
 ### API conventions
 
 - ES modules: relative imports end in `.js`.

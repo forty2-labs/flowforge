@@ -101,6 +101,23 @@ the end of the relevant section.
   names. A later theme changes values without renaming anything.
 - **Cost:** adding a colour means editing two files.
 
+### Interface type is Schibsted Grotesk; content is Newsreader
+
+- **Why:** Geist is the face every new Next.js app starts with, so it made
+  Flowforge look like a template. Schibsted Grotesk was drawn for a news
+  publisher, which suits a publishing tool. Setting published content in
+  Newsreader makes content and chrome easy to tell apart.
+- **Cost:** a departure from the design package, which specifies Geist. The
+  boards stay as they are; [design.md](design.md) records the difference.
+
+### The lifecycle dot is the one signature element
+
+- **Why:** a distinctive interface needs one memorable thing, and the
+  draft-to-published lifecycle is what Flowforge is about. The dot comes from
+  the logo, so the mark and the brand say the same thing.
+- **Cost:** every status everywhere must go through `StatusMark`, including in
+  the mobile app.
+
 ### The UI package ships TypeScript source
 
 - **Why:** no build step for the UI package. Next.js compiles it, via
