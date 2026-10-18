@@ -25,10 +25,11 @@
 
   /* The ambient ground the glass sits on. It is what makes glass visible. */
   --ff-bg-app: #edf0ef;
+  /* Visible corner glows, mirroring dark mode. Strong enough that muted text
+     must not sit on the bare ground: use fg or fg-secondary there. */
   --ff-ground-image:
-    radial-gradient(55% 45% at 12% 8%, #e1e9f1 0%, transparent 70%),
-    radial-gradient(45% 40% at 88% 4%, #e6e8f6 0%, transparent 70%),
-    radial-gradient(60% 55% at 70% 100%, #e0ede7 0%, transparent 70%);
+    radial-gradient(55% 50% at 8% 4%, rgb(47 67 200 / 0.16) 0%, transparent 70%),
+    radial-gradient(55% 55% at 94% 100%, rgb(30 138 120 / 0.16) 0%, transparent 70%);
   --ff-bg-surface: #ffffff;
   --ff-bg-sunken: #e9ece9;
   --ff-bg-raised: #ffffff;

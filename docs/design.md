@@ -49,7 +49,7 @@ If a value is missing, add a token.
 
 | Role | Class | Light | Dark | Use |
 | --- | --- | --- | --- | --- |
-| Ground | `ground` | `#EDF0EF` + soft glows | `#0A0F18` + cobalt glow | The page behind everything. What makes glass visible |
+| Ground | `ground` | `#EDF0EF` + cobalt and teal corner glows | `#0A0F18` + cobalt and teal corner glows | The page behind everything. What makes glass visible |
 | Glass | `glass` | white at 62% | `#161E2E` at 62% | Panels, the sidebar, the phone top bar |
 | Strong glass | `glass-strong` | white at 86% | `#1A2335` at 90% | Menus, dialogs, toasts: layers over other glass |
 | Surface | `bg-surface` | `#FFFFFF` | `#121A29` | Inputs and other solid controls |
@@ -85,6 +85,9 @@ Translucency is the standard surface, used with care:
 
 - **Only over the ground.** Glass sits over the ambient ground the app draws,
   so contrast is known. Never put glass text over photos or customer content.
+- **Text on the bare ground** (page titles, descriptions) uses `text-fg` or
+  `text-fg-secondary`, never `text-fg-muted`: the corner glows take muted
+  text below 4.5:1. Inside glass, muted text is fine.
 - **Two strengths.** `glass` for things on the page, `glass-strong` for things
   that float over other glass. Inputs stay solid (`bg-surface`).
 - **Solid fallbacks.** Glass turns solid when the browser cannot blur, when the
