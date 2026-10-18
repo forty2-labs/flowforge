@@ -63,7 +63,7 @@ export function MemberRow({
               const role = event.target.value;
               run(() => changeMemberRole(slug, member.userId, role));
             }}
-            className="h-9 rounded-md border border-line-strong bg-surface px-2 text-input md:text-body"
+            className="h-9 rounded-md border border-line-input bg-surface px-2 text-input md:text-body"
           >
             {roleOptions.map((role) => (
               <option key={role} value={role}>

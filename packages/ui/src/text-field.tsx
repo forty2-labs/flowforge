@@ -36,7 +36,7 @@ export function TextField({
         className={cx(
           'h-[42px] rounded-lg border bg-surface px-3 text-input text-fg',
           'disabled:bg-sunken disabled:text-fg-muted',
-          error ? 'border-error' : 'border-line-strong',
+          error ? 'border-error' : 'border-line-input',
           className,
         )}
         {...rest}

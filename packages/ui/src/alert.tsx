@@ -4,10 +4,10 @@ import { cx } from './cx';
 type Tone = 'error' | 'warning' | 'info' | 'success';
 
 const TONES: Record<Tone, string> = {
-  error: 'bg-error-soft text-[#5C130C]',
-  warning: 'bg-warning-soft text-[#8A4A00]',
-  info: 'bg-info-soft text-[#17508F]',
-  success: 'bg-success-soft text-[#1C6A41]',
+  error: 'bg-error-soft text-error-strong',
+  warning: 'bg-warning-soft text-warning-strong',
+  info: 'bg-info-soft text-info-strong',
+  success: 'bg-success-soft text-success-strong',
 };
 
 export function Alert({

@@ -15,23 +15,35 @@
   --ff-bg-sidebar-active: #1c2740;
   --ff-border-default: #e3e5ea;
   --ff-border-strong: #c9ced8;
+  /* Input outlines need 3:1 against the surface to read as controls. */
+  --ff-border-input: #868c97;
   --ff-border-on-ink: #24304b;
+  --ff-border-on-ink-subtle: #1e2a44;
 
   --ff-text-primary: #0e1726;
   --ff-text-secondary: #3d4757;
   --ff-text-muted: #5e6878;
   --ff-text-on-ink: #c9cfda;
   --ff-text-on-ink-muted: #8b95a8;
+  --ff-text-on-ink-subtle: #7f8aa0;
+  --ff-icon-on-ink: #8b95a8;
+  --ff-icon-on-ink-active: #a9b6ff;
   --ff-focus-ring: #2f43c8;
+  /* Cobalt is under 3:1 on ink, so focus on the sidebar uses this. */
+  --ff-focus-ring-on-ink: #a9b6ff;
   --ff-selection: #dce1fb;
 
   --ff-success: #1c7044;
+  --ff-success-strong: #1c6a41;
   --ff-success-soft: #e7f4ec;
   --ff-warning: #9a5200;
+  --ff-warning-strong: #8a4a00;
   --ff-warning-soft: #fdf1e2;
   --ff-error: #b42318;
+  --ff-error-strong: #5c130c;
   --ff-error-soft: #fdecea;
   --ff-info: #1d5faf;
+  --ff-info-strong: #17508f;
   --ff-info-soft: #e8f1fb;
 
   /* Type scale. Interface sizes use the sans face; article sizes use the serif. */
@@ -64,6 +76,10 @@
   --ff-radius-md: 6px;
   --ff-radius-lg: 10px;
   --ff-radius-xl: 14px;
+
+  /* Elevation: panels are flat; only floating layers cast a shadow. */
+  --ff-shadow-menu: 0 8px 24px -6px rgb(14 23 38 / 0.18), 0 0 0 1px rgb(14 23 38 / 0.06);
+  --ff-shadow-dialog: 0 24px 64px -12px rgb(14 23 38 / 0.32);
 
   --ff-motion-fast: 120ms;
   --ff-motion-base: 200ms;

@@ -19,22 +19,31 @@
   --color-sidebar-active: var(--ff-bg-sidebar-active);
   --color-line: var(--ff-border-default);
   --color-line-strong: var(--ff-border-strong);
+  --color-line-input: var(--ff-border-input);
   --color-line-on-ink: var(--ff-border-on-ink);
+  --color-line-on-ink-subtle: var(--ff-border-on-ink-subtle);
 
   --color-fg: var(--ff-text-primary);
   --color-fg-secondary: var(--ff-text-secondary);
   --color-fg-muted: var(--ff-text-muted);
   --color-on-ink: var(--ff-text-on-ink);
   --color-on-ink-muted: var(--ff-text-on-ink-muted);
+  --color-on-ink-subtle: var(--ff-text-on-ink-subtle);
+  --color-icon-on-ink: var(--ff-icon-on-ink);
+  --color-icon-on-ink-active: var(--ff-icon-on-ink-active);
   --color-selection: var(--ff-selection);
 
   --color-success: var(--ff-success);
+  --color-success-strong: var(--ff-success-strong);
   --color-success-soft: var(--ff-success-soft);
   --color-warning: var(--ff-warning);
+  --color-warning-strong: var(--ff-warning-strong);
   --color-warning-soft: var(--ff-warning-soft);
   --color-error: var(--ff-error);
+  --color-error-strong: var(--ff-error-strong);
   --color-error-soft: var(--ff-error-soft);
   --color-info: var(--ff-info);
+  --color-info-strong: var(--ff-info-strong);
   --color-info-soft: var(--ff-info-soft);
 
   --text-display: var(--ff-text-display-size);
@@ -66,6 +75,9 @@
   --text-article-title--line-height: var(--ff-text-article-title-line);
   --text-article-title--letter-spacing: var(--ff-text-article-title-tracking);
   --text-article-title--font-weight: 600;
+
+  --shadow-menu: var(--ff-shadow-menu);
+  --shadow-dialog: var(--ff-shadow-dialog);
 
   --radius-sm: var(--ff-radius-sm);
   --radius-md: var(--ff-radius-md);

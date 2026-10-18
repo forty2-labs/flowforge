@@ -8,7 +8,7 @@ export function InviteLink({ email, url }: { email: string; url: string }) {
   const [copied, setCopied] = useState(false);
   return (
     <div role="status" className="flex flex-col gap-2 rounded-lg bg-success-soft px-3 py-2.5">
-      <p className="text-body text-[#1C6A41]">
+      <p className="text-body text-success-strong">
         Invitation ready for {email}. Send them this link; it works for 7 days and
         is only shown now.
       </p>

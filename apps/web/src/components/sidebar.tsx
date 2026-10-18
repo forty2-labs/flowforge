@@ -23,6 +23,7 @@ export function Sidebar({
   return (
     <nav
       aria-label="Main"
+      data-surface="ink"
       className="flex flex-col gap-4 bg-sidebar px-3.5 pt-4 pb-5 text-on-ink md:min-h-screen md:w-[var(--ff-sidebar-width)] md:flex-none"
     >
       <Link href={base} className="flex items-center gap-2.5 px-1 py-0.5 text-white hover:text-white">
@@ -37,7 +38,7 @@ export function Sidebar({
           Overview
         </NavLink>
         <div className="flex flex-col gap-0.5">
-          <span className="px-2.5 pb-1 text-helper font-medium text-[#6F7A8F]">
+          <span className="px-2.5 pb-1 text-helper font-medium text-on-ink-subtle">
             Workspace
           </span>
           <NavLink href={`${base}/team`} icon={ICONS.team}>
@@ -50,7 +51,7 @@ export function Sidebar({
       </div>
 
       <div className="mt-auto flex flex-col gap-3">
-        <div className="h-px bg-[#1E2A44]" />
+        <div className="h-px bg-line-on-ink-subtle" />
         <div className="flex items-center gap-2.5 px-1.5 py-1">
           <Avatar name={session.user.name} />
           <span className="flex min-w-0 flex-1 flex-col">

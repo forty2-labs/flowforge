@@ -33,7 +33,7 @@ export function InviteForm({ slug }: { slug: string }) {
             id="invite-role"
             name="role"
             defaultValue="EDITOR"
-            className="h-[42px] rounded-lg border border-line-strong bg-surface px-3 text-input"
+            className="h-[42px] rounded-lg border border-line-input bg-surface px-3 text-input"
           >
             {ROLES.filter((role) => role !== "OWNER").map((role) => (
               <option key={role} value={role}>

@@ -55,7 +55,8 @@ export function WorkspaceSwitcher({
           height="16"
           viewBox="0 0 24 24"
           fill="none"
-          stroke="#8B95A8"
+          stroke="currentColor"
+          className="text-icon-on-ink"
           strokeWidth="2"
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -68,7 +69,7 @@ export function WorkspaceSwitcher({
       {open && (
         <div
           id="workspace-switcher-list"
-          className="absolute top-full right-0 left-0 z-10 mt-1.5 flex flex-col gap-0.5 rounded-lg border border-line bg-surface p-1.5 text-fg shadow-lg"
+          className="absolute top-full right-0 left-0 z-10 mt-1.5 flex flex-col gap-0.5 rounded-lg border border-line bg-surface p-1.5 text-fg shadow-menu"
         >
           <ul className="flex flex-col gap-0.5">
             {workspaces.map((workspace) => {

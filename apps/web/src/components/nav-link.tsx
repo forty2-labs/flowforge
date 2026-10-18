@@ -32,7 +32,8 @@ export function NavLink({
         height="18"
         viewBox="0 0 24 24"
         fill="none"
-        stroke={active ? "#A9B6FF" : "#8B95A8"}
+        stroke="currentColor"
+        className={active ? "text-icon-on-ink-active" : "text-icon-on-ink"}
         strokeWidth="1.8"
         strokeLinecap="round"
         strokeLinejoin="round"

@@ -22,6 +22,11 @@ body {
   outline-offset: 2px;
 }
 
+/* Cobalt is under 3:1 against ink, so focus on dark surfaces is lighter. */
+[data-surface="ink"] :focus-visible {
+  outline-color: var(--ff-focus-ring-on-ink);
+}
+
 /* In the base layer so colour utilities on a link still win. */
 @layer base {
   a {
