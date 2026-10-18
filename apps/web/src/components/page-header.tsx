@@ -17,9 +17,9 @@ export function PageHeader({
   );
 }
 
-// A titled part of a page. The heading sits above the panel, so the panel
-// holds only the things you act on. A count is its own element, not part of
-// the title text.
+// A titled part of a page. The heading sits above a glass panel, so the panel
+// holds only the things you act on. A count is a highlight pill, its own
+// element rather than part of the title text.
 export function Section({
   title,
   count,
@@ -34,10 +34,10 @@ export function Section({
 }) {
   return (
     <section className="flex flex-col gap-3">
-      <h2 className="flex items-baseline gap-2 text-section">
+      <h2 className="flex items-center gap-2 text-section">
         {title}
         {count !== undefined && (
-          <span className="text-body font-medium text-fg-muted tabular-nums">
+          <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-highlight px-1.5 text-helper font-semibold text-on-highlight tabular-nums">
             {count}
           </span>
         )}
@@ -45,8 +45,8 @@ export function Section({
       <div
         className={
           flush
-            ? "rounded-lg border border-line bg-surface px-5"
-            : "flex flex-col gap-4 rounded-lg border border-line bg-surface p-5"
+            ? "glass rounded-lg px-5"
+            : "glass flex flex-col gap-4 rounded-lg p-5"
         }
       >
         {children}

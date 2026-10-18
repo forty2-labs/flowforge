@@ -10,7 +10,7 @@ export const metadata: Metadata = { title: "Create workspace" };
 export default function NewWorkspacePage() {
   return (
     <main className="flex flex-1 items-center justify-center px-4 py-12">
-      <div className="flex w-full max-w-[440px] flex-col gap-6 rounded-xl border border-line bg-surface p-7">
+      <div className="flex w-full max-w-[440px] flex-col gap-6 glass rounded-xl p-7">
         <Wordmark />
         <div className="flex flex-col gap-1.5">
           <h1 className="text-page">

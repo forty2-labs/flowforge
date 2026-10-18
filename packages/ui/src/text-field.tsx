@@ -34,7 +34,7 @@ export function TextField({
         aria-invalid={error ? true : undefined}
         aria-describedby={describedBy}
         className={cx(
-          'h-11 rounded-lg border bg-surface px-3 text-input text-fg',
+          'h-11 rounded-lg border bg-surface px-3 text-control text-fg',
           'disabled:bg-sunken disabled:text-fg-muted',
           error ? 'border-error' : 'border-line-input',
           className,

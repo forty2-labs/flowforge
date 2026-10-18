@@ -32,7 +32,7 @@ function SidebarFallback() {
   return (
     <div
       aria-hidden="true"
-      className="h-(--ff-topbar-height) bg-sidebar md:h-screen md:w-(--ff-sidebar-width) md:flex-none"
+      className="glass h-(--ff-topbar-height) md:m-3 md:mr-0 md:h-[calc(100dvh-1.5rem)] md:w-(--ff-sidebar-width) md:flex-none md:rounded-xl"
     />
   );
 }

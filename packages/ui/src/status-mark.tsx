@@ -10,7 +10,7 @@ const STATUSES: Record<Status, { label: string; tone: string; toneOnInk: string 
   published: { label: 'Published', tone: 'text-success', toneOnInk: 'text-success-on-ink' },
   changed: { label: 'Unpublished changes', tone: 'text-warning', toneOnInk: 'text-warning-on-ink' },
   archived: { label: 'Archived', tone: 'text-fg-muted', toneOnInk: 'text-on-ink-muted' },
-  pending: { label: 'Pending', tone: 'text-info', toneOnInk: 'text-icon-on-ink-active' },
+  pending: { label: 'Pending', tone: 'text-info', toneOnInk: 'text-on-ink' },
   expired: { label: 'Expired', tone: 'text-fg-muted', toneOnInk: 'text-on-ink-muted' },
 };
 

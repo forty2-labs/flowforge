@@ -33,17 +33,14 @@ export function MobileNav({
   }, [open]);
 
   return (
-    <div
-      data-surface="ink"
-      className="sticky top-0 z-30 flex h-(--ff-topbar-height) items-center gap-3 bg-sidebar px-2 text-white md:hidden"
-    >
+    <div className="glass sticky top-0 z-30 flex h-(--ff-topbar-height) items-center gap-3 border-x-0 border-t-0 px-2 text-fg md:hidden">
       <button
         type="button"
         aria-label="Menu"
         aria-expanded={open}
         aria-controls={drawerId}
         onClick={() => setOpen(true)}
-        className="inline-flex h-11 w-11 flex-none items-center justify-center rounded-md text-on-ink hover:bg-sidebar-active hover:text-white"
+        className="inline-flex h-11 w-11 flex-none items-center justify-center rounded-md text-fg-secondary hover:bg-glass-hover hover:text-fg"
       >
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
           <path d="M4 7h16M4 12h16M4 17h10" />
@@ -51,7 +48,7 @@ export function MobileNav({
       </button>
       <Link
         href={`/w/${workspace.slug}`}
-        className="flex min-w-0 items-center gap-2.5 rounded-md py-1 text-white hover:text-white"
+        className="flex min-w-0 items-center gap-2.5 rounded-md py-1 text-fg hover:text-fg"
       >
         <LogoMark size={26} />
         <span className="truncate text-title">{workspace.name}</span>
@@ -65,14 +62,14 @@ export function MobileNav({
         onClick={(event) => {
           if (event.target === event.currentTarget) setOpen(false);
         }}
-        className="ff-drawer m-0 h-dvh max-h-none w-[min(20rem,85vw)] max-w-none bg-sidebar p-0 text-on-ink backdrop:bg-ink/45"
+        className="ff-drawer glass-strong m-0 h-dvh max-h-none w-[min(20rem,85vw)] max-w-none rounded-r-xl border-l-0 p-0 text-fg backdrop:bg-backdrop"
       >
-        <div data-surface="ink" className="flex min-h-full flex-col px-3.5 pt-3 pb-5">
+        <div className="flex min-h-full flex-col px-3 pt-3 pb-3">
           <button
             type="button"
             aria-label="Close menu"
             onClick={() => setOpen(false)}
-            className="mb-1 inline-flex h-11 w-11 items-center justify-center self-end rounded-md text-on-ink hover:bg-sidebar-active hover:text-white"
+            className="mb-1 inline-flex h-11 w-11 items-center justify-center self-end rounded-md text-fg-secondary hover:bg-glass-hover hover:text-fg"
           >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
               <path d="M6 6l12 12M18 6L6 18" />

@@ -62,7 +62,7 @@ export function MemberRow({
                 `${member.name} is now ${ROLE_LABELS[role]}.`,
               );
             }}
-            className="h-11 rounded-md border border-line-input bg-surface px-2 text-input md:h-9 md:text-body pointer-coarse:h-11"
+            className="h-11 rounded-md border border-line-input bg-surface px-2 text-control md:h-9 md:text-body pointer-coarse:h-11"
           >
             {roleOptions.map((role) => (
               <option key={role} value={role}>

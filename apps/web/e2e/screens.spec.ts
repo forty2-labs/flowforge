@@ -1,13 +1,15 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
 
-// One walkthrough per width: sign up, create a workspace, visit every
-// section, invite someone and open the link. Each screen is checked for
-// serious accessibility violations and sideways scrolling, then saved to
-// test-results/screens/<width>/ for a person to look at.
+// One walkthrough per width and theme: sign up, create a workspace, visit
+// every section, invite someone and open the link. Each screen is checked
+// for serious accessibility violations and sideways scrolling, then saved to
+// test-results/screens/<theme>/<width>/ for a person to look at. The theme
+// comes from the device setting, which is what "System" follows.
 const WIDTHS = [390, 1440];
+const THEMES = ["light", "dark"] as const;
 
-async function check(page: Page, width: number, name: string) {
+async function check(page: Page, dir: string, name: string) {
   // Streamed sections render after the loading boundary, so wait for the title.
   await page.locator("h1").first().waitFor();
   await page.waitForLoadState("networkidle");
@@ -31,34 +33,36 @@ async function check(page: Page, width: number, name: string) {
   expect(overflow, `${name}: sideways scroll`).toBeLessThanOrEqual(0);
 
   await page.screenshot({
-    path: `test-results/screens/${width}/${name}.png`,
+    path: `test-results/screens/${dir}/${name}.png`,
     fullPage: true,
   });
 }
 
-for (const width of WIDTHS) {
-  test(`screens at ${width}px`, async ({ page }) => {
+for (const theme of THEMES) for (const width of WIDTHS) {
+  test(`screens at ${width}px in ${theme}`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 });
-    const stamp = `${Date.now()}-${width}`;
+    await page.emulateMedia({ colorScheme: theme });
+    const dir = `${theme}/${width}`;
+    const stamp = `${Date.now()}-${theme}-${width}`;
 
     await page.goto("/signin");
-    await check(page, width, "01-signin");
+    await check(page, dir, "01-signin");
 
     await page.goto("/signup");
-    await check(page, width, "02-signup");
+    await check(page, dir, "02-signup");
     await page.getByLabel("Your name").fill("Maya Ortiz");
     await page.getByLabel("Work email").fill(`visual+${stamp}@example.com`);
     await page.getByLabel("Password").fill("northstar2026");
     await page.getByRole("button", { name: "Create account" }).click();
 
     await page.waitForURL("**/workspaces/new");
-    await check(page, width, "03-new-workspace");
+    await check(page, dir, "03-new-workspace");
     await page.getByLabel("Workspace name").fill("Northstar Studio");
     await page.getByRole("button", { name: "Create workspace" }).click();
 
     await page.waitForURL(/\/w\/[^/]+$/);
     const base = new URL(page.url()).pathname;
-    await check(page, width, "04-overview");
+    await check(page, dir, "04-overview");
 
     // On phones the navigation sits in a drawer behind the menu button.
     const phone = width < 768;
@@ -66,7 +70,7 @@ for (const width of WIDTHS) {
     if (phone) {
       await menu.click();
       await expect(page.getByRole("dialog", { name: "Menu" })).toBeVisible();
-      await check(page, width, "04a-menu-open");
+      await check(page, dir, "04a-menu-open");
     }
 
     // The workspace switcher works from the keyboard alone.
@@ -78,7 +82,7 @@ for (const width of WIDTHS) {
     ).toBeFocused();
     await page.keyboard.press("ArrowDown");
     await expect(page.getByRole("link", { name: "Create workspace" })).toBeFocused();
-    await check(page, width, "04b-switcher-open");
+    await check(page, dir, "04b-switcher-open");
     await page.keyboard.press("Escape");
     await expect(switcher).toBeFocused();
     await expect(page.getByRole("link", { name: "Create workspace" })).toBeHidden();
@@ -88,11 +92,25 @@ for (const width of WIDTHS) {
       await page.keyboard.press("Escape");
       await expect(page.getByRole("dialog", { name: "Menu" })).toBeHidden();
       await expect(menu).toBeFocused();
+    } else {
+      // Choosing a theme in the account menu overrides the device setting
+      // and survives a reload; System hands control back to the device.
+      const other = theme === "light" ? "Dark" : "Light";
+      await page.getByRole("button", { name: /^Account:/ }).click();
+      await check(page, dir, "04c-account-menu");
+      await page.getByRole("menuitemradio", { name: other }).click();
+      await expect(page.locator("html")).toHaveAttribute("data-theme", other.toLowerCase());
+      await page.reload();
+      await expect(page.locator("html")).toHaveAttribute("data-theme", other.toLowerCase());
+      await check(page, dir, "04d-other-theme");
+      await page.getByRole("button", { name: /^Account:/ }).click();
+      await page.getByRole("menuitemradio", { name: "System" }).click();
+      await expect(page.locator("html")).not.toHaveAttribute("data-theme");
     }
 
     await page.goto(`${base}/settings`);
     await page.getByRole("heading", { name: "Settings" }).waitFor();
-    await check(page, width, "05-settings");
+    await check(page, dir, "05-settings");
 
     await page.goto(`${base}/team`);
     await page.getByRole("heading", { name: "Team" }).waitFor();
@@ -100,7 +118,7 @@ for (const width of WIDTHS) {
     await page.getByRole("button", { name: "Invite", exact: true }).click();
     const link = page.locator("code").first();
     await link.waitFor();
-    await check(page, width, "06-team");
+    await check(page, dir, "06-team");
 
     // Destructive actions ask first: focus starts on Cancel, Esc closes the
     // dialog and focus goes back to the button that opened it.
@@ -109,7 +127,7 @@ for (const width of WIDTHS) {
     const dialog = page.getByRole("dialog");
     await expect(dialog).toBeVisible();
     await expect(dialog.getByRole("button", { name: "Cancel" })).toBeFocused();
-    await check(page, width, "06b-revoke-dialog");
+    await check(page, dir, "06b-revoke-dialog");
     await page.keyboard.press("Escape");
     await expect(dialog).toBeHidden();
     await expect(revoke).toBeFocused();
@@ -122,13 +140,13 @@ for (const width of WIDTHS) {
     const inviteUrl = new URL((await link.textContent()) ?? "");
     await page.goto(inviteUrl.pathname);
     await page.getByRole("heading").first().waitFor();
-    await check(page, width, "07-invitation");
+    await check(page, dir, "07-invitation");
 
     // Revoking for real ends in a toast that names what changed.
     await page.goto(`${base}/team`);
     await page.getByRole("button", { name: "Revoke", exact: true }).click();
     await page.getByRole("button", { name: "Revoke invitation" }).click();
     await expect(page.getByRole("status").getByText("revoked.")).toBeVisible();
-    await check(page, width, "08-revoked-toast");
+    await check(page, dir, "08-revoked-toast");
   });
 }

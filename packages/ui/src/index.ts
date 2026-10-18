@@ -4,6 +4,17 @@ export { Badge } from './badge';
 export { Button, type ButtonProps } from './button';
 export { ConfirmDialog } from './confirm-dialog';
 export { cx } from './cx';
+export { cn } from './lib/utils';
+export {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from './components/dropdown-menu';
 export { LogoMark, Wordmark } from './logo';
 export { Skeleton } from './skeleton';
 export { StatusMark, type Status } from './status-mark';

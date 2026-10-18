@@ -1,0 +1,55 @@
+/* Translucent surfaces. Glass only works over the ambient ground, which the
+   app controls, so text contrast can be checked in every theme.
+
+   glass         panels, the sidebar, the phone top bar
+   glass-strong  layers that float over other glass: menus, dialogs, toasts
+
+   Glass turns solid when blur is unsupported, when the person asks for less
+   transparency, or when they ask for more contrast. */
+@utility glass {
+  background-color: var(--ff-glass);
+  border: 1px solid var(--ff-glass-border);
+  box-shadow: 0 0 0 1px var(--ff-glass-edge);
+  -webkit-backdrop-filter: blur(var(--ff-glass-blur)) saturate(1.4);
+  backdrop-filter: blur(var(--ff-glass-blur)) saturate(1.4);
+}
+
+@utility glass-strong {
+  background-color: var(--ff-glass-strong);
+  border: 1px solid var(--ff-glass-border);
+  -webkit-backdrop-filter: blur(var(--ff-glass-blur)) saturate(1.4);
+  backdrop-filter: blur(var(--ff-glass-blur)) saturate(1.4);
+}
+
+/* The page ground: a calm gradient that gives the glass something to frost. */
+@utility ground {
+  background-color: var(--ff-bg-app);
+  background-image: var(--ff-ground-image);
+  background-attachment: fixed;
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .glass,
+  .glass-strong {
+    background-color: var(--ff-glass-solid);
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .glass,
+  .glass-strong {
+    background-color: var(--ff-glass-solid);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+
+@media (prefers-contrast: more) {
+  .glass,
+  .glass-strong {
+    background-color: var(--ff-glass-solid);
+    border-color: var(--ff-border-strong);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}

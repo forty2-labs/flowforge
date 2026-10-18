@@ -14,7 +14,7 @@ export default function Loading() {
       </div>
       <div className="flex flex-col gap-3">
         <Skeleton className="h-6 w-32" />
-        <div className="rounded-lg border border-line bg-surface px-5">
+        <div className="glass rounded-lg px-5">
           {[0, 1, 2].map((row) => (
             <div
               key={row}

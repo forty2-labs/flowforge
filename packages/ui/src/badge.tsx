@@ -5,7 +5,7 @@ type Tone = 'neutral' | 'primary' | 'success' | 'warning' | 'error' | 'info';
 
 const TONES: Record<Tone, string> = {
   neutral: 'bg-sunken text-fg-secondary',
-  primary: 'bg-primary-soft text-primary-hover',
+  primary: 'bg-primary-soft text-on-primary-soft',
   success: 'bg-success-soft text-success',
   warning: 'bg-warning-soft text-warning',
   error: 'bg-error-soft text-error',

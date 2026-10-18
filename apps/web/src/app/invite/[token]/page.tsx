@@ -12,7 +12,7 @@ export const metadata: Metadata = { title: "Invitation" };
 export default function InvitePage({ params }: PageProps<"/invite/[token]">) {
   return (
     <main className="flex flex-1 items-center justify-center px-4 py-12">
-      <div className="flex w-full max-w-[440px] flex-col gap-6 rounded-xl border border-line bg-surface p-7">
+      <div className="flex w-full max-w-[440px] flex-col gap-6 glass rounded-xl p-7">
         <Wordmark />
         <Suspense fallback={<InvitationSkeleton />}>
           <Invitation params={params} />

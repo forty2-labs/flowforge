@@ -98,3 +98,21 @@
     animation: none;
   }
 }
+
+/* Menus open from their trigger. */
+@keyframes ff-menu-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.98);
+  }
+}
+
+.ff-menu[data-state="open"] {
+  animation: ff-menu-in var(--ff-motion-base) var(--ff-ease-out);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ff-menu[data-state="open"] {
+    animation-name: ff-fade-in;
+  }
+}

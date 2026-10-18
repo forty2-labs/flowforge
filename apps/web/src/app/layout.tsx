@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist_Mono, Newsreader, Schibsted_Grotesk } from "next/font/google";
 import { ToastProvider } from "@flowforge/ui";
+import { THEME_SCRIPT } from "@/lib/theme-script";
 import "./globals.css";
 
 // Interface chrome. Drawn for a news publisher, which suits a publishing tool.
@@ -33,8 +34,13 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html
       lang="en"
       className={`${schibsted.variable} ${geistMono.variable} ${newsreader.variable} h-full antialiased`}
+      // The theme script sets data-theme before React hydrates.
+      suppressHydrationWarning
     >
-      <body className="min-h-full flex flex-col font-sans">
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
+      </head>
+      <body className="ground min-h-full flex flex-col font-sans text-fg">
         <ToastProvider>{children}</ToastProvider>
       </body>
     </html>

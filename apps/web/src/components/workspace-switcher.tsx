@@ -90,12 +90,12 @@ export function WorkspaceSwitcher({
             setOpen(true);
           }
         }}
-        className="flex w-full items-center gap-2.5 rounded-lg border border-line-on-ink bg-sidebar-raised px-2.5 py-2 text-left text-white hover:border-icon-on-ink"
+        className="flex w-full items-center gap-2.5 rounded-lg border border-line bg-glass-hover px-2.5 py-2 text-left text-fg hover:border-line-strong"
       >
         <Avatar name={current.name} shape="square" className="h-7.5 w-7.5" />
         <span className="flex min-w-0 flex-1 flex-col">
           <span className="truncate text-label font-semibold">{current.name}</span>
-          <span className="text-helper text-on-ink-muted">{ROLE_LABELS[current.role]}</span>
+          <span className="text-helper text-fg-muted">{ROLE_LABELS[current.role]}</span>
         </span>
         <svg
           width="16"
@@ -103,7 +103,7 @@ export function WorkspaceSwitcher({
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
-          className="text-icon-on-ink"
+          className="text-fg-muted"
           strokeWidth="2"
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -116,9 +116,8 @@ export function WorkspaceSwitcher({
       {open && (
         <div
           id={listId}
-          data-surface="light"
           onKeyDown={onListKeyDown}
-          className="mt-1.5 flex flex-col gap-0.5 rounded-lg bg-surface p-1.5 text-fg shadow-menu"
+          className="mt-1.5 flex flex-col gap-0.5 rounded-lg border border-line bg-raised p-1.5 text-fg"
         >
           <ul aria-label="Your workspaces" className="flex flex-col gap-0.5">
             {workspaces.map((workspace) => {
@@ -132,7 +131,7 @@ export function WorkspaceSwitcher({
                     onClick={() => setOpen(false)}
                     className={cx(
                       "flex items-center gap-2.5 rounded-md px-2 py-1.5 text-fg hover:bg-sunken hover:text-fg",
-                      isCurrent && "bg-primary-soft",
+                      isCurrent && "bg-primary-soft text-on-primary-soft",
                     )}
                   >
                     <Avatar name={workspace.name} shape="square" className="h-7 w-7" />

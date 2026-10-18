@@ -23,8 +23,11 @@ export function NavLink({
       href={href}
       aria-current={active ? "page" : undefined}
       className={cx(
-        "flex min-h-[34px] items-center gap-2.5 rounded-md px-2.5 text-body hover:text-white",
-        active ? "bg-sidebar-active font-medium text-white" : "text-on-ink",
+        "flex min-h-9 items-center gap-2.5 rounded-md px-2.5 text-body pointer-coarse:min-h-11",
+        // The active section is a solid pill on the glass.
+        active
+          ? "bg-glass-active font-medium text-fg shadow-[0_1px_2px_rgb(14_23_38/0.06)]"
+          : "text-fg-secondary hover:bg-glass-hover hover:text-fg",
       )}
     >
       <svg
@@ -33,7 +36,7 @@ export function NavLink({
         viewBox="0 0 24 24"
         fill="none"
         stroke="currentColor"
-        className={active ? "text-icon-on-ink-active" : "text-icon-on-ink"}
+        className={active ? "text-primary" : "text-fg-muted"}
         strokeWidth="1.8"
         strokeLinecap="round"
         strokeLinejoin="round"

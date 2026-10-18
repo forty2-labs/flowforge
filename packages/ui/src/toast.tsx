@@ -70,9 +70,9 @@ export function ToastProvider({ children }: { children: ReactNode }) {
 }
 
 const GLYPH_TONE: Record<Tone, string> = {
-  success: 'text-success-on-ink',
-  error: 'text-error-on-ink',
-  info: 'text-icon-on-ink-active',
+  success: 'text-success',
+  error: 'text-error',
+  info: 'text-info',
 };
 
 function Toast({ toast, onDismiss }: { toast: ToastItem; onDismiss: (id: number) => void }) {
@@ -86,12 +86,11 @@ function Toast({ toast, onDismiss }: { toast: ToastItem; onDismiss: (id: number)
 
   return (
     <div
-      data-surface="ink"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
       onFocus={() => setPaused(true)}
       onBlur={() => setPaused(false)}
-      className="ff-toast pointer-events-auto flex w-full max-w-100 items-center gap-3 rounded-lg bg-ink py-2.5 pr-2 pl-4 text-body text-white shadow-menu"
+      className="ff-toast glass-strong pointer-events-auto flex w-full max-w-100 items-center gap-3 rounded-lg py-2.5 pr-2 pl-4 text-body text-fg shadow-menu"
     >
       {/* The lifecycle dot: done is filled, a problem is an open ring. */}
       <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true" className={cx('flex-none', GLYPH_TONE[toast.tone])}>
@@ -106,7 +105,7 @@ function Toast({ toast, onDismiss }: { toast: ToastItem; onDismiss: (id: number)
         type="button"
         aria-label="Dismiss"
         onClick={() => onDismiss(toast.id)}
-        className="inline-flex h-8 w-8 flex-none items-center justify-center rounded-md text-on-ink-muted hover:bg-sidebar-active hover:text-white pointer-coarse:h-11 pointer-coarse:w-11"
+        className="inline-flex h-8 w-8 flex-none items-center justify-center rounded-md text-fg-muted hover:bg-glass-hover hover:text-fg pointer-coarse:h-11 pointer-coarse:w-11"
       >
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
           <path d="M6 6l12 12M18 6L6 18" />

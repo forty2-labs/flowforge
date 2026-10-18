@@ -42,7 +42,7 @@ export function ConfirmDialog({
       onClick={(event) => {
         if (event.target === event.currentTarget) onClose();
       }}
-      className="ff-dialog m-auto w-[calc(100%-2rem)] max-w-110 rounded-xl bg-surface p-0 text-fg shadow-dialog backdrop:bg-ink/45"
+      className="ff-dialog m-auto w-[calc(100%-2rem)] max-w-110 glass-strong rounded-xl p-0 text-fg shadow-dialog backdrop:bg-backdrop"
     >
       <div className="flex flex-col gap-6 p-6">
         <div className="flex flex-col gap-2">

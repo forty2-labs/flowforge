@@ -1,28 +1,51 @@
 /* Maps Ink & Signal tokens onto Tailwind theme keys. Import after "tailwindcss". */
 @import "./tokens.css";
 @import "./motion.css";
+@import "./glass.css";
+@import "./base.css";
 
 @source "./";
 
+/* `dark:` matches the resolved theme: an explicit Dark choice, or System on a
+   device set to dark. Prefer tokens; this exists for copied shadcn code. */
+@custom-variant dark {
+  &:where([data-theme="dark"], [data-theme="dark"] *) {
+    @slot;
+  }
+  @media (prefers-color-scheme: dark) {
+    &:where(:root:not([data-theme="light"]), :root:not([data-theme="light"]) *) {
+      @slot;
+    }
+  }
+}
+
 @theme inline {
   --color-ink: var(--ff-brand-ink);
+  --color-ink-raised: var(--ff-bg-ink-raised);
   --color-primary: var(--ff-action-primary);
   --color-primary-hover: var(--ff-action-primary-hover);
   --color-primary-soft: var(--ff-action-primary-soft);
+  --color-on-primary: var(--ff-on-primary);
+  --color-on-primary-soft: var(--ff-on-primary-soft);
+  --color-link: var(--ff-link);
+  --color-backdrop: var(--ff-backdrop);
+  --color-danger: var(--ff-action-danger);
   --color-ai: var(--ff-ai-accent);
   --color-ai-soft: var(--ff-ai-soft);
+  --color-highlight: var(--ff-highlight);
+  --color-on-highlight: var(--ff-on-highlight);
 
   --color-app: var(--ff-bg-app);
   --color-surface: var(--ff-bg-surface);
   --color-sunken: var(--ff-bg-sunken);
-  --color-sidebar: var(--ff-bg-sidebar);
-  --color-sidebar-raised: var(--ff-bg-sidebar-raised);
-  --color-sidebar-active: var(--ff-bg-sidebar-active);
+  --color-raised: var(--ff-bg-raised);
+  --color-glass: var(--ff-glass);
+  --color-glass-strong: var(--ff-glass-strong);
+  --color-glass-hover: var(--ff-glass-hover);
+  --color-glass-active: var(--ff-glass-active);
   --color-line: var(--ff-border-default);
   --color-line-strong: var(--ff-border-strong);
   --color-line-input: var(--ff-border-input);
-  --color-line-on-ink: var(--ff-border-on-ink);
-  --color-line-on-ink-subtle: var(--ff-border-on-ink-subtle);
 
   --color-fg: var(--ff-text-primary);
   --color-fg-secondary: var(--ff-text-secondary);
@@ -30,8 +53,6 @@
   --color-on-ink: var(--ff-text-on-ink);
   --color-on-ink-muted: var(--ff-text-on-ink-muted);
   --color-on-ink-subtle: var(--ff-text-on-ink-subtle);
-  --color-icon-on-ink: var(--ff-icon-on-ink);
-  --color-icon-on-ink-active: var(--ff-icon-on-ink-active);
   --color-selection: var(--ff-selection);
 
   --color-success: var(--ff-success);
@@ -44,16 +65,39 @@
   --color-warning-soft: var(--ff-warning-soft);
   --color-error: var(--ff-error);
   --color-error-strong: var(--ff-error-strong);
-  --color-error-on-ink: var(--ff-error-on-ink);
   --color-error-soft: var(--ff-error-soft);
   --color-info: var(--ff-info);
   --color-info-strong: var(--ff-info-strong);
   --color-info-soft: var(--ff-info-soft);
 
+  /* shadcn/ui names, pointed at our tokens so copied components inherit the
+     theme. Use our names in our own code. */
+  --color-background: var(--ff-bg-app);
+  --color-foreground: var(--ff-text-primary);
+  --color-card: var(--ff-glass);
+  --color-card-foreground: var(--ff-text-primary);
+  --color-popover: var(--ff-glass-strong);
+  --color-popover-foreground: var(--ff-text-primary);
+  --color-primary-foreground: var(--ff-on-primary);
+  --color-secondary: var(--ff-bg-sunken);
+  --color-secondary-foreground: var(--ff-text-primary);
+  --color-muted: var(--ff-bg-sunken);
+  --color-muted-foreground: var(--ff-text-muted);
+  --color-accent: var(--ff-glass-hover);
+  --color-accent-foreground: var(--ff-text-primary);
+  --color-destructive: var(--ff-action-danger);
+  --color-border: var(--ff-border-default);
+  --color-input: var(--ff-border-input);
+  --color-ring: var(--ff-focus-ring);
+
   --text-display: var(--ff-text-display-size);
   --text-display--line-height: var(--ff-text-display-line);
   --text-display--letter-spacing: var(--ff-text-display-tracking);
   --text-display--font-weight: 600;
+  --text-stat: var(--ff-text-stat-size);
+  --text-stat--line-height: var(--ff-text-stat-line);
+  --text-stat--letter-spacing: var(--ff-text-stat-tracking);
+  --text-stat--font-weight: 400;
   --text-page: var(--ff-text-page-size);
   --text-page--line-height: var(--ff-text-page-line);
   --text-page--letter-spacing: var(--ff-text-page-tracking);
@@ -71,8 +115,8 @@
   --text-label--line-height: var(--ff-text-label-line);
   --text-helper: var(--ff-text-helper-size);
   --text-helper--line-height: var(--ff-text-helper-line);
-  --text-input: var(--ff-text-input-size);
-  --text-input--line-height: var(--ff-text-input-line);
+  --text-control: var(--ff-text-control-size);
+  --text-control--line-height: var(--ff-text-control-line);
   --text-article: var(--ff-text-article-size);
   --text-article--line-height: var(--ff-text-article-line);
   --text-article-display: var(--ff-text-article-display-size);

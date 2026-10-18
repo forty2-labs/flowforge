@@ -2,19 +2,19 @@ import { StatusMark, Wordmark } from "@flowforge/ui";
 
 export default function AuthLayout({ children }: LayoutProps<"/">) {
   return (
-    <div className="flex min-h-screen flex-wrap bg-surface">
+    <div className="flex min-h-screen flex-wrap">
       <main className="flex min-w-0 flex-[1_1_480px] flex-col px-6 py-8">
         <div className="mx-auto w-full max-w-100">
           <Wordmark size={30} />
         </div>
         <div className="flex flex-1 items-center justify-center py-10">
-          <div className="w-full max-w-100">{children}</div>
+          <div className="glass w-full max-w-100 rounded-xl p-6 sm:p-8">{children}</div>
         </div>
       </main>
       <aside
         aria-hidden="true"
         data-surface="ink"
-        className="flex min-w-0 flex-[1_1_480px] items-center justify-center bg-ink px-8 py-16 text-on-ink"
+        className="m-3 flex min-w-0 flex-[1_1_480px] items-center justify-center rounded-xl bg-ink px-8 py-16 text-on-ink"
       >
         <EntryProof />
       </aside>
