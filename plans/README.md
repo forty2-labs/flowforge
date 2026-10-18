@@ -11,15 +11,15 @@ The design rules these plans implement are in [docs/design.md](../docs/design.md
 
 | Plan | Title | Priority | Effort | Depends on | Status |
 |------|-------|----------|--------|------------|--------|
-| 001 | Add a visual and accessibility check for the web app | P1 | M | — | TODO |
-| 002 | Replace hand-typed font sizes with a type scale | P1 | M | — | TODO |
-| 003 | Move hard-coded colours onto tokens and sync theme.ts | P1 | S | — | TODO |
-| 004 | Apply the sharpened identity | P1 | M | 002, 003 | TODO |
-| 005 | Add ConfirmDialog and confirm destructive actions | P2 | M | 003 | TODO |
-| 006 | Add toasts and copy-link feedback | P2 | M | 003 | TODO |
-| 007 | Make the workspace switcher an accessible menu | P2 | S | — | TODO |
-| 008 | Make the workspace shell responsive | P2 | M | 004, 007 | TODO |
-| 009 | Replace "Loading…" with skeletons | P3 | S | 003 | TODO |
+| 001 | Add a visual and accessibility check for the web app | P1 | M | — | DONE |
+| 002 | Replace hand-typed font sizes with a type scale | P1 | M | — | DONE |
+| 003 | Move hard-coded colours onto tokens and sync theme.ts | P1 | S | — | DONE |
+| 004 | Apply the sharpened identity | P1 | M | 002, 003 | DONE |
+| 005 | Add ConfirmDialog and confirm destructive actions | P2 | M | 003 | DONE |
+| 006 | Add toasts and copy-link feedback | P2 | M | 003 | DONE |
+| 007 | Make the workspace switcher an accessible menu | P2 | S | — | DONE |
+| 008 | Make the workspace shell responsive | P2 | M | 004, 007 | DONE |
+| 009 | Replace "Loading…" with skeletons | P3 | S | 003 | DONE |
 
 Status values: TODO | IN PROGRESS | DONE | BLOCKED (with one-line reason) | REJECTED (with one-line rationale)
 

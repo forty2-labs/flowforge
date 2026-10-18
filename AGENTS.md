@@ -34,6 +34,7 @@ npm run lint
 npm run typecheck
 npm run test                           # unit tests (only the API has any)
 npm run test:e2e -w @flowforge/api     # needs Postgres running
+npm run test:visual -w @flowforge/web  # screenshots and accessibility checks; needs Postgres running
 npm run build
 ```
 
