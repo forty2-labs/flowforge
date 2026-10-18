@@ -7,14 +7,14 @@
   --ff-ai-accent: #6b3bc2;
   --ff-ai-soft: #f3eefc;
 
-  --ff-bg-app: #f6f7f9;
+  --ff-bg-app: #f4f4f1;
   --ff-bg-surface: #ffffff;
-  --ff-bg-sunken: #f1f3f6;
+  --ff-bg-sunken: #ecece7;
   --ff-bg-sidebar: #0e1726;
   --ff-bg-sidebar-raised: #152038;
   --ff-bg-sidebar-active: #1c2740;
-  --ff-border-default: #e3e5ea;
-  --ff-border-strong: #c9ced8;
+  --ff-border-default: #e2e2dc;
+  --ff-border-strong: #c8c8c0;
   /* Input outlines need 3:1 against the surface to read as controls. */
   --ff-border-input: #868c97;
   --ff-border-on-ink: #24304b;
@@ -35,9 +35,11 @@
 
   --ff-success: #1c7044;
   --ff-success-strong: #1c6a41;
+  --ff-success-on-ink: #6fd69c;
   --ff-success-soft: #e7f4ec;
   --ff-warning: #9a5200;
   --ff-warning-strong: #8a4a00;
+  --ff-warning-on-ink: #f0b36a;
   --ff-warning-soft: #fdf1e2;
   --ff-error: #b42318;
   --ff-error-strong: #5c130c;
@@ -68,6 +70,9 @@
   --ff-text-input-line: 24px;
   --ff-text-article-size: 19px;
   --ff-text-article-line: 32px;
+  --ff-text-article-display-size: 40px;
+  --ff-text-article-display-line: 46px;
+  --ff-text-article-display-tracking: -0.01em;
   --ff-text-article-title-size: 26px;
   --ff-text-article-title-line: 34px;
   --ff-text-article-title-tracking: -0.01em;

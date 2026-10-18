@@ -17,9 +17,10 @@ const VARIANTS: Record<Variant, string> = {
   danger: 'bg-error text-white hover:brightness-90',
 };
 
+// Touch screens get 44 px targets whatever the visual size.
 const SIZES: Record<Size, string> = {
-  sm: 'h-8 px-3 text-label',
-  md: 'h-9 px-3.5 text-body',
+  sm: 'h-8 px-3 text-label pointer-coarse:h-11',
+  md: 'h-9 px-3.5 text-body pointer-coarse:h-11',
   lg: 'h-11 px-4 text-title',
 };
 

@@ -1,0 +1,22 @@
+/* The publish moment: the ring fills to a dot. It is the one designed
+   animation in the product; everything else only answers what a person did. */
+@keyframes ff-publish-dot {
+  from {
+    transform: scale(0);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+.ff-publish-dot {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: ff-publish-dot var(--ff-motion-slow) var(--ff-ease-out) 700ms both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ff-publish-dot {
+    animation: none;
+  }
+}

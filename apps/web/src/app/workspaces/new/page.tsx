@@ -1,4 +1,4 @@
-import { LogoMark } from "@flowforge/ui";
+import { Wordmark } from "@flowforge/ui";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
@@ -11,10 +11,7 @@ export default function NewWorkspacePage() {
   return (
     <main className="flex flex-1 items-center justify-center px-4 py-12">
       <div className="flex w-full max-w-[440px] flex-col gap-6 rounded-xl border border-line bg-surface p-7">
-        <div className="flex items-center gap-2.5">
-          <LogoMark />
-          <span className="text-title">Flowforge</span>
-        </div>
+        <Wordmark />
         <div className="flex flex-col gap-1.5">
           <h1 className="text-page">
             Create a workspace

@@ -1,7 +1,7 @@
 "use client";
 
 import { ROLE_LABELS, type InvitationDto } from "@flowforge/types";
-import { Badge, Button } from "@flowforge/ui";
+import { Badge, Button, StatusMark } from "@flowforge/ui";
 import { useState, useTransition } from "react";
 import {
   resendInvitation,
@@ -27,7 +27,10 @@ export function InvitationRow({
       <div className="flex flex-wrap items-center gap-3">
         <div className="flex min-w-0 flex-[1_1_160px] flex-col">
           <span className="truncate text-title">{invitation.email}</span>
-          <span className="text-label text-fg-muted">{expiresLabel}</span>
+          <span className="flex flex-wrap items-center gap-x-3 gap-y-1 text-label text-fg-muted">
+            <StatusMark status="pending" className="text-fg-secondary" />
+            <span>{expiresLabel}</span>
+          </span>
         </div>
         <Badge>{ROLE_LABELS[invitation.role]}</Badge>
         <Button

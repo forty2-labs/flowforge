@@ -1,5 +1,5 @@
-import { ROLE_LABELS, type SessionDto, type WorkspaceDto } from "@flowforge/types";
-import { Avatar, LogoMark } from "@flowforge/ui";
+import type { SessionDto, WorkspaceDto } from "@flowforge/types";
+import { Avatar, Wordmark } from "@flowforge/ui";
 import Link from "next/link";
 import { signOut } from "@/lib/actions/auth";
 import { NavLink } from "./nav-link";
@@ -24,11 +24,10 @@ export function Sidebar({
     <nav
       aria-label="Main"
       data-surface="ink"
-      className="flex flex-col gap-4 bg-sidebar px-3.5 pt-4 pb-5 text-on-ink md:min-h-screen md:w-[var(--ff-sidebar-width)] md:flex-none"
+      className="flex flex-col gap-4 bg-sidebar px-3.5 pt-4 pb-5 text-on-ink md:min-h-screen md:w-(--ff-sidebar-width) md:flex-none"
     >
-      <Link href={base} className="flex items-center gap-2.5 px-1 py-0.5 text-white hover:text-white">
-        <LogoMark />
-        <span className="text-title">Flowforge</span>
+      <Link href={base} className="self-start rounded-md px-1 py-0.5 text-white hover:text-white">
+        <Wordmark />
       </Link>
 
       <WorkspaceSwitcher current={workspace} workspaces={session.workspaces} />
@@ -59,7 +58,7 @@ export function Sidebar({
               {session.user.name}
             </span>
             <span className="truncate text-helper text-on-ink-muted">
-              {ROLE_LABELS[workspace.role]} · {workspace.name}
+              {session.user.email}
             </span>
           </span>
           <form action={signOut}>

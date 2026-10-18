@@ -1,5 +1,6 @@
 /* Maps Ink & Signal tokens onto Tailwind theme keys. Import after "tailwindcss". */
 @import "./tokens.css";
+@import "./motion.css";
 
 @source "./";
 
@@ -35,9 +36,11 @@
 
   --color-success: var(--ff-success);
   --color-success-strong: var(--ff-success-strong);
+  --color-success-on-ink: var(--ff-success-on-ink);
   --color-success-soft: var(--ff-success-soft);
   --color-warning: var(--ff-warning);
   --color-warning-strong: var(--ff-warning-strong);
+  --color-warning-on-ink: var(--ff-warning-on-ink);
   --color-warning-soft: var(--ff-warning-soft);
   --color-error: var(--ff-error);
   --color-error-strong: var(--ff-error-strong);
@@ -71,6 +74,10 @@
   --text-input--line-height: var(--ff-text-input-line);
   --text-article: var(--ff-text-article-size);
   --text-article--line-height: var(--ff-text-article-line);
+  --text-article-display: var(--ff-text-article-display-size);
+  --text-article-display--line-height: var(--ff-text-article-display-line);
+  --text-article-display--letter-spacing: var(--ff-text-article-display-tracking);
+  --text-article-display--font-weight: 500;
   --text-article-title: var(--ff-text-article-title-size);
   --text-article-title--line-height: var(--ff-text-article-title-line);
   --text-article-title--letter-spacing: var(--ff-text-article-title-tracking);

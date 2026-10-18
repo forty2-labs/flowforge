@@ -68,6 +68,7 @@ never appear without a label or glyph. Text on any background meets 4.5:1, or
 | `text-helper` | Schibsted Grotesk | 12 / 16 | 400 | Hints, meta. 12 px is the floor |
 | `text-input` | Schibsted Grotesk | 16 / 24 | 400 | Text inside inputs and selects. Below 16 px, iOS Safari zooms the page on focus |
 | `text-article` | Newsreader | 19 / 32 | 400 | Published content and previews |
+| `text-article-display` | Newsreader | 40 / 46 | 500 | A content headline shown large, such as the sign-in proof |
 | `text-article-title` | Newsreader | 26 / 34 | 600 | Content titles shown as content |
 | `font-mono` | Geist Mono | inherit | 400 | Literal machine values only: URLs, slugs, keys |
 
