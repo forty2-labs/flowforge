@@ -80,6 +80,22 @@ the end of the relevant section.
   Only an Owner can change another Owner.
 - **Cost:** the last Owner must promote someone else before leaving.
 
+### Supabase tables keep Row Level Security on, with no policies
+
+- **Why:** Supabase serves every table in `public` through its REST API to
+  anyone holding the public anon key. With RLS on and no policies, the `anon`
+  and `authenticated` roles read and write nothing, so `User`, `Session` and
+  the rest stay private. Our API is unaffected: Prisma connects as `postgres`,
+  the table owner, which RLS does not restrict. For the same reason, EXECUTE
+  on Supabase's `public.rls_auto_enable()` event trigger function is revoked
+  from `public`, `anon` and `authenticated`, so the REST API cannot call it.
+- **Cost:** this is per-project setup in the Supabase SQL Editor, not a Prisma
+  migration, because local Docker and CI have no `rls_auto_enable()`. A new
+  Supabase project needs the `revoke` again, and every new table needs RLS
+  on: Supabase's event trigger enables it, but check the Security Advisor
+  after each deploy that adds a table. Nothing in the app can use Supabase's
+  REST API or client libraries for data until policies are written.
+
 ## Data
 
 ### Schema changes are committed migration files
