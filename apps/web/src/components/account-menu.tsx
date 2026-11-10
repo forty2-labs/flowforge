@@ -11,9 +11,12 @@ import {
   DropdownMenuRadioItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+  useToast,
 } from "@flowforge/ui";
-import { useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
 import { signOut } from "@/lib/actions/auth";
+import { requestErrorMessage, runAction } from "@/lib/query/request";
 import { setTheme, THEME_LABELS, useTheme, type ThemeChoice } from "@/lib/theme";
 
 // The person's own controls: theme on this device, and signing out.
@@ -27,6 +30,17 @@ export function AccountMenu({
 }) {
   const theme = useTheme();
   const queryClient = useQueryClient();
+  const router = useRouter();
+  const toast = useToast();
+  const signOutMutation = useMutation({
+    mutationFn: () => runAction(signOut),
+    onSuccess: () => {
+      // Nothing cached for this person may be shown to the next one.
+      queryClient.clear();
+      router.replace("/signin");
+    },
+    onError: (error) => toast({ message: requestErrorMessage(error), tone: "error" }),
+  });
   return (
     // Non-modal: Radix's modal mode hides the page from screen readers while
     // leaving it focusable. Focus still moves in, and Esc or a click outside closes it.
@@ -55,11 +69,8 @@ export function AccountMenu({
         </DropdownMenuRadioGroup>
         <DropdownMenuSeparator />
         <DropdownMenuItem
-          onSelect={() => {
-            // Nothing cached for this person may be shown to the next one.
-            queryClient.clear();
-            void signOut();
-          }}
+          disabled={signOutMutation.isPending}
+          onSelect={() => signOutMutation.mutate()}
         >
           Sign out
         </DropdownMenuItem>

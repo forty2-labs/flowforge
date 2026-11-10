@@ -1,19 +1,14 @@
-import { can, type InvitationDto, type MemberDto } from "@flowforge/types";
+import { can } from "@flowforge/types";
+import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import type { Metadata } from "next";
-import { InvitationRow } from "@/components/invitation-row";
 import { InviteForm } from "@/components/invite-form";
-import { MemberRow } from "@/components/member-row";
 import { PageHeader, Section } from "@/components/page-header";
-import { api } from "@/lib/api";
+import { TeamLists } from "@/components/team-lists";
+import { getQueryClient } from "@/lib/query/client";
+import { prefetchTeam } from "@/lib/query/prefetch";
 import { requireWorkspace } from "@/lib/session";
 
 export const metadata: Metadata = { title: "Team" };
-
-const EXPIRY_FORMAT = new Intl.DateTimeFormat("en-GB", {
-  day: "numeric",
-  month: "short",
-  timeZone: "UTC",
-});
 
 export default async function TeamPage({
   params,
@@ -21,12 +16,9 @@ export default async function TeamPage({
   const { workspaceSlug } = await params;
   const { session, workspace } = await requireWorkspace(workspaceSlug);
   const canManage = can(workspace.role, "team.manage");
-  const base = `/workspaces/${workspace.slug}`;
 
-  const [members, invitations] = await Promise.all([
-    api<MemberDto[]>(`${base}/members`),
-    canManage ? api<InvitationDto[]>(`${base}/invitations`) : [],
-  ]);
+  const queryClient = getQueryClient();
+  await prefetchTeam(queryClient, workspace.slug, canManage);
 
   return (
     <>
@@ -41,35 +33,14 @@ export default async function TeamPage({
         </Section>
       )}
 
-      <Section title="Members" count={members.length} flush>
-        <ul className="flex flex-col">
-          {members.map((member) => (
-            <MemberRow
-              key={member.userId}
-              slug={workspace.slug}
-              member={member}
-              isSelf={member.userId === session.user.id}
-              viewerRole={workspace.role}
-              canManage={canManage}
-            />
-          ))}
-        </ul>
-      </Section>
-
-      {canManage && invitations.length > 0 && (
-        <Section title="Pending invitations" count={invitations.length} flush>
-          <ul className="flex flex-col">
-            {invitations.map((invitation) => (
-              <InvitationRow
-                key={invitation.id}
-                slug={workspace.slug}
-                invitation={invitation}
-                expiresLabel={`Expires ${EXPIRY_FORMAT.format(new Date(invitation.expiresAt))}`}
-              />
-            ))}
-          </ul>
-        </Section>
-      )}
+      <HydrationBoundary state={dehydrate(queryClient)}>
+        <TeamLists
+          slug={workspace.slug}
+          viewerId={session.user.id}
+          viewerRole={workspace.role}
+          canManage={canManage}
+        />
+      </HydrationBoundary>
     </>
   );
 }

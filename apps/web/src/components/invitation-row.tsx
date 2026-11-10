@@ -2,12 +2,11 @@
 
 import { ROLE_LABELS, type InvitationDto } from "@flowforge/types";
 import { Badge, Button, ConfirmDialog, StatusMark, useToast } from "@flowforge/ui";
-import { useState, useTransition } from "react";
-import {
-  resendInvitation,
-  revokeInvitation,
-  type InviteState,
-} from "@/lib/actions/team";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
+import { resendInvitation, revokeInvitation } from "@/lib/actions/team";
+import { queryKeys } from "@/lib/query/keys";
+import { requestErrorMessage, runAction } from "@/lib/query/request";
 import { InviteLink } from "./invite-link";
 
 export function InvitationRow({
@@ -19,10 +18,26 @@ export function InvitationRow({
   invitation: InvitationDto;
   expiresLabel: string;
 }) {
-  const [pending, startTransition] = useTransition();
-  const [state, setState] = useState<InviteState>({});
   const [confirming, setConfirming] = useState(false);
   const toast = useToast();
+  const queryClient = useQueryClient();
+  const refresh = () =>
+    queryClient.invalidateQueries({ queryKey: queryKeys.invitations(slug) });
+
+  // A new link keeps the invitation's id and moves its expiry.
+  const resend = useMutation({
+    mutationFn: () => runAction(() => resendInvitation(slug, invitation.id)),
+    onSuccess: refresh,
+  });
+  const revoke = useMutation({
+    mutationFn: () => runAction(() => revokeInvitation(slug, invitation.id)),
+    onSuccess: () => {
+      toast({ message: `Invitation to ${invitation.email} revoked.` });
+      return refresh();
+    },
+  });
+  const pending = resend.isPending || revoke.isPending;
+  const error = resend.error ?? revoke.error;
 
   return (
     <li className="flex flex-col gap-2 border-b border-line py-3 last:border-b-0">
@@ -39,11 +54,10 @@ export function InvitationRow({
           variant="secondary"
           size="sm"
           disabled={pending}
-          onClick={() =>
-            startTransition(async () => {
-              setState(await resendInvitation(slug, invitation.id));
-            })
-          }
+          onClick={() => {
+            revoke.reset();
+            resend.mutate();
+          }}
         >
           New link
         </Button>
@@ -56,14 +70,12 @@ export function InvitationRow({
           Revoke
         </Button>
       </div>
-      {state.error && (
+      {error && (
         <p role="alert" className="text-label text-error">
-          {state.error}
+          {requestErrorMessage(error)}
         </p>
       )}
-      {state.acceptUrl && state.email && (
-        <InviteLink email={state.email} url={state.acceptUrl} />
-      )}
+      {resend.data && <InviteLink email={resend.data.email} url={resend.data.acceptUrl} />}
       <ConfirmDialog
         open={confirming}
         title={`Revoke the invitation to ${invitation.email}?`}
@@ -71,13 +83,8 @@ export function InvitationRow({
         onClose={() => setConfirming(false)}
         onConfirm={() => {
           setConfirming(false);
-          startTransition(async () => {
-            const result = await revokeInvitation(slug, invitation.id);
-            setState(result);
-            if (!result.error) {
-              toast({ message: `Invitation to ${invitation.email} revoked.` });
-            }
-          });
+          resend.reset();
+          revoke.mutate();
         }}
       >
         The link stops working straight away. You can invite them again later.

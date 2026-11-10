@@ -2,7 +2,6 @@
 
 import type { SessionDto } from "@flowforge/types";
 import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
 import {
   apiRequest,
   messageFrom,
@@ -83,12 +82,14 @@ export async function signUp(input: SignUpInput): Promise<ActionResult<AuthSucce
   );
 }
 
-export async function signOut(): Promise<void> {
+// Called from a TanStack Query mutation in AccountMenu, which clears the
+// cache and navigates to sign-in.
+export async function signOut(): Promise<ActionResult<null>> {
   try {
     await apiRequest("/auth/signout", { method: "POST" });
   } catch {
     // The local cookie is cleared either way.
   }
   (await cookies()).delete(SESSION_COOKIE);
-  redirect("/signin");
+  return { data: null };
 }
