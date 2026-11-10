@@ -33,15 +33,18 @@ the end of the relevant section.
   pending and error states without breaking the rule above. Mutations call
   server actions from `useMutation`. Reads go to route handlers under
   `apps/web/src/app/api`, which call `api()` on the server, because server
-  actions are POST-only and run one at a time. Sign-in and sign-up are the
-  reference: the action returns the session, the mutation writes it into the
-  cache, and signing out clears the cache.
+  actions are POST-only and run one at a time. Every screen uses it. Sign-in
+  writes the session into the cache and signing out clears it. The overview
+  and Team screens share one cache entry for members and one for invitations:
+  the server fetches them for the first render and hands them over with
+  `HydrationBoundary`, and each team mutation invalidates them.
 - **Cost:** a server action called from a mutation returns its error as data
-  (`ActionResult`), because Next.js hides thrown messages in production.
-  Forms driven by a mutation need JavaScript to submit. Every read the
-  browser makes needs its own route handler. It is the default for every new
-  API call from a screen; existing forms move over when their screen is next
-  changed. Session guards stay in server components.
+  (`ActionResult`), because Next.js hides thrown messages in production, and
+  cannot `redirect()`, so the client navigates instead. Forms driven by a
+  mutation need JavaScript to submit. Every read the browser makes needs its
+  own route handler. Session guards (`requireSession`, `requireWorkspace`)
+  and the invitation preview stay in server components, because they
+  redirect or 404 before anything renders.
 
 ## Security
 

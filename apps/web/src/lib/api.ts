@@ -1,6 +1,7 @@
 import "server-only";
 import type { ApiError } from "@flowforge/types";
 import { cookies } from "next/headers";
+import type { ActionResult } from "./form-state";
 
 export const SESSION_COOKIE = "ff_session";
 export const SESSION_MAX_AGE_SECONDS = 30 * 24 * 60 * 60;
@@ -70,4 +71,14 @@ async function errorMessage(response: Response): Promise<string> {
 export function messageFrom(error: unknown): string {
   if (error instanceof ApiRequestError) return error.message;
   return "Couldn’t reach Flowforge. Check your connection and try again.";
+}
+
+// Runs a server action's API call and returns its outcome as data, for a
+// TanStack Query mutation to unwrap with `runAction()`.
+export async function actionResult<T>(call: () => Promise<T>): Promise<ActionResult<T>> {
+  try {
+    return { data: await call() };
+  } catch (error) {
+    return { error: messageFrom(error) };
+  }
 }

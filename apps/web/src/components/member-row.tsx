@@ -2,8 +2,12 @@
 
 import { ROLE_LABELS, ROLES, type MemberDto, type Role } from "@flowforge/types";
 import { Avatar, Badge, Button, ConfirmDialog, useToast } from "@flowforge/ui";
-import { useState, useTransition } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { changeMemberRole, removeMember } from "@/lib/actions/team";
+import { queryKeys } from "@/lib/query/keys";
+import { requestErrorMessage, runAction } from "@/lib/query/request";
 
 export function MemberRow({
   slug,
@@ -18,10 +22,10 @@ export function MemberRow({
   viewerRole: Role;
   canManage: boolean;
 }) {
-  const [pending, startTransition] = useTransition();
-  const [error, setError] = useState<string>();
   const [confirming, setConfirming] = useState(false);
   const toast = useToast();
+  const router = useRouter();
+  const queryClient = useQueryClient();
 
   // Only an Owner can change an Owner or hand out ownership.
   const viewerIsOwner = viewerRole === "OWNER";
@@ -29,15 +33,34 @@ export function MemberRow({
   const roleOptions = ROLES.filter((role) => viewerIsOwner || role !== "OWNER");
 
   // Errors stay next to the row they belong to; success is a toast.
-  const run = (action: () => Promise<{ error?: string }>, success: string) => {
-    setError(undefined);
-    startTransition(async () => {
-      const result = await action();
-      setError(result.error);
-      if (!result.error) toast({ message: success });
-    });
-  };
-
+  const changeRole = useMutation({
+    mutationFn: (role: Role) =>
+      runAction(() => changeMemberRole(slug, member.userId, role)),
+    onSuccess: (_data, role) => {
+      toast({ message: `${member.name} is now ${ROLE_LABELS[role]}.` });
+      if (isSelf) {
+        // Your own role decides what the server-rendered pages show you.
+        void queryClient.invalidateQueries({ queryKey: queryKeys.session() });
+        router.refresh();
+      }
+      return queryClient.invalidateQueries({ queryKey: queryKeys.members(slug) });
+    },
+  });
+  const remove = useMutation({
+    mutationFn: () => runAction(() => removeMember(slug, member.userId)),
+    onSuccess: () => {
+      toast({ message: `${member.name} was removed.` });
+      if (isSelf) {
+        void queryClient.invalidateQueries({ queryKey: queryKeys.session() });
+        router.replace("/");
+        return;
+      }
+      return queryClient.invalidateQueries({ queryKey: queryKeys.members(slug) });
+    },
+  });
+  // Leaving stays busy until the next page replaces this one.
+  const pending = changeRole.isPending || remove.isPending || (isSelf && remove.isSuccess);
+  const error = changeRole.error ?? remove.error;
 
   return (
     <li className="flex flex-col gap-2 border-b border-line py-3 last:border-b-0">
@@ -56,11 +79,8 @@ export function MemberRow({
             value={member.role}
             disabled={pending}
             onChange={(event) => {
-              const role = event.target.value as Role;
-              run(
-                () => changeMemberRole(slug, member.userId, role),
-                `${member.name} is now ${ROLE_LABELS[role]}.`,
-              );
+              remove.reset();
+              changeRole.mutate(event.target.value as Role);
             }}
             className="h-11 rounded-md border border-line-input bg-surface px-2 text-control md:h-9 md:text-body pointer-coarse:h-11"
           >
@@ -83,7 +103,7 @@ export function MemberRow({
       </div>
       {error && (
         <p role="alert" className="text-label text-error">
-          {error}
+          {requestErrorMessage(error)}
         </p>
       )}
       <ConfirmDialog
@@ -93,10 +113,8 @@ export function MemberRow({
         onClose={() => setConfirming(false)}
         onConfirm={() => {
           setConfirming(false);
-          run(
-            () => removeMember(slug, member.userId, isSelf),
-            `${member.name} was removed.`,
-          );
+          changeRole.reset();
+          remove.mutate();
         }}
       >
         {isSelf

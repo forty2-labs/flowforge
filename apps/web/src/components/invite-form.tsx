@@ -2,17 +2,33 @@
 
 import { ROLE_LABELS, ROLES } from "@flowforge/types";
 import { Alert, Button, TextField } from "@flowforge/ui";
-import { useActionState } from "react";
-import { inviteMember, type InviteState } from "@/lib/actions/team";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { inviteMember, type InviteInput } from "@/lib/actions/team";
+import { queryKeys } from "@/lib/query/keys";
+import { requestErrorMessage, runAction } from "@/lib/query/request";
 import { InviteLink } from "./invite-link";
 
-const INITIAL: InviteState = {};
-
 export function InviteForm({ slug }: { slug: string }) {
-  const [state, action, pending] = useActionState(
-    inviteMember.bind(null, slug),
-    INITIAL,
-  );
+  const queryClient = useQueryClient();
+  const invite = useMutation({
+    mutationFn: (input: InviteInput) => runAction(() => inviteMember(slug, input)),
+    // Returned, so the button stays busy until the new invitation is listed.
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.invitations(slug) }),
+  });
+  // After a failure the fields come back as typed; after a success they clear.
+  const retry = invite.isError ? invite.variables : undefined;
+
+  async function action(formData: FormData) {
+    await invite
+      .mutateAsync({
+        email: String(formData.get("email") ?? ""),
+        role: String(formData.get("role") ?? ""),
+      })
+      .catch(() => {
+        // Shown from invite.error below.
+      });
+  }
+
   return (
     <div className="flex flex-col gap-3">
       <form action={action} className="flex flex-wrap items-end gap-3">
@@ -23,6 +39,7 @@ export function InviteForm({ slug }: { slug: string }) {
             type="email"
             required
             placeholder="tom@northstar.studio"
+            defaultValue={retry?.email}
           />
         </div>
         <div className="flex flex-col gap-1.5">
@@ -32,7 +49,7 @@ export function InviteForm({ slug }: { slug: string }) {
           <select
             id="invite-role"
             name="role"
-            defaultValue="EDITOR"
+            defaultValue={retry?.role ?? "EDITOR"}
             className="h-11 rounded-lg border border-line-input bg-surface px-3 text-control"
           >
             {ROLES.filter((role) => role !== "OWNER").map((role) => (
@@ -42,14 +59,12 @@ export function InviteForm({ slug }: { slug: string }) {
             ))}
           </select>
         </div>
-        <Button type="submit" size="lg" loading={pending}>
-          {pending ? "Inviting…" : "Invite"}
+        <Button type="submit" size="lg" loading={invite.isPending}>
+          {invite.isPending ? "Inviting…" : "Invite"}
         </Button>
       </form>
-      {state.error && <Alert tone="error">{state.error}</Alert>}
-      {state.acceptUrl && state.email && (
-        <InviteLink email={state.email} url={state.acceptUrl} />
-      )}
+      {invite.error && <Alert tone="error">{requestErrorMessage(invite.error)}</Alert>}
+      {invite.data && <InviteLink email={invite.data.email} url={invite.data.acceptUrl} />}
     </div>
   );
 }

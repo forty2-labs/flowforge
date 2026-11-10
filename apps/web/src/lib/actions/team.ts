@@ -1,109 +1,93 @@
 "use server";
 
-import type { InvitationDto, WorkspaceDto } from "@flowforge/types";
-import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
-import { api, messageFrom } from "../api";
-import type { FormState } from "../form-state";
+import type { InvitationDto, Role, WorkspaceDto } from "@flowforge/types";
+import { actionResult, api } from "../api";
+import type { ActionResult } from "../form-state";
 
-export interface InviteState extends FormState {
-  acceptUrl?: string;
-  email?: string;
+// Each action is called from a TanStack Query mutation, which invalidates
+// `membersQuery` or `invitationsQuery` on success.
+
+export interface InviteInput {
+  email: string;
+  role: string;
+}
+
+// The link to hand to the invitee. It is shown only once.
+export interface IssuedLink {
+  email: string;
+  acceptUrl: string;
 }
 
 type Issued = InvitationDto & { acceptUrl: string };
 
 export async function inviteMember(
   slug: string,
-  _previous: InviteState,
-  formData: FormData,
-): Promise<InviteState> {
-  try {
+  input: InviteInput,
+): Promise<ActionResult<IssuedLink>> {
+  return actionResult(async () => {
     const invitation = await api<Issued>(`/workspaces/${slug}/invitations`, {
       method: "POST",
-      body: {
-        email: String(formData.get("email") ?? ""),
-        role: String(formData.get("role") ?? ""),
-      },
+      body: { email: String(input.email ?? ""), role: String(input.role ?? "") },
     });
-    revalidatePath(`/w/${slug}/team`);
-    return { acceptUrl: invitation.acceptUrl, email: invitation.email };
-  } catch (error) {
-    return { error: messageFrom(error) };
-  }
+    return { email: invitation.email, acceptUrl: invitation.acceptUrl};
+  });
 }
 
 export async function resendInvitation(
   slug: string,
   invitationId: string,
-): Promise<InviteState> {
-  try {
+): Promise<ActionResult<IssuedLink>> {
+  return actionResult(async () => {
     const invitation = await api<Issued>(
       `/workspaces/${slug}/invitations/${invitationId}/resend`,
       { method: "POST" },
     );
-    revalidatePath(`/w/${slug}/team`);
-    return { acceptUrl: invitation.acceptUrl, email: invitation.email };
-  } catch (error) {
-    return { error: messageFrom(error) };
-  }
+    return { email: invitation.email, acceptUrl: invitation.acceptUrl };
+  });
 }
 
 export async function revokeInvitation(
   slug: string,
   invitationId: string,
-): Promise<FormState> {
-  try {
-    await api(`/workspaces/${slug}/invitations/${invitationId}`, {
-      method: "DELETE",
-    });
-  } catch (error) {
-    return { error: messageFrom(error) };
-  }
-  revalidatePath(`/w/${slug}/team`);
-  return {};
+): Promise<ActionResult<null>> {
+  return actionResult(async () => {
+    await api(`/workspaces/${slug}/invitations/${invitationId}`, { method: "DELETE" });
+    return null;
+  });
 }
 
 export async function changeMemberRole(
   slug: string,
   userId: string,
-  role: string,
-): Promise<FormState> {
-  try {
+  role: Role,
+): Promise<ActionResult<null>> {
+  return actionResult(async () => {
     await api(`/workspaces/${slug}/members/${userId}`, {
       method: "PATCH",
-      body: { role },
+      body: { role: String(role ?? "") },
     });
-  } catch (error) {
-    return { error: messageFrom(error) };
-  }
-  revalidatePath(`/w/${slug}/team`);
-  return {};
+    return null;
+  });
 }
 
+// Removing yourself is leaving; the caller then navigates away.
 export async function removeMember(
   slug: string,
   userId: string,
-  isSelf: boolean,
-): Promise<FormState> {
-  try {
+): Promise<ActionResult<null>> {
+  return actionResult(async () => {
     await api(`/workspaces/${slug}/members/${userId}`, { method: "DELETE" });
-  } catch (error) {
-    return { error: messageFrom(error) };
-  }
-  if (isSelf) redirect("/");
-  revalidatePath(`/w/${slug}/team`);
-  return {};
+    return null;
+  });
 }
 
-export async function acceptInvitation(token: string): Promise<FormState> {
-  let workspace: WorkspaceDto;
-  try {
-    workspace = await api<WorkspaceDto>(`/invitations/${token}/accept`, {
+// The workspace just joined, for the caller to navigate to.
+export async function acceptInvitation(
+  token: string,
+): Promise<ActionResult<WorkspaceDto>> {
+  return actionResult(() =>
+    api<WorkspaceDto>(`/invitations/${encodeURIComponent(token)}/accept`, {
       method: "POST",
-    });
-  } catch (error) {
-    return { error: messageFrom(error) };
-  }
-  redirect(`/w/${workspace.slug}`);
+    }),
+  );
 }
