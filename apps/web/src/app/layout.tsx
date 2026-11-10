@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist_Mono, Newsreader, Schibsted_Grotesk } from "next/font/google";
 import { ToastProvider } from "@flowforge/ui";
+import { QueryProvider } from "@/components/query-provider";
 import { THEME_SCRIPT } from "@/lib/theme-script";
 import "./globals.css";
 
@@ -41,7 +42,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
       </head>
       <body className="ground min-h-full flex flex-col font-sans text-fg">
-        <ToastProvider>{children}</ToastProvider>
+        <QueryProvider>
+          <ToastProvider>{children}</ToastProvider>
+        </QueryProvider>
       </body>
     </html>
   );

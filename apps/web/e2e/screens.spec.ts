@@ -13,8 +13,10 @@ async function check(page: Page, dir: string, name: string) {
   // Streamed sections render after the loading boundary, so wait for the title.
   await page.locator("h1").first().waitFor();
   await page.waitForLoadState("networkidle");
-  // Next.js's dev badge is not part of the app.
-  await page.addStyleTag({ content: "nextjs-portal { display: none !important; }" });
+  // Next.js's dev badge and the TanStack Query devtools are not part of the app.
+  await page.addStyleTag({
+    content: "nextjs-portal, .tsqd-parent-container { display: none !important; }",
+  });
   // Contrast is measured on the settled screen, not mid-fade.
   await page.waitForFunction(() =>
     document.getAnimations().every((animation) => animation.playState !== "running"),

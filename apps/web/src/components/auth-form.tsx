@@ -1,19 +1,48 @@
 "use client";
 
 import { Alert, Button, TextField } from "@flowforge/ui";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
-import { useActionState } from "react";
-import { signIn, signUp } from "@/lib/actions/auth";
-import { EMPTY_FORM_STATE } from "@/lib/form-state";
+import { useRouter, useSearchParams } from "next/navigation";
+import { signIn, signUp, type SignUpInput } from "@/lib/actions/auth";
+import { queryKeys } from "@/lib/query/keys";
+import { requestErrorMessage, runAction } from "@/lib/query/request";
 
+// The reference pattern for a TanStack Query mutation over a server action.
 export function AuthForm({ mode }: { mode: "signin" | "signup" }) {
   const isSignUp = mode === "signup";
-  const [state, action, pending] = useActionState(
-    isSignUp ? signUp : signIn,
-    EMPTY_FORM_STATE,
-  );
+  const router = useRouter();
+  const queryClient = useQueryClient();
   const next = useSearchParams().get("next") ?? "";
+
+  const auth = useMutation({
+    mutationFn: (input: SignUpInput) =>
+      runAction(() => (isSignUp ? signUp(input) : signIn(input))),
+    onSuccess: ({ session, redirectTo }) => {
+      // Whatever reads the session next gets it without another request.
+      queryClient.setQueryData(queryKeys.session(), session);
+      router.replace(redirectTo);
+    },
+  });
+  // Stay busy until the next page replaces this one.
+  const pending = auth.isPending || auth.isSuccess;
+
+  // A form action, not onSubmit, so the browser cannot send the form as a GET
+  // before hydration. React clears the fields afterwards; name and email come
+  // back through defaultValue.
+  async function action(formData: FormData) {
+    await auth
+      .mutateAsync({
+        name: String(formData.get("name") ?? ""),
+        email: String(formData.get("email") ?? ""),
+        password: String(formData.get("password") ?? ""),
+        next,
+      })
+      .catch(() => {
+        // Shown from auth.error below.
+      });
+  }
+
   const other = isSignUp ? "/signin" : "/signup";
   const otherHref = next ? `${other}?next=${encodeURIComponent(next)}` : other;
 
@@ -34,11 +63,17 @@ export function AuthForm({ mode }: { mode: "signin" | "signup" }) {
         </p>
       </div>
 
-      {state.error && <Alert tone="error">{state.error}</Alert>}
+      {auth.error && <Alert tone="error">{requestErrorMessage(auth.error)}</Alert>}
 
-      <input type="hidden" name="next" value={next} />
       {isSignUp && (
-        <TextField label="Your name" name="name" autoComplete="name" required maxLength={80} />
+        <TextField
+          label="Your name"
+          name="name"
+          autoComplete="name"
+          required
+          maxLength={80}
+          defaultValue={auth.variables?.name}
+        />
       )}
       <TextField
         label="Work email"
@@ -46,6 +81,7 @@ export function AuthForm({ mode }: { mode: "signin" | "signup" }) {
         type="email"
         autoComplete="email"
         required
+        defaultValue={auth.variables?.email}
       />
       <TextField
         label="Password"

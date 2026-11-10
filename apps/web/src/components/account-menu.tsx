@@ -12,6 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@flowforge/ui";
+import { useQueryClient } from "@tanstack/react-query";
 import { signOut } from "@/lib/actions/auth";
 import { setTheme, THEME_LABELS, useTheme, type ThemeChoice } from "@/lib/theme";
 
@@ -25,6 +26,7 @@ export function AccountMenu({
   inline?: boolean;
 }) {
   const theme = useTheme();
+  const queryClient = useQueryClient();
   return (
     // Non-modal: Radix's modal mode hides the page from screen readers while
     // leaving it focusable. Focus still moves in, and Esc or a click outside closes it.
@@ -52,7 +54,15 @@ export function AccountMenu({
           ))}
         </DropdownMenuRadioGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onSelect={() => void signOut()}>Sign out</DropdownMenuItem>
+        <DropdownMenuItem
+          onSelect={() => {
+            // Nothing cached for this person may be shown to the next one.
+            queryClient.clear();
+            void signOut();
+          }}
+        >
+          Sign out
+        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );

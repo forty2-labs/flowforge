@@ -1,5 +1,6 @@
 "use server";
 
+import type { SessionDto } from "@flowforge/types";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import {
@@ -8,20 +9,42 @@ import {
   SESSION_COOKIE,
   SESSION_MAX_AGE_SECONDS,
 } from "../api";
-import type { FormState } from "../form-state";
+import type { ActionResult } from "../form-state";
 import { safeNext } from "../session";
+
+export interface SignInInput {
+  email: string;
+  password: string;
+  next?: string;
+}
+
+export interface SignUpInput extends SignInInput {
+  name: string;
+}
+
+// The new session, and the same-site path to continue to.
+export interface AuthSuccess {
+  session: SessionDto;
+  redirectTo: string;
+}
 
 async function startSession(
   path: "/auth/signin" | "/auth/signup",
   body: Record<string, string>,
-): Promise<void> {
-  const response = await apiRequest(path, { method: "POST", body });
+  next: unknown,
+): Promise<ActionResult<AuthSuccess>> {
+  let response: Response;
+  try {
+    response = await apiRequest(path, { method: "POST", body });
+  } catch (error) {
+    return { error: messageFrom(error) };
+  }
   const token = response.headers
     .getSetCookie()
     .map((cookie) => cookie.split(";")[0])
     .find((pair) => pair.startsWith(`${SESSION_COOKIE}=`))
     ?.slice(SESSION_COOKIE.length + 1);
-  if (!token) throw new Error("The API did not start a session.");
+  if (!token) return { error: "The API did not start a session." };
 
   (await cookies()).set(SESSION_COOKIE, token, {
     httpOnly: true,
@@ -30,37 +53,34 @@ async function startSession(
     maxAge: SESSION_MAX_AGE_SECONDS,
     path: "/",
   });
+  return {
+    data: {
+      session: (await response.json()) as SessionDto,
+      redirectTo: safeNext(next) ?? "/",
+    },
+  };
 }
 
-export async function signIn(
-  _previous: FormState,
-  formData: FormData,
-): Promise<FormState> {
-  try {
-    await startSession("/auth/signin", {
-      email: String(formData.get("email") ?? ""),
-      password: String(formData.get("password") ?? ""),
-    });
-  } catch (error) {
-    return { error: messageFrom(error) };
-  }
-  redirect(safeNext(formData.get("next")) ?? "/");
+// Called from a TanStack Query mutation in AuthForm, which caches the
+// session and navigates on success.
+export async function signIn(input: SignInInput): Promise<ActionResult<AuthSuccess>> {
+  return startSession(
+    "/auth/signin",
+    { email: String(input.email ?? ""), password: String(input.password ?? "") },
+    input.next,
+  );
 }
 
-export async function signUp(
-  _previous: FormState,
-  formData: FormData,
-): Promise<FormState> {
-  try {
-    await startSession("/auth/signup", {
-      name: String(formData.get("name") ?? ""),
-      email: String(formData.get("email") ?? ""),
-      password: String(formData.get("password") ?? ""),
-    });
-  } catch (error) {
-    return { error: messageFrom(error) };
-  }
-  redirect(safeNext(formData.get("next")) ?? "/");
+export async function signUp(input: SignUpInput): Promise<ActionResult<AuthSuccess>> {
+  return startSession(
+    "/auth/signup",
+    {
+      name: String(input.name ?? ""),
+      email: String(input.email ?? ""),
+      password: String(input.password ?? ""),
+    },
+    input.next,
+  );
 }
 
 export async function signOut(): Promise<void> {
