@@ -75,7 +75,7 @@ export function InvitationRow({
           {requestErrorMessage(error)}
         </p>
       )}
-      {resend.data && <InviteLink email={resend.data.email} url={resend.data.acceptUrl} />}
+      {resend.data && <InviteLink {...resend.data} />}
       <ConfirmDialog
         open={confirming}
         title={`Revoke the invitation to ${invitation.email}?`}

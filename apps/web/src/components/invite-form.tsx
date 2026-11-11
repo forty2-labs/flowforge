@@ -64,7 +64,7 @@ export function InviteForm({ slug }: { slug: string }) {
         </Button>
       </form>
       {invite.error && <Alert tone="error">{requestErrorMessage(invite.error)}</Alert>}
-      {invite.data && <InviteLink email={invite.data.email} url={invite.data.acceptUrl} />}
+      {invite.data && <InviteLink {...invite.data} />}
     </div>
   );
 }

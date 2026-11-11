@@ -60,8 +60,8 @@ Phases 2 to 4 depend on each other in order. Phases 5 and 6 only need phase 2.
 
 ## Known gaps in phase 1
 
-- No mail provider is connected. Invitation links are shown to the inviter and
-  written to the API log.
+- Emails are plain text. Without `RESEND_API_KEY` they are only written to
+  the API log; the invitation link is always shown to the inviter as well.
 - Google sign-in, email verification, password reset and sign-in rate limiting
   are not built.
 - Dialog and toast components are not built.

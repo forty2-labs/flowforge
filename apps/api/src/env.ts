@@ -31,4 +31,10 @@ export const env = {
   // POSTGRES_URL is the pooled URL the Supabase Vercel integration injects.
   databaseUrl: required(['DATABASE_URL', 'POSTGRES_URL'], LOCAL_DB),
   webOrigin: required('WEB_ORIGIN', LOCALHOST),
+  mail: {
+    // Optional: without a key, emails are written to the log instead.
+    resendApiKey: process.env.RESEND_API_KEY || undefined,
+    // Resend's shared sender only delivers to the Resend account's own address.
+    from: process.env.MAIL_FROM || 'Flowforge <onboarding@resend.dev>',
+  },
 };

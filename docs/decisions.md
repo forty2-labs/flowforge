@@ -77,6 +77,17 @@ the end of the relevant section.
   with the invited address.
 - **Cost:** the invited person must use that exact address.
 
+### Email goes through Resend's HTTP API, not Supabase
+
+- **Why:** Supabase Auth only emails its own auth users and caps its built-in
+  sender, so it cannot send our invitations. Resend's HTTP API needs no SDK or
+  SMTP connection, and the same account can later serve as Supabase's SMTP
+  provider. Without a key, mail is logged, so development and tests need no
+  account.
+- **Cost:** one more service and secret per environment. A failed delivery
+  does not fail the action that triggered it: invitations still show the link
+  and say whether the email went out.
+
 ### A workspace always has at least one Owner
 
 - **Why:** otherwise a workspace could be left with nobody able to manage it.

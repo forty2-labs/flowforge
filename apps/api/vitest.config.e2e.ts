@@ -12,6 +12,8 @@ export default defineConfig({
       DATABASE_URL:
         process.env.TEST_DATABASE_URL ??
         'postgresql://flowforge:flowforge@localhost:5432/flowforge_test',
+      // Never send real email from tests, even if the root .env has a key.
+      RESEND_API_KEY: '',
     },
     fileParallelism: false,
   },

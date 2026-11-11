@@ -2,9 +2,11 @@
 
 import { Button, useToast } from "@flowforge/ui";
 import { useEffect, useState } from "react";
+import type { IssuedLink } from "@/lib/actions/team";
 
-// Email delivery is not connected yet, so the link is handed to the inviter.
-export function InviteLink({ email, url }: { email: string; url: string }) {
+// The link is always shown once, so the inviter can share it themselves if
+// the email did not go out or does not arrive.
+export function InviteLink({ email, acceptUrl: url, emailSent }: IssuedLink) {
   const [copied, setCopied] = useState(false);
   const toast = useToast();
 
@@ -17,8 +19,9 @@ export function InviteLink({ email, url }: { email: string; url: string }) {
   return (
     <div role="status" className="flex flex-col gap-2 rounded-lg bg-success-soft px-3 py-2.5">
       <p className="text-body text-success-strong">
-        Invitation ready for {email}. Send them this link; it works for 7 days and
-        is only shown now.
+        {emailSent
+          ? `Invitation emailed to ${email}. You can also share this link; it works for 7 days and is only shown now.`
+          : `Invitation ready for ${email}, but it wasn’t emailed. Send them this link; it works for 7 days and is only shown now.`}
       </p>
       <div className="flex flex-wrap items-center gap-2">
         <code className="min-w-0 flex-1 truncate rounded-md select-all bg-surface px-2 py-1.5 font-mono text-helper">
