@@ -12,13 +12,21 @@ export interface InviteInput {
   role: string;
 }
 
-// The link to hand to the invitee. It is shown only once.
+// The link to hand to the invitee. It is shown only once. `emailSent` says
+// whether the API also emailed it.
 export interface IssuedLink {
   email: string;
   acceptUrl: string;
+  emailSent: boolean;
 }
 
-type Issued = InvitationDto & { acceptUrl: string };
+type Issued = InvitationDto & IssuedLink;
+
+const issuedLink = ({ email, acceptUrl, emailSent }: Issued): IssuedLink => ({
+  email,
+  acceptUrl,
+  emailSent,
+});
 
 export async function inviteMember(
   slug: string,
@@ -29,7 +37,7 @@ export async function inviteMember(
       method: "POST",
       body: { email: String(input.email ?? ""), role: String(input.role ?? "") },
     });
-    return { email: invitation.email, acceptUrl: invitation.acceptUrl};
+    return issuedLink(invitation);
   });
 }
 
@@ -42,7 +50,7 @@ export async function resendInvitation(
       `/workspaces/${slug}/invitations/${invitationId}/resend`,
       { method: "POST" },
     );
-    return { email: invitation.email, acceptUrl: invitation.acceptUrl };
+    return issuedLink(invitation);
   });
 }
 

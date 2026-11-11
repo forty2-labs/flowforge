@@ -117,7 +117,7 @@ Read [docs/design.md](docs/design.md) before changing anything a person sees, on
 
 - One `.env` at the repository root serves the API and Prisma. Copy `.env.example` to create it. The web app reads `API_URL` and falls back to `http://localhost:4000`.
 - End-to-end tests truncate every table before each case. They run against `flowforge_test` (override with `TEST_DATABASE_URL`), never the development database. A new table must be added to the `TRUNCATE` list in [apps/api/test/app.e2e-spec.ts](apps/api/test/app.e2e-spec.ts).
-- No mail provider is connected. Invitation links are shown to the inviter in the Team screen and written to the API log.
+- Email goes through `MailerService` ([apps/api/src/mail](apps/api/src/mail)), which sends through Resend when `RESEND_API_KEY` is set and otherwise writes to the API log. It never throws; callers get `'sent' | 'logged' | 'failed'`. Tests always run without a key. Invitation links are also shown to the inviter in the Team screen.
 
 ## Git workflow
 
@@ -125,7 +125,7 @@ Work is tracked in Linear (team `FLO`). For every change:
 
 1. Sync first: `git fetch --all --prune`, then `git rebase origin/main`.
 2. Branch name is the Linear issue ID, e.g. `FLO-38`. Create the branch from `origin/main` right after creating the Linear issue (`git switch -c FLO-39 origin/main`), not later.
-3. Prefix every commit message with the issue ID, e.g. `FLO-38 generate types on ci/cd`.
+3. **Agents never commit or push.** Leave changes uncommitted and print the commit message in the chat, in a code block, for a person to use. Prefix every commit message with the issue ID, e.g. `FLO-38 generate types on ci/cd`.
 4. Write the PR description as a raw Markdown file whose title starts with the issue ID, e.g. `# FLO-38: Generate Next route types before typecheck in CI`. Always also print the full raw Markdown in the chat, in a code block, ready to copy.
 
 If no Linear issue exists for the work, ask before creating a branch.

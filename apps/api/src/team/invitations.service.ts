@@ -5,7 +5,13 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import type { InvitationDto, InvitationPreviewDto, Role, WorkspaceDto } from '@flowforge/types';
+import {
+  ROLE_LABELS,
+  type InvitationDto,
+  type InvitationPreviewDto,
+  type Role,
+  type WorkspaceDto,
+} from '@flowforge/types';
 import type { AuthUser } from '../auth/auth.decorators.js';
 import { hashToken, newToken } from '../common/tokens.js';
 import { env } from '../env.js';
@@ -16,8 +22,9 @@ import type { WorkspaceContext } from '../workspaces/workspace.guard.js';
 const INVITATION_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 
 // The raw token only exists in the link, so the link is returned once, when
-// the invitation is created or resent.
-export type IssuedInvitation = InvitationDto & { acceptUrl: string };
+// the invitation is created or resent. It is also emailed; `emailSent` tells
+// the inviter whether that worked, so they know whether to share the link.
+export type IssuedInvitation = InvitationDto & { acceptUrl: string; emailSent: boolean };
 
 @Injectable()
 export class InvitationsService {
@@ -157,13 +164,26 @@ export class InvitationsService {
     inviterName: string,
   ): Promise<IssuedInvitation> {
     const acceptUrl = `${env.webOrigin}/invite/${token}`;
-    await this.mailer.send({
+    // A failed delivery does not fail the invitation: the inviter still gets the link.
+    const result = await this.mailer.send({
       to: invitation.email,
       subject: `${inviterName} invited you to ${workspaceName} on Flowforge`,
-      text: `Accept the invitation: ${acceptUrl}\nThe link works for 7 days.`,
+      text: [
+        `${inviterName} invited you to join ${workspaceName} on Flowforge as ${roleName(invitation.role)}.`,
+        '',
+        `Accept the invitation: ${acceptUrl}`,
+        '',
+        `The link works for 7 days. Sign in or sign up with ${invitation.email} to accept it.`,
+        "If you weren't expecting this, you can ignore this email.",
+      ].join('\n'),
     });
-    return { ...toDto(invitation), acceptUrl };
+    return { ...toDto(invitation), acceptUrl, emailSent: result === 'sent' };
   }
+}
+
+function roleName(role: Role): string {
+  const label = ROLE_LABELS[role];
+  return /^[AEIOU]/.test(label) ? `an ${label}` : `a ${label}`;
 }
 
 function toDto(invitation: {

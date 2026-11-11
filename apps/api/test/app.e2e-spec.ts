@@ -95,6 +95,8 @@ describe('Foundations (e2e)', () => {
       .post('/workspaces/northstar-studio/invitations')
       .send({ email: 'tom@northstar.studio', role: 'AUTHOR' })
       .expect(201);
+    // Tests run without a mail provider, so the link is logged, not emailed.
+    expect(invitation.body.emailSent).toBe(false);
     const token = (invitation.body.acceptUrl as string).split('/invite/')[1];
 
     const preview = await request(app.getHttpServer()).get(`/invitations/${token}`).expect(200);

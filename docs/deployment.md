@@ -24,6 +24,8 @@ URL Vercel injects as `API_URL`, and `api` talks to Supabase Postgres.
 | `POSTGRES_URL` | `api` at runtime | Injected by the Supabase integration. The pooled (transaction-mode) URL. |
 | `POSTGRES_URL_NON_POOLING` | Prisma migrations | Injected by the Supabase integration. |
 | `WEB_ORIGIN` | `api` (CORS) | **You set it.** Required: the API won't start in production without it. |
+| `RESEND_API_KEY` | `api` (email) | **You set it**, from Resend → API Keys, with sending access only. Optional: without it, emails are only written to the log and the API warns at startup. |
+| `MAIL_FROM` | `api` (email) | **You set it**, for example `Flowforge <team@mail.example.com>`. The domain must be verified in Resend. |
 | `DATABASE_URL` | `api` and Prisma | Overrides both `POSTGRES_*` URLs. Used locally from `.env`. **Don't set it in Vercel** unless the database isn't connected through the integration. |
 
 The integration also adds `POSTGRES_PRISMA_URL`, `POSTGRES_USER`,
