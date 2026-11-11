@@ -77,6 +77,21 @@ the end of the relevant section.
   with the invited address.
 - **Cost:** the invited person must use that exact address.
 
+### Password reset is ours, not Supabase Auth's
+
+- **Why:** Supabase's reset flow only works for users stored in its
+  `auth.users`, and ours are in `User` with scrypt hashes Supabase cannot
+  import. A reset link reuses the hashed-token pattern from sessions and
+  invitations: it works for 1 hour, once, and only the newest one works.
+  Resetting signs out every session, so a stolen session ends with the
+  password change.
+- **Cost:** we maintain the flow ourselves. The forgot-password endpoint
+  answers 204 whether or not the account exists, but sign-up still reveals
+  that an email is registered, so this hides less than it seems. Repeat
+  requests within a minute send nothing; there is no other rate limit yet.
+  Moving to a managed auth provider is a separate decision, worth revisiting
+  if MFA or SSO is needed.
+
 ### Email goes through Resend's HTTP API, not Supabase
 
 - **Why:** Supabase Auth only emails its own auth users and caps its built-in

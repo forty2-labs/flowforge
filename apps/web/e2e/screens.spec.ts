@@ -50,6 +50,17 @@ for (const theme of THEMES) for (const width of WIDTHS) {
     await page.goto("/signin");
     await check(page, dir, "01-signin");
 
+    await page.getByRole("link", { name: "Forgot password?" }).click();
+    await page.waitForURL("**/forgot-password");
+    await check(page, dir, "01a-forgot-password");
+    await page.getByLabel("Work email").fill(`nobody+${stamp}@example.com`);
+    await page.getByRole("button", { name: "Send reset link" }).click();
+    await expect(page.getByRole("heading", { name: "Check your email" })).toBeVisible();
+    await check(page, dir, "01b-reset-link-sent");
+
+    await page.goto("/reset-password/not-a-real-token");
+    await check(page, dir, "01c-reset-link-invalid");
+
     await page.goto("/signup");
     await check(page, dir, "02-signup");
     await page.getByLabel("Your name").fill("Maya Ortiz");

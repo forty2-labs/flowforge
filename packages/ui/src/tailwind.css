@@ -28,6 +28,7 @@
   --color-on-primary: var(--ff-on-primary);
   --color-on-primary-soft: var(--ff-on-primary-soft);
   --color-link: var(--ff-link);
+  --color-link-hover: var(--ff-link-hover);
   --color-backdrop: var(--ff-backdrop);
   --color-danger: var(--ff-action-danger);
   --color-ai: var(--ff-ai-accent);
