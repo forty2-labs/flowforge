@@ -41,6 +41,12 @@ export interface InvitationPreviewDto {
   expired: boolean;
 }
 
+// What the reset page shows before the new password is chosen.
+export interface PasswordResetPreviewDto {
+  email: string;
+  expired: boolean;
+}
+
 export interface ApiError {
   statusCode: number;
   message: string | string[];

@@ -3,6 +3,8 @@
 import type { SessionDto } from "@flowforge/types";
 import { cookies } from "next/headers";
 import {
+  actionResult,
+  api,
   apiRequest,
   messageFrom,
   SESSION_COOKIE,
@@ -28,7 +30,7 @@ export interface AuthSuccess {
 }
 
 async function startSession(
-  path: "/auth/signin" | "/auth/signup",
+  path: "/auth/signin" | "/auth/signup" | "/auth/password/reset",
   body: Record<string, string>,
   next: unknown,
 ): Promise<ActionResult<AuthSuccess>> {
@@ -79,6 +81,35 @@ export async function signUp(input: SignUpInput): Promise<ActionResult<AuthSucce
       password: String(input.password ?? ""),
     },
     input.next,
+  );
+}
+
+// Called from ForgotPasswordForm. The API answers the same whether or not
+// the account exists.
+export async function requestPasswordReset(email: string): Promise<ActionResult<null>> {
+  return actionResult(async () => {
+    await api("/auth/password/forgot", {
+      method: "POST",
+      body: { email: String(email ?? "") },
+    });
+    return null;
+  });
+}
+
+export interface ResetPasswordInput {
+  token: string;
+  password: string;
+}
+
+// Called from ResetPasswordForm. The API signs out every other session and
+// starts one here, so the person lands signed in.
+export async function resetPassword(
+  input: ResetPasswordInput,
+): Promise<ActionResult<AuthSuccess>> {
+  return startSession(
+    "/auth/password/reset",
+    { token: String(input.token ?? ""), password: String(input.password ?? "") },
+    "/",
   );
 }
 

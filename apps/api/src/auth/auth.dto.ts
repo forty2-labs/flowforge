@@ -30,3 +30,21 @@ export class SignInDto {
   @MaxLength(200)
   password: string;
 }
+
+export class ForgotPasswordDto {
+  @Transform(normaliseEmail)
+  @IsEmail()
+  email: string;
+}
+
+export class ResetPasswordDto {
+  @IsString()
+  @MinLength(1)
+  @MaxLength(200)
+  token: string;
+
+  @IsString()
+  @MinLength(8, { message: 'Password must be at least 8 characters.' })
+  @MaxLength(200)
+  password: string;
+}

@@ -4,6 +4,7 @@ import request from 'supertest';
 import { App } from 'supertest/types.js';
 import { AppModule } from './../src/app.module.js';
 import { configureApp } from './../src/configure-app.js';
+import { MailerService, type Mail } from './../src/mail/mailer.service.js';
 import { PrismaService } from './../src/prisma/prisma.service.js';
 
 describe('Foundations (e2e)', () => {
@@ -20,7 +21,7 @@ describe('Foundations (e2e)', () => {
 
   beforeEach(async () => {
     await prisma.$executeRawUnsafe(
-      'TRUNCATE "Invitation", "Membership", "Session", "Workspace", "User" CASCADE',
+      'TRUNCATE "PasswordReset", "Invitation", "Membership", "Session", "Workspace", "User" CASCADE',
     );
   });
 
@@ -196,5 +197,111 @@ describe('Foundations (e2e)', () => {
 
     await maya.delete(`/workspaces/northstar-studio/invitations/${second.body.id}`).expect(204);
     await request(app.getHttpServer()).get(`/invitations/${secondToken}`).expect(404);
+  });
+
+  describe('password reset', () => {
+    let sent: Mail[];
+
+    beforeEach(() => {
+      sent = [];
+      vi.spyOn(app.get(MailerService), 'send').mockImplementation(async (mail) => {
+        sent.push(mail);
+        return 'logged';
+      });
+    });
+
+    afterEach(() => {
+      vi.restoreAllMocks();
+    });
+
+    const requestReset = (email: string) =>
+      request(app.getHttpServer()).post('/auth/password/forgot').send({ email }).expect(204);
+    const tokenFrom = (mail: Mail) => mail.text.match(/\/reset-password\/([\w-]+)/)![1];
+
+    it('resets the password, signs out other sessions and signs this browser in', async () => {
+      const oldSession = await signUp('Maya Okafor', 'maya@northstar.studio');
+
+      await requestReset('Maya@Northstar.studio ');
+      expect(sent).toHaveLength(1);
+      expect(sent[0].to).toBe('maya@northstar.studio');
+      const token = tokenFrom(sent[0]);
+
+      const preview = await request(app.getHttpServer())
+        .get(`/auth/password/reset/${token}`)
+        .expect(200);
+      expect(preview.body).toEqual({ email: 'maya@northstar.studio', expired: false });
+
+      const browser = request.agent(app.getHttpServer());
+      const reset = await browser
+        .post('/auth/password/reset')
+        .send({ token, password: 'new-password-2026' })
+        .expect(200);
+      expect(reset.body.user.email).toBe('maya@northstar.studio');
+      await browser.get('/auth/me').expect(200);
+      await oldSession.get('/auth/me').expect(401);
+
+      const signIn = (password: string) =>
+        request(app.getHttpServer())
+          .post('/auth/signin')
+          .send({ email: 'maya@northstar.studio', password });
+      await signIn('northstar2026').expect(401);
+      await signIn('new-password-2026').expect(200);
+
+      // A link works once.
+      await request(app.getHttpServer())
+        .post('/auth/password/reset')
+        .send({ token, password: 'another-password' })
+        .expect(404);
+    });
+
+    it('answers the same for an unknown email and sends nothing', async () => {
+      await requestReset('nobody@northstar.studio');
+      expect(sent).toHaveLength(0);
+    });
+
+    it('sends one email for repeated requests within a minute', async () => {
+      await signUp('Maya Okafor', 'maya@northstar.studio');
+      await requestReset('maya@northstar.studio');
+      await requestReset('maya@northstar.studio');
+      expect(sent).toHaveLength(1);
+    });
+
+    it('keeps only the newest link working', async () => {
+      await signUp('Maya Okafor', 'maya@northstar.studio');
+      await requestReset('maya@northstar.studio');
+      const first = tokenFrom(sent[0]);
+      // Move the first request out of the cooldown window.
+      await prisma.passwordReset.updateMany({
+        data: { createdAt: new Date(Date.now() - 2 * 60 * 1000) },
+      });
+      await requestReset('maya@northstar.studio');
+      expect(sent).toHaveLength(2);
+
+      await request(app.getHttpServer()).get(`/auth/password/reset/${first}`).expect(404);
+      await request(app.getHttpServer())
+        .get(`/auth/password/reset/${tokenFrom(sent[1])}`)
+        .expect(200);
+    });
+
+    it('refuses an expired link and a short password', async () => {
+      await signUp('Maya Okafor', 'maya@northstar.studio');
+      await requestReset('maya@northstar.studio');
+      const token = tokenFrom(sent[0]);
+
+      await request(app.getHttpServer())
+        .post('/auth/password/reset')
+        .send({ token, password: 'short' })
+        .expect(400);
+
+      await prisma.passwordReset.updateMany({ data: { expiresAt: new Date(Date.now() - 1000) } });
+      const preview = await request(app.getHttpServer())
+        .get(`/auth/password/reset/${token}`)
+        .expect(200);
+      expect(preview.body.expired).toBe(true);
+      await request(app.getHttpServer())
+        .post('/auth/password/reset')
+        .send({ token, password: 'new-password-2026' })
+        .expect(410);
+    });
   });
 });

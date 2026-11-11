@@ -24,7 +24,7 @@ export class AuthService {
         passwordHash: await hashPassword(dto.password),
       },
     });
-    return { token: await this.createSession(user.id), user: toAuthUser(user) };
+    return this.startSession(user);
   }
 
   async signIn(dto: SignInDto): Promise<{ token: string; user: AuthUser }> {
@@ -33,7 +33,7 @@ export class AuthService {
     if (!user || !(await verifyPassword(dto.password, user.passwordHash))) {
       throw new UnauthorizedException('Email or password is incorrect.');
     }
-    return { token: await this.createSession(user.id), user: toAuthUser(user) };
+    return this.startSession(user);
   }
 
   async signOut(sessionId: string): Promise<void> {
@@ -70,12 +70,12 @@ export class AuthService {
     };
   }
 
-  private async createSession(userId: string): Promise<string> {
+  async startSession(user: AuthUser): Promise<{ token: string; user: AuthUser }> {
     const { token, tokenHash } = newToken();
     await this.prisma.session.create({
-      data: { userId, tokenHash, expiresAt: new Date(Date.now() + SESSION_TTL_MS) },
+      data: { userId: user.id, tokenHash, expiresAt: new Date(Date.now() + SESSION_TTL_MS) },
     });
-    return token;
+    return { token, user: toAuthUser(user) };
   }
 }
 

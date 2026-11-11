@@ -29,9 +29,10 @@ model User {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  sessions    Session[]
-  memberships Membership[]
-  invitations Invitation[] @relation("InvitedBy")
+  sessions       Session[]
+  memberships    Membership[]
+  passwordResets PasswordReset[]
+  invitations    Invitation[]    @relation("InvitedBy")
 }
 
 model Session {
@@ -67,6 +68,21 @@ model Membership {
   user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@id([workspaceId, userId])
+  @@index([userId])
+}
+
+// One active reset link per user: requesting a new one deletes the old.
+// Used or expired rows are kept until the next request or reset.
+model PasswordReset {
+  id        String    @id @default(cuid())
+  userId    String
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@index([userId])
 }
 

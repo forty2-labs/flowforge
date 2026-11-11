@@ -88,6 +88,13 @@ export function AuthForm({ mode }: { mode: "signin" | "signup" }) {
         name="password"
         type="password"
         autoComplete={isSignUp ? "new-password" : "current-password"}
+        labelAside={
+          isSignUp ? undefined : (
+            <Link href="/forgot-password" className="text-body font-medium">
+              Forgot password?
+            </Link>
+          )
+        }
         required
         minLength={isSignUp ? 8 : undefined}
         hint={isSignUp ? "At least 8 characters." : undefined}
