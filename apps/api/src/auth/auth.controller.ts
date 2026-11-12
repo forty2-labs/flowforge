@@ -1,11 +1,18 @@
 import { Body, Controller, Get, HttpCode, Param, Post, Req, Res } from '@nestjs/common';
-import type { PasswordResetPreviewDto, SessionDto } from '@flowforge/types';
+import type { EmailVerifiedDto, PasswordResetPreviewDto, SessionDto } from '@flowforge/types';
 import type { Response } from 'express';
 import { env } from '../env.js';
 import { CurrentUser, Public, type AuthedRequest, type AuthUser } from './auth.decorators.js';
-import { ForgotPasswordDto, ResetPasswordDto, SignInDto, SignUpDto } from './auth.dto.js';
+import {
+  ForgotPasswordDto,
+  ResetPasswordDto,
+  SignInDto,
+  SignUpDto,
+  VerifyEmailDto,
+} from './auth.dto.js';
 import { SESSION_COOKIE } from './auth.guard.js';
 import { AuthService, SESSION_TTL_MS } from './auth.service.js';
+import { EmailVerificationService } from './email-verification.service.js';
 import { PasswordResetService } from './password-reset.service.js';
 
 @Controller('auth')
@@ -13,6 +20,7 @@ export class AuthController {
   constructor(
     private readonly auth: AuthService,
     private readonly passwordReset: PasswordResetService,
+    private readonly emailVerification: EmailVerificationService,
   ) {}
 
   @Public()
@@ -73,6 +81,21 @@ export class AuthController {
     const { token, user } = await this.passwordReset.reset(dto.token, dto.password);
     setSessionCookie(response, token);
     return this.auth.describeSession(user);
+  }
+
+  // Public, so the link works in a browser that is not signed in.
+  @Public()
+  @Post('email/verify')
+  @HttpCode(200)
+  verifyEmail(@Body() dto: VerifyEmailDto): Promise<EmailVerifiedDto> {
+    return this.emailVerification.verify(dto.token);
+  }
+
+  // Always 204: does nothing if already verified or asked within the last minute.
+  @Post('email/resend')
+  @HttpCode(204)
+  async resendVerification(@CurrentUser() user: AuthUser): Promise<void> {
+    await this.emailVerification.resend(user.id);
   }
 
   @Get('me')

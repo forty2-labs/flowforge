@@ -115,6 +115,10 @@ export class InvitationsService {
         `This invitation was sent to ${invitation.email}. Sign in with that email to accept it.`,
       );
     }
+    // Otherwise anyone could sign up with the invited address before its owner does.
+    if (!user.emailVerified) {
+      throw new ForbiddenException('Confirm your email address before accepting this invitation.');
+    }
     await this.prisma.$transaction([
       this.prisma.membership.upsert({
         where: { workspaceId_userId: { workspaceId: invitation.workspaceId, userId: user.id } },

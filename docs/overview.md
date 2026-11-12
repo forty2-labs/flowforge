@@ -62,5 +62,5 @@ Phases 2 to 4 depend on each other in order. Phases 5 and 6 only need phase 2.
 
 - Emails are plain text. Without `RESEND_API_KEY` they are only written to
   the API log; the invitation link is always shown to the inviter as well.
-- Google sign-in, email verification and sign-in rate limiting are not built.
+- Google sign-in and sign-in rate limiting are not built.
 - Dialog and toast components are not built.

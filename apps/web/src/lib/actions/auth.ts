@@ -1,6 +1,6 @@
 "use server";
 
-import type { SessionDto } from "@flowforge/types";
+import type { EmailVerifiedDto, SessionDto } from "@flowforge/types";
 import { cookies } from "next/headers";
 import {
   actionResult,
@@ -111,6 +111,26 @@ export async function resetPassword(
     { token: String(input.token ?? ""), password: String(input.password ?? "") },
     "/",
   );
+}
+
+// Called from VerifyEmail. Works signed in or out, so the link can be opened
+// in any browser.
+export async function verifyEmail(token: string): Promise<ActionResult<EmailVerifiedDto>> {
+  return actionResult(() =>
+    api<EmailVerifiedDto>("/auth/email/verify", {
+      method: "POST",
+      body: { token: String(token ?? "") },
+    }),
+  );
+}
+
+// Called from VerifyEmailNotice. The API sends nothing if a link went out in
+// the last minute, so repeated clicks are harmless.
+export async function resendVerification(): Promise<ActionResult<null>> {
+  return actionResult(async () => {
+    await api("/auth/email/resend", { method: "POST" });
+    return null;
+  });
 }
 
 // Called from a TanStack Query mutation in AccountMenu, which clears the

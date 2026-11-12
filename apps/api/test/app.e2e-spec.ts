@@ -21,7 +21,7 @@ describe('Foundations (e2e)', () => {
 
   beforeEach(async () => {
     await prisma.$executeRawUnsafe(
-      'TRUNCATE "PasswordReset", "Invitation", "Membership", "Session", "Workspace", "User" CASCADE',
+      'TRUNCATE "EmailVerification", "PasswordReset", "Invitation", "Membership", "Session", "Workspace", "User" CASCADE',
     );
   });
 
@@ -29,9 +29,16 @@ describe('Foundations (e2e)', () => {
     await app.close();
   });
 
-  const signUp = async (name: string, email: string) => {
+  // Most tests need a verified account; pass verified: false to skip that step.
+  const signUp = async (name: string, email: string, { verified = true } = {}) => {
     const agent = request.agent(app.getHttpServer());
     await agent.post('/auth/signup').send({ name, email, password: 'northstar2026' }).expect(201);
+    if (verified) {
+      await prisma.user.update({
+        where: { email: email.trim().toLowerCase() },
+        data: { emailVerifiedAt: new Date() },
+      });
+    }
     return agent;
   };
 
@@ -204,8 +211,9 @@ describe('Foundations (e2e)', () => {
 
     beforeEach(() => {
       sent = [];
+      // Only reset emails: sign-up also sends a verification email.
       vi.spyOn(app.get(MailerService), 'send').mockImplementation(async (mail) => {
-        sent.push(mail);
+        if (mail.subject.startsWith('Reset')) sent.push(mail);
         return 'logged';
       });
     });
@@ -302,6 +310,106 @@ describe('Foundations (e2e)', () => {
         .post('/auth/password/reset')
         .send({ token, password: 'new-password-2026' })
         .expect(410);
+    });
+  });
+
+  describe('email verification', () => {
+    let sent: Mail[];
+
+    beforeEach(() => {
+      sent = [];
+      vi.spyOn(app.get(MailerService), 'send').mockImplementation(async (mail) => {
+        sent.push(mail);
+        return 'logged';
+      });
+    });
+
+    afterEach(() => {
+      vi.restoreAllMocks();
+    });
+
+    const tokenFrom = (mail: Mail) => mail.text.match(/\/verify-email\/([\w-]+)/)![1];
+    const verify = (token: string) =>
+      request(app.getHttpServer()).post('/auth/email/verify').send({ token });
+
+    it('emails a link at sign-up that verifies the account once', async () => {
+      const maya = await signUp('Maya Okafor', 'maya@northstar.studio', { verified: false });
+      expect((await maya.get('/auth/me').expect(200)).body.user.emailVerified).toBe(false);
+      expect(sent).toHaveLength(1);
+      expect(sent[0].to).toBe('maya@northstar.studio');
+
+      // Works without a session, so the link can be opened in any browser.
+      const token = tokenFrom(sent[0]);
+      expect((await verify(token).expect(200)).body).toEqual({ email: 'maya@northstar.studio' });
+      expect((await maya.get('/auth/me').expect(200)).body.user.emailVerified).toBe(true);
+      await verify(token).expect(404);
+    });
+
+    it('refuses an expired link', async () => {
+      await signUp('Maya Okafor', 'maya@northstar.studio', { verified: false });
+      await prisma.emailVerification.updateMany({
+        data: { expiresAt: new Date(Date.now() - 1000) },
+      });
+      await verify(tokenFrom(sent[0])).expect(410);
+    });
+
+    it('resends with a one-minute cooldown, and only the newest link works', async () => {
+      const maya = await signUp('Maya Okafor', 'maya@northstar.studio', { verified: false });
+      await maya.post('/auth/email/resend').expect(204);
+      expect(sent).toHaveLength(1);
+
+      await prisma.emailVerification.updateMany({
+        data: { createdAt: new Date(Date.now() - 2 * 60 * 1000) },
+      });
+      await maya.post('/auth/email/resend').expect(204);
+      expect(sent).toHaveLength(2);
+      await verify(tokenFrom(sent[0])).expect(404);
+      await verify(tokenFrom(sent[1])).expect(200);
+
+      // Nothing to send once verified.
+      await prisma.emailVerification.updateMany({
+        data: { createdAt: new Date(Date.now() - 2 * 60 * 1000) },
+      });
+      await maya.post('/auth/email/resend').expect(204);
+      expect(sent).toHaveLength(2);
+      await request(app.getHttpServer()).post('/auth/email/resend').expect(401);
+    });
+
+    it('requires a verified email to accept an invitation', async () => {
+      const maya = await signUp('Maya Okafor', 'maya@northstar.studio');
+      await maya.post('/workspaces').send({ name: 'Northstar Studio' }).expect(201);
+      const invitation = await maya
+        .post('/workspaces/northstar-studio/invitations')
+        .send({ email: 'tom@northstar.studio', role: 'AUTHOR' })
+        .expect(201);
+      const token = (invitation.body.acceptUrl as string).split('/invite/')[1];
+
+      sent = [];
+      const tom = await signUp('Tom Reyes', 'tom@northstar.studio', { verified: false });
+      const refused = await tom.post(`/invitations/${token}/accept`).expect(403);
+      expect(refused.body.message).toMatch(/Confirm your email/);
+
+      await verify(tokenFrom(sent[0])).expect(200);
+      await tom.post(`/invitations/${token}/accept`).expect(200);
+    });
+
+    it('counts a password reset as verifying the email', async () => {
+      await signUp('Maya Okafor', 'maya@northstar.studio', { verified: false });
+      const signUpLink = tokenFrom(sent[0]);
+      await request(app.getHttpServer())
+        .post('/auth/password/forgot')
+        .send({ email: 'maya@northstar.studio' })
+        .expect(204);
+      const resetToken = sent[1].text.match(/\/reset-password\/([\w-]+)/)![1];
+
+      const browser = request.agent(app.getHttpServer());
+      const reset = await browser
+        .post('/auth/password/reset')
+        .send({ token: resetToken, password: 'new-password-2026' })
+        .expect(200);
+      expect(reset.body.user.emailVerified).toBe(true);
+      // The sign-up link is no longer needed.
+      await verify(signUpLink).expect(404);
     });
   });
 });

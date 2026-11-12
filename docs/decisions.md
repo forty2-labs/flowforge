@@ -77,6 +77,20 @@ the end of the relevant section.
   with the invited address.
 - **Cost:** the invited person must use that exact address.
 
+### Unverified accounts can use the app but not accept invitations
+
+- **Why:** an invitation is accepted by whoever is signed in with the invited
+  address. Without verification, anyone could sign up with that address
+  before its owner and join the workspace. Requiring verification only there
+  closes that hole without making every new account wait for an email before
+  seeing the product. Opening a password reset link also counts, since it
+  proves the same thing.
+- **Cost:** an unverified account can still create its own workspaces and
+  invite others. Accounts created before verification existed were marked
+  verified by the migration, without proof. Confirming takes a click on the
+  page rather than happening when the link opens, so mail scanners that
+  follow links do not use them up.
+
 ### Password reset is ours, not Supabase Auth's
 
 - **Why:** Supabase's reset flow only works for users stored in its

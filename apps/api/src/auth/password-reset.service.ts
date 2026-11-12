@@ -78,6 +78,7 @@ export class PasswordResetService {
       throw new GoneException('This reset link has expired. Ask for a new one.');
     }
     const passwordHash = await hashPassword(password);
+    const emailVerifiedAt = reset.user.emailVerifiedAt ?? new Date();
     await this.prisma.$transaction(async (tx) => {
       // Conditional on usedAt, so two requests racing with one link cannot
       // both win. The loser throws, which rolls back its password change.
@@ -88,10 +89,15 @@ export class PasswordResetService {
       if (claimed.count === 0) {
         throw new NotFoundException('This reset link is no longer valid.');
       }
-      await tx.user.update({ where: { id: reset.userId }, data: { passwordHash } });
+      // Opening the emailed link proves they control the inbox.
+      await tx.user.update({
+        where: { id: reset.userId },
+        data: { passwordHash, emailVerifiedAt },
+      });
       await tx.session.deleteMany({ where: { userId: reset.userId } });
+      await tx.emailVerification.deleteMany({ where: { userId: reset.userId } });
     });
-    return this.auth.startSession(reset.user);
+    return this.auth.startSession({ ...reset.user, emailVerifiedAt });
   }
 
   private async findByToken(token: string) {

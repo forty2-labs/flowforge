@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
 import { CreateWorkspaceForm } from "@/components/create-workspace-form";
+import { VerifyEmailNotice } from "@/components/verify-email-notice";
 import { requireSession } from "@/lib/session";
 
 export const metadata: Metadata = { title: "Create workspace" };
@@ -12,6 +13,9 @@ export default function NewWorkspacePage() {
     <main className="flex flex-1 items-center justify-center px-4 py-12">
       <div className="flex w-full max-w-[440px] flex-col gap-6 glass rounded-xl p-7">
         <Wordmark />
+        <Suspense>
+          <EmailNotice />
+        </Suspense>
         <div className="flex flex-col gap-1.5">
           <h1 className="text-page">
             Create a workspace
@@ -28,6 +32,12 @@ export default function NewWorkspacePage() {
       </div>
     </main>
   );
+}
+
+async function EmailNotice() {
+  const session = await requireSession();
+  if (session.user.emailVerified) return null;
+  return <VerifyEmailNotice email={session.user.email} />;
 }
 
 async function BackLink() {
