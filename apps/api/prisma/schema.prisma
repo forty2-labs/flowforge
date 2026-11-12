@@ -22,17 +22,20 @@ enum InvitationStatus {
 }
 
 model User {
-  id           String   @id @default(cuid())
-  email        String   @unique
-  name         String
-  passwordHash String
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id              String    @id @default(cuid())
+  email           String    @unique
+  name            String
+  passwordHash    String
+  // Null until the person opens the link from their verification email.
+  emailVerifiedAt DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
 
-  sessions       Session[]
-  memberships    Membership[]
-  passwordResets PasswordReset[]
-  invitations    Invitation[]    @relation("InvitedBy")
+  sessions           Session[]
+  memberships        Membership[]
+  passwordResets     PasswordReset[]
+  emailVerifications EmailVerification[]
+  invitations        Invitation[]        @relation("InvitedBy")
 }
 
 model Session {
@@ -80,6 +83,20 @@ model PasswordReset {
   expiresAt DateTime
   usedAt    DateTime?
   createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+// One active verification link per user, like PasswordReset. Verifying
+// deletes it.
+model EmailVerification {
+  id        String   @id @default(cuid())
+  userId    String
+  tokenHash String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 

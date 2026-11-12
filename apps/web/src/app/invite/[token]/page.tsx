@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
 import { AcceptInvitation } from "@/components/accept-invitation";
+import { VerifyEmailNotice } from "@/components/verify-email-notice";
 import { api, ApiRequestError } from "@/lib/api";
 import { getSession } from "@/lib/session";
 
@@ -85,6 +86,12 @@ async function Invitation({ params }: Pick<PageProps<"/invite/[token]">, "params
           You’re signed in as {session.user.email}. Sign in as {invitation.email}{" "}
           to accept this invitation.
         </Alert>
+      ) : !session.user.emailVerified ? (
+        <VerifyEmailNotice email={session.user.email}>
+          Confirm your email address to accept. We sent a link to{" "}
+          <b className="font-semibold">{session.user.email}</b>; open it, then come
+          back to this page.
+        </VerifyEmailNotice>
       ) : (
         <AcceptInvitation token={token} />
       )}

@@ -61,6 +61,9 @@ for (const theme of THEMES) for (const width of WIDTHS) {
     await page.goto("/reset-password/not-a-real-token");
     await check(page, dir, "01c-reset-link-invalid");
 
+    await page.goto("/verify-email/not-a-real-token");
+    await check(page, dir, "01d-verify-email");
+
     await page.goto("/signup");
     await check(page, dir, "02-signup");
     await page.getByLabel("Your name").fill("Maya Ortiz");

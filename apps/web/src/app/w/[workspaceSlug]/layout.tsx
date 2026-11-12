@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import { Sidebar } from "@/components/sidebar";
-import { requireWorkspace } from "@/lib/session";
+import { VerifyEmailNotice } from "@/components/verify-email-notice";
+import { getSession, requireWorkspace } from "@/lib/session";
 
 export default function WorkspaceLayout({
   children,
@@ -13,6 +14,9 @@ export default function WorkspaceLayout({
       </Suspense>
       <main className="min-w-0 flex-1 px-4 py-6 md:px-6 md:py-8 xl:px-8">
         <div className="mx-auto flex w-full max-w-300 flex-col gap-6">
+          <Suspense>
+            <EmailNotice />
+          </Suspense>
           {children}
         </div>
       </main>
@@ -26,6 +30,12 @@ async function WorkspaceSidebar({
   const { workspaceSlug } = await params;
   const { session, workspace } = await requireWorkspace(workspaceSlug);
   return <Sidebar session={session} workspace={workspace} />;
+}
+
+async function EmailNotice() {
+  const session = await getSession();
+  if (!session || session.user.emailVerified) return null;
+  return <VerifyEmailNotice email={session.user.email} />;
 }
 
 function SidebarFallback() {

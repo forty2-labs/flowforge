@@ -4,6 +4,8 @@ export interface UserDto {
   id: string;
   email: string;
   name: string;
+  // False until the person opens the link from their verification email.
+  emailVerified: boolean;
 }
 
 export interface WorkspaceDto {
@@ -39,6 +41,11 @@ export interface InvitationPreviewDto {
   role: Role;
   workspaceName: string;
   expired: boolean;
+}
+
+// Answer to opening a verification link.
+export interface EmailVerifiedDto {
+  email: string;
 }
 
 // What the reset page shows before the new password is chosen.

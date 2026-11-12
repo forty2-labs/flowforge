@@ -2,6 +2,7 @@ import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/co
 import type { SessionDto } from '@flowforge/types';
 import { hashToken, newToken } from '../common/tokens.js';
 import { PrismaService } from '../prisma/prisma.service.js';
+import { EmailVerificationService } from './email-verification.service.js';
 import type { AuthUser } from './auth.decorators.js';
 import type { SignInDto, SignUpDto } from './auth.dto.js';
 import { hashPassword, verifyPassword } from './password.js';
@@ -10,7 +11,10 @@ export const SESSION_TTL_MS = 30 * 24 * 60 * 60 * 1000;
 
 @Injectable()
 export class AuthService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly emailVerification: EmailVerificationService,
+  ) {}
 
   async signUp(dto: SignUpDto): Promise<{ token: string; user: AuthUser }> {
     const existing = await this.prisma.user.findUnique({ where: { email: dto.email } });
@@ -24,6 +28,7 @@ export class AuthService {
         passwordHash: await hashPassword(dto.password),
       },
     });
+    await this.emailVerification.send(user);
     return this.startSession(user);
   }
 
@@ -70,7 +75,7 @@ export class AuthService {
     };
   }
 
-  async startSession(user: AuthUser): Promise<{ token: string; user: AuthUser }> {
+  async startSession(user: UserRecord): Promise<{ token: string; user: AuthUser }> {
     const { token, tokenHash } = newToken();
     await this.prisma.session.create({
       data: { userId: user.id, tokenHash, expiresAt: new Date(Date.now() + SESSION_TTL_MS) },
@@ -79,6 +84,19 @@ export class AuthService {
   }
 }
 
-function toAuthUser(user: { id: string; email: string; name: string }): AuthUser {
-  return { id: user.id, email: user.email, name: user.name };
+// The User columns an AuthUser is built from.
+export interface UserRecord {
+  id: string;
+  email: string;
+  name: string;
+  emailVerifiedAt: Date | null;
+}
+
+function toAuthUser(user: UserRecord): AuthUser {
+  return {
+    id: user.id,
+    email: user.email,
+    name: user.name,
+    emailVerified: user.emailVerifiedAt !== null,
+  };
 }
