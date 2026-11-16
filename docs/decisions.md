@@ -243,6 +243,19 @@ the end of the relevant section.
   `transpilePackages` in [next.config.ts](../apps/web/next.config.ts).
 - **Cost:** only tools that compile TypeScript can consume it.
 
+### The public site lives in the web app, and / splits on the session cookie
+
+- **Why:** the public pages (home, pricing, about, contact) sit in a
+  `(marketing)` route group in `apps/web`, so they reuse the fonts, tokens,
+  glass, theme script and components without a second app. `src/proxy.ts`
+  sends a request for `/` that carries `ff_session` to `/start`, which checks
+  the session and takes the person into the app. Without the cookie, `/` is
+  a static page. `/start` deletes a cookie the API no longer accepts, so a
+  lapsed visitor sees the home page instead of being stuck on sign-in.
+- **Cost:** the public site deploys with the app, so a broken marketing page
+  ships through the product's pipeline. A stale cookie costs one extra
+  redirect.
+
 ## Inherited from the generators
 
 These came from the project scaffolds rather than from a decision. They are

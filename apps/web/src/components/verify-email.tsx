@@ -27,7 +27,7 @@ export function VerifyEmail({ token }: { token: string }) {
           </p>
         </div>
         <Link
-          href="/"
+          href="/start"
           className="inline-flex h-11 items-center justify-center rounded-md bg-primary px-4 text-title font-medium text-white hover:bg-primary-hover hover:text-white"
         >
           Continue to Flowforge
