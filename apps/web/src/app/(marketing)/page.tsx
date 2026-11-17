@@ -1,6 +1,7 @@
 import { StatusMark } from "@flowforge/ui";
 import type { Metadata } from "next";
 import Link from "next/link";
+import { EditorDemo } from "@/components/marketing/demo/editor-demo";
 import {
   HeroIllustration,
   ModelIllustration,
@@ -136,6 +137,7 @@ export default function Home() {
             changes as you type, and Publish makes them live on both.
           </p>
         </div>
+        <EditorDemo />
       </section>
 
       <section aria-labelledby="who-title" className="grid gap-10 lg:grid-cols-[1fr_2fr]">

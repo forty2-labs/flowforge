@@ -1,6 +1,7 @@
 export { Alert } from './alert';
 export { Avatar, initials } from './avatar';
 export { Badge } from './badge';
+export { BrowserFrame } from './browser-frame';
 export { Button, type ButtonProps } from './button';
 export { ConfirmDialog } from './confirm-dialog';
 export { cx } from './cx';
@@ -16,6 +17,7 @@ export {
   DropdownMenuTrigger,
 } from './components/dropdown-menu';
 export { LogoMark, Wordmark } from './logo';
+export { PhoneFrame } from './phone-frame';
 export { Skeleton } from './skeleton';
 export { StatusMark, type Status } from './status-mark';
 export { ToastProvider, useToast } from './toast';

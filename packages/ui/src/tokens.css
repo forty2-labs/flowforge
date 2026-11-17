@@ -22,6 +22,12 @@
   /* Highlights draw the eye to a number or a new thing. Never an action. */
   --ff-highlight: #d4f25a;
   --ff-on-highlight: #0e1726;
+  /* Sample brand colours for the public site's editor demo. They stand for a
+     customer's own brand, so they are the same in every theme and always
+     carry white text at 4.5:1 or more. */
+  --ff-sample-forest: #1f6f4a;
+  --ff-sample-ocean: #1d5f8a;
+  --ff-sample-ink: #0e1726;
 
   /* The ambient ground the glass sits on. It is what makes glass visible. */
   --ff-bg-app: #edf0ef;

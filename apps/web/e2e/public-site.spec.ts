@@ -157,3 +157,108 @@ test.describe("home", () => {
     await expect(page.locator('meta[property="og:title"]')).toHaveCount(1);
   });
 });
+
+test.describe("demo", () => {
+  const CAFE_TITLE = "Spring menu, now serving";
+
+  async function openDemo(page: Page, width = 1440) {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto("/#demo");
+    await page.waitForLoadState("networkidle");
+    const demo = page.locator("#demo");
+    return {
+      demo,
+      title: demo.getByLabel("Title"),
+      web: demo.getByTestId("preview-web"),
+      phone: demo.getByTestId("preview-phone"),
+      status: demo.getByTestId("demo-status"),
+      previewLabel: demo.getByTestId("preview-label"),
+      live: demo.getByRole("status"),
+    };
+  }
+
+  test("typing updates both previews", async ({ page }) => {
+    const d = await openDemo(page);
+    await d.title.fill("Autumn menu");
+    await expect(d.web).toContainText("Autumn menu");
+    await expect(d.phone).toContainText("Autumn menu");
+    await expect(d.status).toHaveText("Unpublished changes");
+    await expect(d.previewLabel).toHaveText("Preview of unpublished changes");
+  });
+
+  test("publish marks the page published", async ({ page }) => {
+    const d = await openDemo(page);
+    await d.title.fill("Autumn menu");
+    await d.demo.getByRole("button", { name: "Publish" }).click();
+    await expect(d.status).toHaveText("Published");
+    await expect(d.previewLabel).toHaveText("Published");
+    await expect(d.live).toContainText("Published");
+  });
+
+  test("switching preset resets content and status", async ({ page }) => {
+    const d = await openDemo(page);
+    await d.title.fill("Autumn menu");
+    // People click the visible label; the radio itself is visually hidden.
+    await d.demo.locator("label", { hasText: "Shop" }).click();
+    await expect(d.demo.getByRole("radio", { name: "Shop" })).toBeChecked();
+    await expect(d.status).toHaveText("Published");
+    await expect(d.title).not.toHaveValue("Autumn menu");
+    const shopTitle = await d.title.inputValue();
+    await expect(d.web).toContainText(shopTitle);
+    await expect(d.phone).toContainText(shopTitle);
+  });
+
+  test("reset restores the preset", async ({ page }) => {
+    const d = await openDemo(page);
+    await d.title.fill("Autumn menu");
+    await d.demo.getByRole("button", { name: "Reset" }).click();
+    await expect(d.title).toHaveValue(CAFE_TITLE);
+    await expect(d.status).toHaveText("Published");
+  });
+
+  test("empty title shows Untitled", async ({ page }) => {
+    const d = await openDemo(page);
+    await d.title.fill("");
+    await expect(d.web).toContainText("Untitled");
+    await expect(d.phone).toContainText("Untitled");
+  });
+
+  test("long words wrap at 360 px", async ({ page }) => {
+    const d = await openDemo(page, 360);
+    await d.title.fill("a".repeat(200));
+    const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+    expect(overflow).toBeLessThanOrEqual(0);
+  });
+
+  test("phone width switches previews with tabs", async ({ page }) => {
+    const d = await openDemo(page, 390);
+    const website = d.demo.getByRole("tab", { name: "Website" });
+    await expect(website).toHaveAttribute("aria-selected", "true");
+    await website.focus();
+    await page.keyboard.press("ArrowRight");
+    const phoneTab = d.demo.getByRole("tab", { name: "Phone" });
+    await expect(phoneTab).toHaveAttribute("aria-selected", "true");
+    await expect(phoneTab).toBeFocused();
+    await expect(d.phone).toBeVisible();
+    await expect(d.web).toBeHidden();
+  });
+
+  test("demo works from the keyboard", async ({ page }) => {
+    const d = await openDemo(page);
+    await d.demo.getByRole("radio", { name: "Café" }).focus();
+    for (let i = 0; i < 5 && !(await d.title.evaluate((el) => el === document.activeElement)); i++) {
+      await page.keyboard.press("Tab");
+    }
+    await expect(d.title).toBeFocused();
+    await page.keyboard.press("End");
+    await page.keyboard.type(" today");
+    await expect(d.status).toHaveText("Unpublished changes");
+    const publish = d.demo.getByRole("button", { name: "Publish" });
+    for (let i = 0; i < 10 && !(await publish.evaluate((el) => el === document.activeElement)); i++) {
+      await page.keyboard.press("Tab");
+    }
+    await expect(publish).toBeFocused();
+    await page.keyboard.press("Enter");
+    await expect(d.status).toHaveText("Published");
+  });
+});

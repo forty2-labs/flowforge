@@ -35,6 +35,9 @@
   --color-ai-soft: var(--ff-ai-soft);
   --color-highlight: var(--ff-highlight);
   --color-on-highlight: var(--ff-on-highlight);
+  --color-sample-forest: var(--ff-sample-forest);
+  --color-sample-ocean: var(--ff-sample-ocean);
+  --color-sample-ink: var(--ff-sample-ink);
 
   --color-app: var(--ff-bg-app);
   --color-surface: var(--ff-bg-surface);
