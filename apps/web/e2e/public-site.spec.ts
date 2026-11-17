@@ -60,3 +60,72 @@ test.describe("routing", () => {
     expect(cookies.find((cookie) => cookie.name === "ff_session")).toBeUndefined();
   });
 });
+
+test.describe("site chrome", () => {
+  test("header links reach every page", async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto("/");
+    const nav = page.getByRole("navigation", { name: "Main" });
+    for (const label of ["Pricing", "About", "Contact"]) {
+      await expect(nav.getByRole("link", { name: label })).toBeVisible();
+    }
+    const banner = page.getByRole("banner");
+    await expect(banner.getByRole("link", { name: "Sign in" })).toHaveAttribute("href", "/signin");
+    await expect(banner.getByRole("link", { name: "Get started" })).toHaveAttribute("href", "/signup");
+  });
+
+  test("theme switch cycles light, dark, system", async ({ page }) => {
+    const hydration: string[] = [];
+    page.on("console", (message) => {
+      if (/hydrat/i.test(message.text())) hydration.push(message.text());
+    });
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto("/");
+    await page.waitForLoadState("networkidle");
+    const html = page.locator("html");
+    const button = page.getByRole("button", { name: /^Theme:/ });
+    await expect(button).toHaveAccessibleName("Theme: System");
+    await button.click();
+    await expect(html).toHaveAttribute("data-theme", "light");
+    await expect(button).toHaveAccessibleName("Theme: Light");
+    await button.click();
+    await expect(html).toHaveAttribute("data-theme", "dark");
+    await expect(button).toHaveAccessibleName("Theme: Dark");
+    await button.click();
+    await expect(html).not.toHaveAttribute("data-theme");
+    await expect(button).toHaveAccessibleName("Theme: System");
+    expect(hydration).toEqual([]);
+  });
+
+  test("mobile menu opens and closes with Escape", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 900 });
+    await page.goto("/");
+    await page.waitForLoadState("networkidle");
+    const banner = page.getByRole("banner");
+    await expect(banner.getByRole("link", { name: "Pricing" })).toBeHidden();
+    const menu = page.getByRole("button", { name: "Menu" });
+    await menu.click();
+    const dialog = page.getByRole("dialog", { name: "Menu" });
+    await expect(dialog.getByRole("link", { name: "Pricing" })).toBeVisible();
+    await page.keyboard.press("Escape");
+    await expect(dialog).toBeHidden();
+    await expect(menu).toBeFocused();
+  });
+
+  test("footer lists contact and social links", async ({ page }) => {
+    await page.goto("/");
+    const footer = page.getByRole("contentinfo");
+    await expect(footer.locator('a[href^="mailto:"]')).toHaveCount(1);
+    for (const network of ["X", "LinkedIn", "Instagram", "GitHub"]) {
+      await expect(footer.getByRole("link", { name: new RegExp(`^${network}\\b`) })).toBeVisible();
+    }
+  });
+
+  test("privacy and terms pages exist", async ({ page }) => {
+    for (const path of ["/privacy", "/terms"]) {
+      const response = await page.goto(path);
+      expect(response?.status(), path).toBe(200);
+      await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+    }
+  });
+});

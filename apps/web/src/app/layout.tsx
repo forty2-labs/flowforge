@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist_Mono, Newsreader, Schibsted_Grotesk } from "next/font/google";
 import { ToastProvider } from "@flowforge/ui";
 import { QueryProvider } from "@/components/query-provider";
+import { SITE_URL } from "@/lib/site";
 import { THEME_SCRIPT } from "@/lib/theme-script";
 import "./globals.css";
 
@@ -25,6 +26,7 @@ const newsreader = Newsreader({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: { default: "Flowforge", template: "%s · Flowforge" },
   description:
     "Manage the content and layouts of your website and apps in one place.",
