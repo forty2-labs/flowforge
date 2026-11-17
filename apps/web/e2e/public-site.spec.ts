@@ -129,3 +129,31 @@ test.describe("site chrome", () => {
     }
   });
 });
+
+test.describe("home", () => {
+  test("home explains the product and links to the demo", async ({ page }) => {
+    await page.goto("/");
+    await expect(page.getByRole("heading", { level: 1 })).toHaveCount(1);
+    await expect(page.getByRole("link", { name: "See it work" })).toHaveAttribute("href", "#demo");
+    await expect(page.locator("#demo")).toHaveCount(1);
+  });
+
+  test("how it works has three steps in order", async ({ page }) => {
+    await page.goto("/");
+    await expect(page.getByRole("list", { name: "How it works" }).getByRole("listitem")).toHaveCount(3);
+  });
+
+  test("FAQ answers expand", async ({ page }) => {
+    await page.goto("/");
+    const section = page.getByRole("region", { name: "Questions" });
+    const first = section.locator("details").first();
+    await first.locator("summary").click();
+    await expect(first).toHaveAttribute("open", "");
+  });
+
+  test("home sets page metadata", async ({ page }) => {
+    await page.goto("/");
+    await expect(page).toHaveTitle(/Flowforge/);
+    await expect(page.locator('meta[property="og:title"]')).toHaveCount(1);
+  });
+});
