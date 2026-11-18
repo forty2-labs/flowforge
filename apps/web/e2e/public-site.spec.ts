@@ -1,4 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
+import { CONTACT_EMAIL, SOCIAL_LINKS, TEAM } from "../src/lib/site";
 
 // Behaviour of the public site: routing at /, the shared header and footer,
 // the home page, the editor demo, and the other marketing pages. Screenshots
@@ -131,11 +132,17 @@ test.describe("site chrome", () => {
 });
 
 test.describe("home", () => {
-  test("home explains the product and links to the demo", async ({ page }) => {
+  test("the hero shows a website and a phone joined by the flow", async ({ page }) => {
     await page.goto("/");
     await expect(page.getByRole("heading", { level: 1 })).toHaveCount(1);
-    await expect(page.getByRole("link", { name: "See it work" })).toHaveAttribute("href", "#demo");
-    await expect(page.locator("#demo")).toHaveCount(1);
+    const hero = page.locator("section").filter({ has: page.getByRole("heading", { level: 1 }) });
+    await expect(hero.getByTestId("flow-field")).toHaveCount(1);
+    await expect(hero.locator('[data-flow="source"]')).toHaveCount(1);
+    await expect(hero.locator('[data-flow="target"]')).toHaveCount(2);
+    // The editor lives in its own section further down, not in the hero.
+    await expect(hero.getByRole("textbox", { name: "Page content" })).toHaveCount(0);
+    await expect(page.locator("#demo").getByRole("textbox", { name: "Page content" })).toBeVisible();
+    await expect(page.getByRole("link", { name: "See pricing" })).toHaveAttribute("href", "/pricing");
   });
 
   test("how it works has three steps in order", async ({ page }) => {
@@ -151,6 +158,20 @@ test.describe("home", () => {
     await expect(first).toHaveAttribute("open", "");
   });
 
+  test("illustrations keep cobalt for actions only", async ({ page }) => {
+    await page.goto("/");
+    const cobalt = page.locator('[aria-hidden="true"] :is(.fill-primary, .fill-primary-soft, .stroke-primary)');
+    await expect(cobalt).toHaveCount(0);
+  });
+
+  test("home copy does not describe unbuilt features as available", async ({ page }) => {
+    await page.goto("/");
+    const main = page.getByRole("main");
+    for (const claim of ["You choose a starting layout", "Both read the same published entries", "see exactly what will change"]) {
+      await expect(main.getByText(claim)).toHaveCount(0);
+    }
+  });
+
   test("home sets page metadata", async ({ page }) => {
     await page.goto("/");
     await expect(page).toHaveTitle(/Flowforge/);
@@ -163,12 +184,14 @@ test.describe("demo", () => {
 
   async function openDemo(page: Page, width = 1440) {
     await page.setViewportSize({ width, height: 900 });
-    await page.goto("/#demo");
-    await page.waitForLoadState("networkidle");
+    await page.goto("/");
     const demo = page.locator("#demo");
+    const editor = demo.getByRole("textbox", { name: "Page content" });
+    // The live editor replaces the server-rendered copy once it mounts.
+    await expect(editor).toHaveAttribute("contenteditable", "true");
     return {
       demo,
-      title: demo.getByLabel("Title"),
+      editor,
       web: demo.getByTestId("preview-web"),
       phone: demo.getByTestId("preview-phone"),
       status: demo.getByTestId("demo-status"),
@@ -177,18 +200,56 @@ test.describe("demo", () => {
     };
   }
 
+  async function replaceAll(page: Page, editor: import("@playwright/test").Locator, text: string) {
+    await editor.click();
+    await page.keyboard.press("ControlOrMeta+A");
+    if (text) await page.keyboard.type(text);
+    else await page.keyboard.press("Backspace");
+  }
+
+  test("the editor sits above the website and phone previews", async ({ page }) => {
+    const d = await openDemo(page);
+    const editor = (await d.editor.boundingBox())!;
+    const web = (await d.web.boundingBox())!;
+    const phone = (await d.phone.boundingBox())!;
+    expect(web.y).toBeGreaterThan(editor.y + editor.height);
+    expect(phone.x).toBeGreaterThan(web.x + web.width - 1);
+    expect(Math.abs(phone.y - web.y)).toBeLessThan(80);
+  });
+
   test("typing updates both previews", async ({ page }) => {
     const d = await openDemo(page);
-    await d.title.fill("Autumn menu");
+    await replaceAll(page, d.editor, "Autumn menu");
     await expect(d.web).toContainText("Autumn menu");
     await expect(d.phone).toContainText("Autumn menu");
     await expect(d.status).toHaveText("Unpublished changes");
     await expect(d.previewLabel).toHaveText("Preview of unpublished changes");
   });
 
+  test("formatting from the toolbar shows in the previews", async ({ page }) => {
+    const d = await openDemo(page);
+    await replaceAll(page, d.editor, "Soup of the day");
+    await page.keyboard.press("ControlOrMeta+A");
+    const bold = d.demo.getByRole("toolbar", { name: "Formatting" }).getByRole("button", { name: "Bold" });
+    await bold.click();
+    await expect(bold).toHaveAttribute("aria-pressed", "true");
+    await expect(d.web.locator("strong")).toContainText("Soup of the day");
+    await expect(d.phone.locator("strong")).toContainText("Soup of the day");
+  });
+
+  test("the formatting toolbar moves with arrow keys", async ({ page }) => {
+    const d = await openDemo(page);
+    const toolbar = d.demo.getByRole("toolbar", { name: "Formatting" });
+    await toolbar.getByRole("button", { name: "Bold" }).focus();
+    await page.keyboard.press("ArrowRight");
+    await expect(toolbar.getByRole("button", { name: "Italic" })).toBeFocused();
+    await page.keyboard.press("End");
+    await expect(toolbar.getByRole("button", { name: "Numbered list" })).toBeFocused();
+  });
+
   test("publish marks the page published", async ({ page }) => {
     const d = await openDemo(page);
-    await d.title.fill("Autumn menu");
+    await replaceAll(page, d.editor, "Autumn menu");
     await d.demo.getByRole("button", { name: "Publish" }).click();
     await expect(d.status).toHaveText("Published");
     await expect(d.previewLabel).toHaveText("Published");
@@ -197,37 +258,51 @@ test.describe("demo", () => {
 
   test("switching preset resets content and status", async ({ page }) => {
     const d = await openDemo(page);
-    await d.title.fill("Autumn menu");
+    await replaceAll(page, d.editor, "Autumn menu");
     // People click the visible label; the radio itself is visually hidden.
     await d.demo.locator("label", { hasText: "Shop" }).click();
     await expect(d.demo.getByRole("radio", { name: "Shop" })).toBeChecked();
     await expect(d.status).toHaveText("Published");
-    await expect(d.title).not.toHaveValue("Autumn menu");
-    const shopTitle = await d.title.inputValue();
-    await expect(d.web).toContainText(shopTitle);
-    await expect(d.phone).toContainText(shopTitle);
+    await expect(d.editor).toContainText("The linen apron, back in stock");
+    await expect(d.web).toContainText("The linen apron, back in stock");
+    await expect(d.phone).toContainText("The linen apron, back in stock");
   });
 
   test("reset restores the preset", async ({ page }) => {
     const d = await openDemo(page);
-    await d.title.fill("Autumn menu");
+    await replaceAll(page, d.editor, "Autumn menu");
     await d.demo.getByRole("button", { name: "Reset" }).click();
-    await expect(d.title).toHaveValue(CAFE_TITLE);
+    await expect(d.editor).toContainText(CAFE_TITLE);
     await expect(d.status).toHaveText("Published");
   });
 
-  test("empty title shows Untitled", async ({ page }) => {
+  test("empty content shows Untitled", async ({ page }) => {
     const d = await openDemo(page);
-    await d.title.fill("");
+    await replaceAll(page, d.editor, "");
     await expect(d.web).toContainText("Untitled");
     await expect(d.phone).toContainText("Untitled");
   });
 
   test("long words wrap at 360 px", async ({ page }) => {
     const d = await openDemo(page, 360);
-    await d.title.fill("a".repeat(200));
+    await replaceAll(page, d.editor, "a".repeat(200));
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
     expect(overflow).toBeLessThanOrEqual(0);
+  });
+
+  // The frames clip their content, so a word that does not wrap would be cut
+  // off rather than widen the page. Measure the text inside each preview.
+  test("long words wrap inside both previews", async ({ page }) => {
+    const d = await openDemo(page, 768);
+    await replaceAll(page, d.editor, "a".repeat(200));
+    await page.keyboard.press("Enter");
+    await page.keyboard.type("b".repeat(400));
+    for (const preview of [d.web, d.phone]) {
+      for (const text of await preview.locator("h3, p").all()) {
+        const fits = await text.evaluate((el) => el.scrollWidth <= el.clientWidth);
+        expect(fits).toBe(true);
+      }
+    }
   });
 
   test("phone width switches previews with tabs", async ({ page }) => {
@@ -245,13 +320,11 @@ test.describe("demo", () => {
 
   test("demo works from the keyboard", async ({ page }) => {
     const d = await openDemo(page);
-    await d.demo.getByRole("radio", { name: "Café" }).focus();
-    for (let i = 0; i < 5 && !(await d.title.evaluate((el) => el === document.activeElement)); i++) {
-      await page.keyboard.press("Tab");
-    }
-    await expect(d.title).toBeFocused();
-    await page.keyboard.press("End");
-    await page.keyboard.type(" today");
+    // The formatting toolbar comes first; one Tab moves into the text.
+    await d.demo.getByRole("toolbar", { name: "Formatting" }).getByRole("button", { name: "Bold" }).focus();
+    await page.keyboard.press("Tab");
+    await expect(d.editor).toBeFocused();
+    await page.keyboard.type("Today: ");
     await expect(d.status).toHaveText("Unpublished changes");
     const publish = d.demo.getByRole("button", { name: "Publish" });
     for (let i = 0; i < 10 && !(await publish.evaluate((el) => el === document.activeElement)); i++) {
@@ -260,5 +333,161 @@ test.describe("demo", () => {
     await expect(publish).toBeFocused();
     await page.keyboard.press("Enter");
     await expect(d.status).toHaveText("Published");
+    // Publishing must not drop keyboard focus to the page.
+    await expect(publish).toBeFocused();
+    await expect(publish).toHaveAttribute("aria-disabled", "true");
+  });
+});
+
+test.describe("pricing", () => {
+  test("pricing shows three plans as early access", async ({ page }) => {
+    const response = await page.goto("/pricing");
+    expect(response?.status()).toBe(200);
+    // Each plan is a direct child; its feature list nests further items.
+    const plans = page.getByRole("list", { name: "Plans" }).locator(":scope > li");
+    await expect(plans).toHaveCount(3);
+    await expect(page.getByText("Early access pricing")).toBeVisible();
+    await expect(page.getByRole("link", { name: "Talk to us" })).toHaveAttribute("href", "/contact");
+    const signups = plans.getByRole("link").filter({ hasNotText: "Talk to us" });
+    await expect(signups).toHaveCount(2);
+    for (const link of await signups.all()) await expect(link).toHaveAttribute("href", "/signup");
+  });
+
+  test("pricing makes no commitments nobody agreed to", async ({ page }) => {
+    await page.goto("/pricing");
+    const main = page.getByRole("main");
+    await expect(main.getByText("at least a year")).toHaveCount(0);
+    await expect(main.getByText("Yes, at any time")).toHaveCount(0);
+  });
+
+  test("comparison table scrolls inside its box on phones", async ({ page }) => {
+    await page.setViewportSize({ width: 360, height: 900 });
+    await page.goto("/pricing");
+    await expect(page.getByRole("table")).toHaveCount(1);
+    const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+    expect(overflow).toBeLessThanOrEqual(0);
+  });
+});
+
+test.describe("about and contact", () => {
+  test("about lists the team", async ({ page }) => {
+    const response = await page.goto("/about");
+    expect(response?.status()).toBe(200);
+    await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+    const team = page.getByRole("list", { name: "Team" }).locator(":scope > li");
+    await expect(team).toHaveCount(TEAM.length);
+    for (const person of TEAM) {
+      await expect(team.filter({ hasText: person.name })).toContainText(person.role);
+    }
+  });
+
+  test("contact offers email and socials without a form", async ({ page }) => {
+    const response = await page.goto("/contact");
+    expect(response?.status()).toBe(200);
+    const main = page.getByRole("main");
+    await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+    await expect(main.locator(`a[href="mailto:${CONTACT_EMAIL}"]`)).toHaveCount(1);
+    for (const social of SOCIAL_LINKS) {
+      await expect(main.locator(`a[href="${social.href}"]`)).toHaveCount(1);
+    }
+    await expect(main.locator("form")).toHaveCount(0);
+  });
+});
+
+test.describe("hero motion", () => {
+  test("draft rings leave the hub and arrive published", async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto("/");
+    const field = page.getByTestId("flow-field");
+    await expect(field).toHaveAttribute("data-state", "running");
+    await expect.poll(async () => Number(await field.getAttribute("data-flowed")), { timeout: 15000 }).toBeGreaterThan(0);
+  });
+
+  test("the pointer publishes draft rings it passes", async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto("/");
+    const field = page.getByTestId("flow-field");
+    await expect(field).toHaveAttribute("data-state", "running");
+    const lanes = (await field.boundingBox())!;
+    const hub = (await page.locator('[data-flow="source"]').boundingBox())!;
+    // Sweep back and forth beside the hub, where rings are still drafts.
+    for (let pass = 0; pass < 8; pass++) {
+      for (let y = lanes.y + 20; y < lanes.y + lanes.height; y += 24) {
+        for (const x of [hub.x - 60, hub.x - 30, hub.x + hub.width + 30, hub.x + hub.width + 60]) {
+          await page.mouse.move(x, y);
+        }
+      }
+    }
+    await expect.poll(async () => Number(await field.getAttribute("data-published"))).toBeGreaterThan(0);
+  });
+
+  test("hero illustration tilts with the pointer and settles", async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto("/");
+    await page.waitForLoadState("networkidle");
+    const tilt = page.getByTestId("hero-tilt");
+    const box = (await tilt.boundingBox())!;
+    await page.mouse.move(box.x + box.width * 0.9, box.y + box.height * 0.1);
+    await expect.poll(() => tilt.evaluate((el) => el.style.transform)).toContain("rotateX");
+    await expect.poll(() => tilt.evaluate((el) => el.style.transform)).not.toContain("rotateX(0deg) rotateY(0deg)");
+    await page.mouse.move(5, 890);
+    await expect.poll(() => tilt.evaluate((el) => el.style.transform)).toContain("rotateX(0deg) rotateY(0deg)");
+  });
+
+  test("reduced motion keeps the hero still", async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto("/");
+    await expect(page.getByTestId("flow-field")).toHaveAttribute("data-state", "static");
+    const tilt = page.getByTestId("hero-tilt");
+    const box = (await tilt.boundingBox())!;
+    await page.mouse.move(box.x + box.width * 0.9, box.y + box.height * 0.1);
+    await page.waitForTimeout(300);
+    expect(await tilt.evaluate((el) => el.style.transform)).toBe("");
+  });
+
+  test("hero fits at 360 px", async ({ page }) => {
+    await page.setViewportSize({ width: 360, height: 800 });
+    await page.goto("/");
+    await expect(page.getByTestId("flow-field")).toHaveCount(1);
+    const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+    expect(overflow).toBeLessThanOrEqual(0);
+  });
+});
+
+test.describe("brand refresh", () => {
+  async function shape(locator: import("@playwright/test").Locator) {
+    return locator.evaluate((el) => {
+      const style = getComputedStyle(el);
+      return { radius: parseFloat(style.borderTopLeftRadius), height: el.getBoundingClientRect().height, weight: Number(style.fontWeight) };
+    });
+  }
+
+  test("buttons are bold pills on the site and in the app", async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto("/");
+    const cta = await shape(page.getByRole("banner").getByRole("link", { name: "Get started" }));
+    expect(cta.radius).toBeGreaterThanOrEqual(cta.height / 2 - 1);
+    expect(cta.weight).toBeGreaterThanOrEqual(600);
+    await page.goto("/signin");
+    const submit = await shape(page.getByRole("button", { name: "Sign in" }));
+    expect(submit.radius).toBeGreaterThanOrEqual(submit.height / 2 - 1);
+    expect(submit.weight).toBeGreaterThanOrEqual(600);
+  });
+
+  test("the hero headline uses the large scale on desktop only", async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto("/");
+    const h1 = page.getByRole("heading", { level: 1 });
+    expect(await h1.evaluate((el) => parseFloat(getComputedStyle(el).fontSize))).toBeGreaterThanOrEqual(56);
+    await page.setViewportSize({ width: 390, height: 900 });
+    expect(await h1.evaluate((el) => parseFloat(getComputedStyle(el).fontSize))).toBeLessThanOrEqual(44);
+  });
+
+  test("irregular shapes sit behind the hero", async ({ page }) => {
+    await page.goto("/");
+    const shapes = page.getByTestId("hero-shapes");
+    await expect(shapes).toHaveAttribute("aria-hidden", "true");
+    expect(await shapes.locator("path").count()).toBeGreaterThanOrEqual(2);
   });
 });

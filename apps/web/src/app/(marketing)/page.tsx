@@ -1,9 +1,10 @@
-import { StatusMark } from "@flowforge/ui";
+import { buttonClasses, StatusMark } from "@flowforge/ui";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { EditorDemo } from "@/components/marketing/demo/editor-demo";
 import {
-  HeroIllustration,
+  HeroFlow,
+  HeroShapes,
   ModelIllustration,
   PublishIllustration,
   WriteIllustration,
@@ -22,8 +23,7 @@ export const metadata: Metadata = {
   },
 };
 
-const secondaryLink =
-  "inline-flex h-11 items-center rounded-md border border-line-strong bg-raised px-4 text-body font-medium text-fg transition-colors duration-[120ms] hover:bg-sunken hover:text-fg";
+const secondaryLink = buttonClasses({ variant: "secondary", size: "lg" });
 
 const STEPS = [
   {
@@ -72,15 +72,15 @@ const ROLES = [
 const QUESTIONS = [
   {
     q: "Do I need a developer to start?",
-    a: "No. You choose a starting layout, describe your content in plain fields, and start writing. A developer can go further later if you have one.",
+    a: "No. The plan is that you describe your content in plain fields and start writing, with no code. A developer will be able to go further if you have one.",
   },
   {
     q: "Is the app really the same content as the website?",
-    a: "Yes. Both read the same published entries. When you publish, the website and the app change together.",
+    a: "That is the idea. Your website and your app will read the same published entries, so when you publish, both change together. The app is still to come.",
   },
   {
     q: "Can people review work before it goes live?",
-    a: "Drafts stay private until someone with permission publishes them, and you can see exactly what will change first.",
+    a: "Yes. Drafts will stay private until someone with permission publishes them, and a review step will show what is about to change.",
   },
   {
     q: "Who owns the content?",
@@ -94,27 +94,31 @@ const QUESTIONS = [
 
 export default function Home() {
   return (
-    <div data-page="home" className="mx-auto flex max-w-6xl flex-col gap-28 px-4 pt-16 sm:px-6 sm:pt-24 lg:px-8">
-      <section aria-labelledby="hero-title" className="grid items-center gap-12 lg:grid-cols-[1.1fr_1fr]">
-        <div className="flex flex-col gap-6">
-          <h1 id="hero-title" className="max-w-xl text-display text-fg">
-            One place for everything your business publishes
-          </h1>
-          <p className="max-w-lg text-section font-normal text-fg-secondary">{DESCRIPTION}</p>
-          <div className="flex flex-wrap gap-3">
-            <Link href="/signup" className={secondaryLink}>
-              Get started
-            </Link>
-            <a href="#demo" className="inline-flex h-11 items-center rounded-md px-4 text-body font-medium">
-              See it work
-            </a>
+    <div data-page="home" className="flex flex-col">
+      <section aria-labelledby="hero-title" className="relative isolate overflow-hidden">
+        <HeroShapes className="absolute inset-0 -z-10 h-full w-full" />
+        <div className="mx-auto grid max-w-6xl items-center gap-14 px-4 pt-20 pb-24 sm:px-6 sm:pt-28 sm:pb-32 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:gap-10 lg:px-8">
+          <div className="flex flex-col gap-7">
+            <h1 id="hero-title" className="text-display text-fg lg:text-hero">
+              One place for everything your business publishes
+            </h1>
+            <p className="max-w-xl text-section font-normal text-fg-secondary">{DESCRIPTION}</p>
+            <div className="flex flex-wrap items-center gap-3">
+              <Link href="/signup" className={secondaryLink}>
+                Get started
+              </Link>
+              <Link href="/pricing" className={buttonClasses({ variant: "ghost", size: "lg" })}>
+                See pricing
+              </Link>
+            </div>
           </div>
+          <HeroFlow />
         </div>
-        <HeroIllustration className="glass rounded-lg p-6 sm:p-8" />
       </section>
 
+      <div className="mx-auto flex w-full max-w-6xl flex-col gap-32 px-4 sm:gap-40 sm:px-6 lg:px-8">
       <section aria-labelledby="how-title" className="flex flex-col gap-10">
-        <h2 id="how-title" className="text-page text-fg">How it works</h2>
+        <h2 id="how-title" className="text-page text-fg sm:text-display">How it works</h2>
         <ol aria-label="How it works" className="grid gap-10 md:grid-cols-3">
           {STEPS.map(({ title, text, Illustration }, index) => (
             <li key={title} className="flex flex-col gap-4 border-t border-line-strong pt-6">
@@ -129,19 +133,19 @@ export default function Home() {
         </ol>
       </section>
 
-      <section id="demo" aria-labelledby="demo-title" className="scroll-mt-24 flex flex-col gap-8">
+      <section id="demo" aria-labelledby="demo-title" className="flex scroll-mt-24 flex-col gap-8">
         <div className="flex max-w-2xl flex-col gap-3">
-          <h2 id="demo-title" className="text-page text-fg">Try it: change the page, then publish</h2>
+          <h2 id="demo-title" className="text-page text-fg sm:text-display">Try it: write something, then publish</h2>
           <p className="text-body text-fg-secondary">
-            Edit the sample on the left. The website and the phone show your
-            changes as you type, and Publish makes them live on both.
+            Change the sample page below. The website and the phone show your
+            words as you type, and Publish makes them live on both.
           </p>
         </div>
         <EditorDemo />
       </section>
 
       <section aria-labelledby="who-title" className="grid gap-10 lg:grid-cols-[1fr_2fr]">
-        <h2 id="who-title" className="text-page text-fg">Made for businesses that publish every week</h2>
+        <h2 id="who-title" className="text-page text-fg sm:text-display">Made for businesses that publish every week</h2>
         <ul className="flex flex-col">
           {AUDIENCES.map((item) => (
             <li key={item.who} className="grid gap-2 border-t border-line-strong py-6 sm:grid-cols-[1fr_1.4fr] sm:gap-8">
@@ -157,7 +161,7 @@ export default function Home() {
 
       <section aria-labelledby="teams-title" className="glass grid gap-10 rounded-lg p-6 sm:p-10 lg:grid-cols-2">
         <div className="flex flex-col gap-4">
-          <h2 id="teams-title" className="text-page text-fg">Built for the whole team</h2>
+          <h2 id="teams-title" className="text-page text-fg sm:text-display">Built for the whole team</h2>
           <p className="max-w-md text-body text-fg-secondary">
             Everyone gets the access their job needs. Every entry shows where it
             stands, so nobody publishes by accident.
@@ -188,7 +192,7 @@ export default function Home() {
       </section>
 
       <section aria-labelledby="questions-title" className="grid gap-10 lg:grid-cols-[1fr_2fr]">
-        <h2 id="questions-title" className="text-page text-fg">Questions</h2>
+        <h2 id="questions-title" className="text-page text-fg sm:text-display">Questions</h2>
         <div className="flex flex-col">
           {QUESTIONS.map((item) => (
             <details key={item.q} className="group border-t border-line-strong">
@@ -205,13 +209,14 @@ export default function Home() {
       </section>
 
       <section aria-labelledby="closing-title" className="flex flex-col items-start gap-5 border-t border-line-strong pt-16">
-        <h2 id="closing-title" className="max-w-2xl text-page text-fg">
+        <h2 id="closing-title" className="max-w-3xl text-page text-fg sm:text-display">
           Start with one page. Your website and app follow.
         </h2>
         <Link href="/signup" className={secondaryLink}>
           Create your workspace
         </Link>
       </section>
+      </div>
     </div>
   );
 }

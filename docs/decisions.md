@@ -256,6 +256,45 @@ the end of the relevant section.
   ships through the product's pipeline. A stale cookie costs one extra
   redirect.
 
+### The public hero shows the flow; the editor demo has its own section
+
+- **Why:** a first-time visitor should see the idea at a glance, then try
+  it. The hero is a large headline beside a sketch of a website and a phone,
+  joined to a Flowforge hub by lanes of flowing content (`FlowField`), over
+  irregular shapes. Draft rings leave the hub and arrive as published dots,
+  and the pointer publishes rings it passes. The live editor demo sits
+  lower on the page, editor on top and previews side by side below, with no
+  ambient motion to distract while typing. The canvas is hand-written, with
+  no particle library.
+- **Cost:** the hero is the one place where motion runs without a visitor's
+  action and where decorative shapes and dialog shadows appear outside
+  dialogs. It is limited to the public hero, stops off screen and under
+  reduced motion. The canvas is invisible to axe, so its faintness is
+  checked by eye.
+
+### Rich text is edited with Tiptap
+
+- **Why:** `RichTextEditor` in `packages/ui` wraps Tiptap (ProseMirror),
+  restyled to our tokens, with an ARIA toolbar. Phase 2's generated editor
+  needs a rich-text field too. `RichTextView` renders the same JSON as React
+  elements, never raw HTML, so content cannot inject markup. Inside the
+  editor, a document's headings render two levels down, so editable content
+  never adds a second `h1` to the page.
+- **Cost:** four Tiptap packages. The editor mounts only in the browser (it
+  creates random IDs while rendering, which the prerender rejects); the
+  server shows the same content read-only in the same frame.
+
+### Buttons are bold pills
+
+- **Why:** the old 8 px, medium-weight buttons read as timid next to the
+  bolder public site. Every button is now fully rounded and semibold, from
+  `Button` or `buttonClasses()`. Secondary buttons are solid `contrast` (ink
+  on light, near-white on dark) instead of an outline.
+- **Cost:** it changes every screen. A solid near-white button behind a dark
+  drawer lightened the drawer enough to take muted text below 4.5:1, so dark
+  `glass-strong` went from 90% to 96% opaque and dark `text-muted` from
+  `#8E99AD` to `#9AA5B8`.
+
 ## Inherited from the generators
 
 These came from the project scaffolds rather than from a decision. They are

@@ -10,6 +10,13 @@
   --ff-brand-ink: #0e1726;
   --ff-action-primary: #2f43c8;
   --ff-action-primary-hover: #2536a8;
+  /* The strong secondary button: ink on light, white on dark. */
+  --ff-action-contrast: #0e1726;
+  --ff-action-contrast-hover: #26324a;
+  --ff-on-contrast: #ffffff;
+  /* Fills for the irregular shapes behind the public hero. Texture only. */
+  --ff-shape-cobalt: #dde2fa;
+  --ff-shape-teal: #cfe8e1;
   --ff-action-primary-soft: #eceffd;
   --ff-on-primary-soft: #2536a8;
   --ff-on-primary: #ffffff;
@@ -96,6 +103,10 @@
   --ff-text-display-size: 40px;
   --ff-text-display-line: 48px;
   --ff-text-display-tracking: -0.025em;
+  /* The public hero's headline: one per page, desktop only. */
+  --ff-text-hero-size: 64px;
+  --ff-text-hero-line: 68px;
+  --ff-text-hero-tracking: -0.035em;
   /* Big figures on dashboard tiles. */
   --ff-text-stat-size: 44px;
   --ff-text-stat-line: 48px;
@@ -149,6 +160,11 @@
 
     --ff-action-primary: #4559e6;
     --ff-action-primary-hover: #3a4dd6;
+    --ff-action-contrast: #e8ecf3;
+    --ff-action-contrast-hover: #ffffff;
+    --ff-on-contrast: #0e1726;
+    --ff-shape-cobalt: #1a2552;
+    --ff-shape-teal: #0f2f2a;
     --ff-action-primary-soft: #1f2856;
     --ff-on-primary-soft: #c4ccff;
     --ff-link: #a3b0ff;
@@ -166,7 +182,7 @@
     --ff-bg-raised: #1a2335;
 
     --ff-glass: rgb(22 30 46 / 0.62);
-    --ff-glass-strong: rgb(26 35 53 / 0.9);
+    --ff-glass-strong: rgb(26 35 53 / 0.96);
     --ff-glass-solid: #151d2d;
     --ff-glass-border: rgb(255 255 255 / 0.08);
     --ff-glass-edge: rgb(0 0 0 / 0.35);
@@ -179,7 +195,7 @@
 
     --ff-text-primary: #e8ecf3;
     --ff-text-secondary: #b6bfce;
-    --ff-text-muted: #8e99ad;
+    --ff-text-muted: #9aa5b8;
     --ff-focus-ring: #a3b0ff;
     --ff-selection: #2a3570;
 
@@ -207,6 +223,11 @@
 
   --ff-action-primary: #4559e6;
   --ff-action-primary-hover: #3a4dd6;
+  --ff-action-contrast: #e8ecf3;
+  --ff-action-contrast-hover: #ffffff;
+  --ff-on-contrast: #0e1726;
+  --ff-shape-cobalt: #1a2552;
+  --ff-shape-teal: #0f2f2a;
   --ff-action-primary-soft: #1f2856;
   --ff-on-primary-soft: #c4ccff;
   --ff-link: #a3b0ff;
@@ -224,7 +245,7 @@
   --ff-bg-raised: #1a2335;
 
   --ff-glass: rgb(22 30 46 / 0.62);
-  --ff-glass-strong: rgb(26 35 53 / 0.9);
+  --ff-glass-strong: rgb(26 35 53 / 0.96);
   --ff-glass-solid: #151d2d;
   --ff-glass-border: rgb(255 255 255 / 0.08);
   --ff-glass-edge: rgb(0 0 0 / 0.35);
@@ -237,7 +258,7 @@
 
   --ff-text-primary: #e8ecf3;
   --ff-text-secondary: #b6bfce;
-  --ff-text-muted: #8e99ad;
+  --ff-text-muted: #9aa5b8;
   --ff-focus-ring: #a3b0ff;
   --ff-selection: #2a3570;
 

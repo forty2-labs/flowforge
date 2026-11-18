@@ -51,10 +51,11 @@ If a value is missing, add a token.
 | --- | --- | --- | --- | --- |
 | Ground | `ground` | `#EDF0EF` + cobalt and teal corner glows | `#0A0F18` + cobalt and teal corner glows | The page behind everything. What makes glass visible |
 | Glass | `glass` | white at 62% | `#161E2E` at 62% | Panels, the sidebar, the phone top bar |
-| Strong glass | `glass-strong` | white at 86% | `#1A2335` at 90% | Menus, dialogs, toasts: layers over other glass |
+| Strong glass | `glass-strong` | white at 86% | `#1A2335` at 96% | Menus, dialogs, toasts: layers over other glass |
 | Surface | `bg-surface` | `#FFFFFF` | `#121A29` | Inputs and other solid controls |
 | Text | `text-fg` | `#0E1726` | `#E8ECF3` | Primary text |
 | Signal | `bg-primary` | `#2F43C8` | `#4559E6` | The one primary action per view |
+| Contrast | `bg-contrast` | `#0E1726` | `#E8ECF3` | Secondary buttons, with `text-on-contrast`: strong, but never the signal |
 | Link | `a` (base style) | `#2F43C8` | `#A3B0FF` | Links. Separate from the button colour so both themes reach 4.5:1 |
 | Highlight | `bg-highlight` | `#D4F25A` | `#D4F25A` | Count pills and trend chips, with `text-on-highlight` |
 | AI | `text-ai` | `#6B3BC2` | `#B79AF0` | Only for generated content and AI actions |
@@ -102,7 +103,8 @@ Translucency is the standard surface, used with care:
 
 | Token | Face | Size / line | Weight | Use |
 | --- | --- | --- | --- | --- |
-| `text-display` | Schibsted Grotesk | 40 / 48 | 600 | One per screen at most: onboarding, empty workspace |
+| `text-hero` | Schibsted Grotesk | 64 / 68 | 700 | The public home page's headline, on wide screens only |
+| `text-display` | Schibsted Grotesk | 40 / 48 | 600 | One per screen at most in the app: onboarding, empty workspace. On the public site, also section headings |
 | `text-stat` | Schibsted Grotesk | 44 / 48 | 400 | The big figure on a dashboard tile |
 | `text-page` | Schibsted Grotesk | 28 / 36 | 600 | Page title |
 | `text-section` | Schibsted Grotesk | 18 / 26 | 600 | Section heading |
@@ -125,8 +127,12 @@ line.
 - **Spacing** is a 4 px scale. Page padding is 32 px on desktop, 24 on tablet
   and 16 on phones.
 - **Radius** follows hierarchy, not habit: `sm` 4 for badges, `md` 8 for
-  buttons and inputs, `lg` 16 for panels and tiles, `xl` 20 for the sidebar,
-  dialogs and sheets, `full` for avatars, count pills and the status dot.
+  inputs, `lg` 16 for panels and tiles, `xl` 20 for the sidebar, dialogs and
+  sheets, `full` for buttons, avatars, count pills and the status dot.
+- **Buttons are bold pills:** fully rounded and semibold, from `Button` or,
+  for a link that acts as a button, `buttonClasses()`. Primary is cobalt,
+  secondary is solid `contrast`, ghost is text only. Never style a button by
+  hand in a page.
 - **Elevation:** glass panels have edges and no shadow. Menus and popovers
   get `shadow-menu`, and dialogs get `shadow-dialog`. There are no other
   shadows.
@@ -134,6 +140,24 @@ line.
   for menus and toasts, 280 ms for dialogs and drawers. The one designed
   moment is the publish mark: the ring fills to a dot. Under
   `prefers-reduced-motion`, movement becomes a fade or nothing.
+- **The public hero is the one exception** to several of these rules, and
+  only there:
+  - A sketch of a website and a phone, joined to a Flowforge hub by lanes of
+    flowing content (`FlowField`): draft rings leave the hub and fill into
+    published dots on their way. The pointer publishes rings it passes, and
+    the visual tilts gently with the pointer (`Tilt`). All of it stands
+    still under reduced motion.
+  - Irregular shapes (`HeroShapes`, filled with the `shape-cobalt` and
+    `shape-teal` tokens) sit behind the stage. They are texture, not a
+    gradient, and carry no meaning.
+  - The hub and the sketched frames use `shadow-dialog` to lift off the
+    shapes.
+
+  The live editor demo (`RichTextEditor` above a website and a phone
+  preview) is its own section further down the home page, without ambient
+  motion.
+
+  Do not use any of these inside the app.
 
 ## The lifecycle mark
 

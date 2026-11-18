@@ -1,4 +1,4 @@
-import { Wordmark } from "@flowforge/ui";
+import { buttonClasses, Wordmark } from "@flowforge/ui";
 import Link from "next/link";
 import { NAV_LINKS } from "@/lib/site";
 import { SiteMenu } from "./site-menu";
@@ -33,7 +33,7 @@ export function SiteHeader() {
           </Link>
           <Link
             href="/signup"
-            className="inline-flex h-11 items-center rounded-md bg-primary px-3 text-body sm:px-4 font-medium whitespace-nowrap text-on-primary transition-colors duration-[120ms] hover:bg-primary-hover hover:text-on-primary"
+            className={buttonClasses({ className: "px-4 sm:px-5" })}
           >
             Get started
           </Link>

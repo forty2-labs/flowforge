@@ -47,13 +47,26 @@ for (const theme of THEMES) for (const width of WIDTHS) {
     const dir = `${theme}/${width}`;
     const stamp = `${Date.now()}-${theme}-${width}`;
 
+    // The public site, signed out.
+    for (const [path, name] of [
+      ["/", "00-home"],
+      ["/pricing", "00a-pricing"],
+      ["/about", "00b-about"],
+      ["/contact", "00c-contact"],
+    ] as const) {
+      await page.goto(path);
+      await check(page, dir, name);
+    }
+
     await page.goto("/signin");
     await check(page, dir, "01-signin");
 
     await page.getByRole("link", { name: "Forgot password?" }).click();
     await page.waitForURL("**/forgot-password");
     await check(page, dir, "01a-forgot-password");
-    await page.getByLabel("Work email").fill(`nobody+${stamp}@example.com`);
+    // Next.js keeps the sign-in page mounted but hidden after a client-side
+    // navigation, so only the visible field is the one on screen.
+    await page.getByLabel("Work email").filter({ visible: true }).fill(`nobody+${stamp}@example.com`);
     await page.getByRole("button", { name: "Send reset link" }).click();
     await expect(page.getByRole("heading", { name: "Check your email" })).toBeVisible();
     await check(page, dir, "01b-reset-link-sent");

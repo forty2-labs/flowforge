@@ -1,5 +1,5 @@
 import { ROLE_LABELS, type InvitationPreviewDto } from "@flowforge/types";
-import { Alert, Skeleton, Wordmark } from "@flowforge/ui";
+import { Alert, buttonClasses, Skeleton, Wordmark } from "@flowforge/ui";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
@@ -70,7 +70,7 @@ async function Invitation({ params }: Pick<PageProps<"/invite/[token]">, "params
         <div className="flex flex-col gap-3">
           <Link
             href={`/signup?next=${next}`}
-            className="inline-flex h-11 items-center justify-center rounded-md bg-primary px-4 text-title font-medium text-white hover:bg-primary-hover hover:text-white"
+            className={buttonClasses({ size: "lg" })}
           >
             Create an account to accept
           </Link>
