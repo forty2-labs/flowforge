@@ -24,7 +24,7 @@ export function HeroShapes({ className }: { className?: string }) {
         d="M118 812 C 214 700, 410 690, 506 790 C 604 892, 588 1052, 470 1120 C 352 1188, 168 1170, 96 1072 C 26 978, 40 902, 118 812 Z"
         className="fill-shape-teal"
       />
-      <path d={large} transform="translate(-34 -26)" fill="none" className="stroke-line-strong" strokeWidth="1.25" />
+      <path d={large} transform="translate(-34 -26)" fill="none" className="ff-drift stroke-line-strong" strokeWidth="1.25" />
     </svg>
   );
 }
@@ -32,7 +32,8 @@ export function HeroShapes({ className }: { className?: string }) {
 // The hero visual: a website and a phone, joined to Flowforge (the hub in
 // the middle) by lanes of flowing content. Draft rings leave the hub and
 // arrive as published dots. The screens are simple sketches of one café
-// page; the whole visual tilts gently with the pointer.
+// page; the whole visual tilts gently with the pointer, and the frames
+// float a few pixels (still under reduced motion).
 export function HeroFlow({ className }: { className?: string }) {
   return (
     <Tilt
@@ -45,7 +46,7 @@ export function HeroFlow({ className }: { className?: string }) {
       )}
     >
       <FlowField />
-      <div data-flow="target" className="relative min-w-0 [transform:translateZ(24px)]">
+      <div data-flow="target" className="ff-float relative min-w-0 [transform:translateZ(24px)]">
         <BrowserFrame address="harbourcafe.flowforge.site" className="shadow-dialog">
           <div className="flex flex-col gap-3 px-4 py-5 sm:px-6 sm:py-7">
             <span className="text-label font-medium text-fg">Harbour Café</span>
@@ -63,7 +64,7 @@ export function HeroFlow({ className }: { className?: string }) {
       >
         <LogoMark size={28} />
       </div>
-      <div data-flow="target" className="relative col-start-5 [transform:translateZ(32px)]">
+      <div data-flow="target" className="ff-float relative col-start-5 [transform:translateZ(32px)] [animation-delay:-3s]">
         <PhoneFrame className="w-24 shadow-dialog sm:w-36" screenClassName="min-h-44 sm:min-h-64">
           <div className="flex flex-col gap-2 px-2.5 py-3 sm:gap-3 sm:px-3">
             <span className="text-helper font-medium text-fg">Harbour Café</span>

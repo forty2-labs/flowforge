@@ -135,14 +135,36 @@ test.describe("home", () => {
   test("the hero shows a website and a phone joined by the flow", async ({ page }) => {
     await page.goto("/");
     await expect(page.getByRole("heading", { level: 1 })).toHaveCount(1);
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Your business. Your content. Everywhere.");
     const hero = page.locator("section").filter({ has: page.getByRole("heading", { level: 1 }) });
     await expect(hero.getByTestId("flow-field")).toHaveCount(1);
     await expect(hero.locator('[data-flow="source"]')).toHaveCount(1);
     await expect(hero.locator('[data-flow="target"]')).toHaveCount(2);
-    // The editor lives in its own section further down, not in the hero.
-    await expect(hero.getByRole("textbox", { name: "Page content" })).toHaveCount(0);
-    await expect(page.locator("#demo").getByRole("textbox", { name: "Page content" })).toBeVisible();
-    await expect(page.getByRole("link", { name: "See pricing" })).toHaveAttribute("href", "/pricing");
+    await expect(hero.getByRole("textbox")).toHaveCount(0);
+    await expect(hero.getByRole("link", { name: "Explore Flowforge" })).toHaveAttribute("href", "#playground");
+    await expect(hero.getByRole("link", { name: "See how it works" })).toHaveAttribute("href", "#workflow");
+    await expect(page.getByTestId("sub-banner")).toContainText("From your first location to your next hundred");
+  });
+
+  test("header starts compact and floats after scrolling", async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto("/");
+    const bar = page.getByTestId("site-bar");
+    await expect(bar).toHaveAttribute("data-scrolled", "false");
+    const compact = (await bar.boundingBox())!.width;
+    await page.mouse.wheel(0, 600);
+    await expect(bar).toHaveAttribute("data-scrolled", "true");
+    await expect.poll(async () => (await bar.boundingBox())!.width).toBeGreaterThan(compact + 100);
+  });
+
+  test("header starts floating when the page loads scrolled", async ({ page }) => {
+    await page.goto("/#workflow");
+    await expect(page.getByTestId("site-bar")).toHaveAttribute("data-scrolled", "true");
+  });
+
+  test("header is floating on pages without a hero", async ({ page }) => {
+    await page.goto("/pricing");
+    await expect(page.getByTestId("site-bar")).toHaveAttribute("data-scrolled", "true");
   });
 
   test("how it works has three steps in order", async ({ page }) => {
@@ -185,7 +207,7 @@ test.describe("demo", () => {
   async function openDemo(page: Page, width = 1440) {
     await page.setViewportSize({ width, height: 900 });
     await page.goto("/");
-    const demo = page.locator("#demo");
+    const demo = page.locator("#playground");
     const editor = demo.getByRole("textbox", { name: "Page content" });
     // The live editor replaces the server-rendered copy once it mounts.
     await expect(editor).toHaveAttribute("contenteditable", "true");

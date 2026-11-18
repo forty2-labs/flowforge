@@ -11,6 +11,11 @@ export default function MarketingLayout({ children }: LayoutProps<"/">) {
         Skip to content
       </a>
       <SiteHeader />
+      {/* The header watches this 24 px strip at the very top of the page to
+          know when the page has scrolled. */}
+      <div id="scroll-sentinel" aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 h-6" />
+      {/* The header floats over the page; this keeps content clear of it. */}
+      <div aria-hidden="true" className="h-20 flex-none sm:h-24" />
       <main id="main" className="flex-1">
         {children}
       </main>

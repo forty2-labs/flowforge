@@ -3,10 +3,15 @@
 
 export const SITE_URL = process.env.SITE_URL ?? "http://localhost:3000";
 
+// `wide` links show in the desktop bar only from lg up; the phone menu and
+// the footer list every link.
 export const NAV_LINKS = [
+  { href: "/#product", label: "Product" },
+  { href: "/#workflow", label: "How it works", wide: true },
+  { href: "/#playground", label: "Playground" },
   { href: "/pricing", label: "Pricing" },
-  { href: "/about", label: "About" },
-  { href: "/contact", label: "Contact" },
+  { href: "/about", label: "About", wide: true },
+  { href: "/contact", label: "Contact", wide: true },
 ] as const;
 
 export const CONTACT_EMAIL = "hello@flowforge.example";

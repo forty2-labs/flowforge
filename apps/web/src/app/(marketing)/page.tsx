@@ -11,10 +11,10 @@ import {
 } from "@/components/marketing/illustrations";
 
 const DESCRIPTION =
-  "Write a menu, a post or a product page once. Flowforge puts it on your website and in your app, and keeps both in step.";
+  "Manage your website and mobile app content from one flexible platform. From your café menu to your online store, Flowforge keeps every digital experience connected.";
 
 export const metadata: Metadata = {
-  title: { absolute: "Flowforge: one place for everything your business publishes" },
+  title: { absolute: "Flowforge: your business, your content, everywhere" },
   description: DESCRIPTION,
   openGraph: {
     title: "Flowforge",
@@ -97,27 +97,39 @@ export default function Home() {
     <div data-page="home" className="flex flex-col">
       <section aria-labelledby="hero-title" className="relative isolate overflow-hidden">
         <HeroShapes className="absolute inset-0 -z-10 h-full w-full" />
-        <div className="mx-auto grid max-w-6xl items-center gap-14 px-4 pt-20 pb-24 sm:px-6 sm:pt-28 sm:pb-32 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:gap-10 lg:px-8">
-          <div className="flex flex-col gap-7">
+        <div className="mx-auto flex max-w-6xl flex-col items-center gap-10 px-4 pt-6 pb-20 text-center sm:px-6 sm:pt-8 sm:pb-28 lg:px-8">
+          <HeroFlow className="w-full max-w-3xl text-left" />
+          <div className="flex flex-col items-center gap-5">
+            <p className="text-label font-medium text-fg-secondary">The content engine for modern businesses</p>
             <h1 id="hero-title" className="text-display text-fg lg:text-hero">
-              One place for everything your business publishes
+              <span className="block">Your business.</span> <span className="block">Your content.</span>{" "}
+              <span className="block">Everywhere.</span>
             </h1>
-            <p className="max-w-xl text-section font-normal text-fg-secondary">{DESCRIPTION}</p>
-            <div className="flex flex-wrap items-center gap-3">
-              <Link href="/signup" className={secondaryLink}>
-                Get started
+            <p className="max-w-2xl text-section font-normal text-fg-secondary">{DESCRIPTION}</p>
+            <div className="flex flex-wrap items-center justify-center gap-3">
+              <Link href="#playground" className={buttonClasses({ size: "lg" })}>
+                Explore Flowforge
               </Link>
-              <Link href="/pricing" className={buttonClasses({ variant: "ghost", size: "lg" })}>
-                See pricing
+              <Link href="#workflow" className={buttonClasses({ variant: "ghost", size: "lg" })}>
+                See how it works
               </Link>
             </div>
+            <p className="text-body text-fg-secondary">One platform. Multiple experiences. Complete control.</p>
           </div>
-          <HeroFlow />
+          <div
+            data-testid="sub-banner"
+            className="glass flex w-full max-w-3xl flex-col items-center gap-3 rounded-xl px-6 py-5 sm:flex-row sm:justify-between sm:rounded-full sm:py-4 sm:text-left"
+          >
+            <p className="text-body font-medium text-fg">
+              From your first location to your next hundred, your content grows with you.
+            </p>
+            <p className="flex-none text-label text-fg-secondary">Websites · Phone apps · One place to edit</p>
+          </div>
         </div>
       </section>
 
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-32 px-4 sm:gap-40 sm:px-6 lg:px-8">
-      <section aria-labelledby="how-title" className="flex flex-col gap-10">
+      <section id="workflow" aria-labelledby="how-title" className="flex scroll-mt-28 flex-col gap-10">
         <h2 id="how-title" className="text-page text-fg sm:text-display">How it works</h2>
         <ol aria-label="How it works" className="grid gap-10 md:grid-cols-3">
           {STEPS.map(({ title, text, Illustration }, index) => (
@@ -133,7 +145,7 @@ export default function Home() {
         </ol>
       </section>
 
-      <section id="demo" aria-labelledby="demo-title" className="flex scroll-mt-24 flex-col gap-8">
+      <section id="playground" aria-labelledby="demo-title" className="flex scroll-mt-28 flex-col gap-8">
         <div className="flex max-w-2xl flex-col gap-3">
           <h2 id="demo-title" className="text-page text-fg sm:text-display">Try it: write something, then publish</h2>
           <p className="text-body text-fg-secondary">
@@ -144,7 +156,7 @@ export default function Home() {
         <EditorDemo />
       </section>
 
-      <section aria-labelledby="who-title" className="grid gap-10 lg:grid-cols-[1fr_2fr]">
+      <section id="product" aria-labelledby="who-title" className="grid scroll-mt-28 gap-10 lg:grid-cols-[1fr_2fr]">
         <h2 id="who-title" className="text-page text-fg sm:text-display">Made for businesses that publish every week</h2>
         <ul className="flex flex-col">
           {AUDIENCES.map((item) => (

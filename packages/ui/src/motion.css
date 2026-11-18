@@ -116,3 +116,54 @@
     animation-name: ff-fade-in;
   }
 }
+
+/* Public site only. The hero's frames float a few pixels and its outline
+   drifts, slowly; `translate` composes with the frames' 3D transforms.
+   Reduced motion holds them still. */
+@keyframes ff-float {
+  50% {
+    translate: 0 -4px;
+  }
+}
+
+@keyframes ff-drift {
+  50% {
+    translate: 12px -8px;
+  }
+}
+
+.ff-float {
+  animation: ff-float 6s ease-in-out infinite;
+}
+
+.ff-drift {
+  animation: ff-drift 20s ease-in-out infinite;
+}
+
+/* A section part that rises into place the first time it is seen (Reveal
+   sets data-shown). Used in three places on the home page, no more. */
+.ff-reveal {
+  transition:
+    opacity 600ms var(--ff-ease-out),
+    translate 600ms var(--ff-ease-out);
+}
+
+.ff-reveal:not([data-shown]) {
+  opacity: 0;
+  translate: 0 16px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ff-float,
+  .ff-drift {
+    animation: none;
+  }
+
+  .ff-reveal {
+    transition: opacity 200ms linear;
+  }
+
+  .ff-reveal:not([data-shown]) {
+    translate: none;
+  }
+}
