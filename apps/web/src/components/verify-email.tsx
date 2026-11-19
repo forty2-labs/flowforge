@@ -1,6 +1,6 @@
 "use client";
 
-import { Alert, Button } from "@flowforge/ui";
+import { Alert, Button, buttonClasses } from "@flowforge/ui";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { verifyEmail } from "@/lib/actions/auth";
@@ -27,8 +27,8 @@ export function VerifyEmail({ token }: { token: string }) {
           </p>
         </div>
         <Link
-          href="/"
-          className="inline-flex h-11 items-center justify-center rounded-md bg-primary px-4 text-title font-medium text-white hover:bg-primary-hover hover:text-white"
+          href="/start"
+          className={buttonClasses({ size: "lg" })}
         >
           Continue to Flowforge
         </Link>

@@ -1,5 +1,5 @@
 import type { PasswordResetPreviewDto } from "@flowforge/types";
-import { Skeleton } from "@flowforge/ui";
+import { buttonClasses, Skeleton } from "@flowforge/ui";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
@@ -54,7 +54,7 @@ function Message({ title, children }: { title: string; children: React.ReactNode
       </div>
       <Link
         href="/forgot-password"
-        className="inline-flex h-11 items-center justify-center rounded-md bg-primary px-4 text-title font-medium text-white hover:bg-primary-hover hover:text-white"
+        className={buttonClasses({ size: "lg" })}
       >
         Get a new link
       </Link>

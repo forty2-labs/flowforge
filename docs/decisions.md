@@ -243,6 +243,90 @@ the end of the relevant section.
   `transpilePackages` in [next.config.ts](../apps/web/next.config.ts).
 - **Cost:** only tools that compile TypeScript can consume it.
 
+### The public site lives in the web app, and / splits on the session cookie
+
+- **Why:** the public pages (home, pricing, about, contact) sit in a
+  `(marketing)` route group in `apps/web`, so they reuse the fonts, tokens,
+  glass, theme script and components without a second app. `src/proxy.ts`
+  sends a request for `/` that carries `ff_session` to `/start`, which checks
+  the session and takes the person into the app. Without the cookie, `/` is
+  a static page. `/start` deletes a cookie the API no longer accepts, so a
+  lapsed visitor sees the home page instead of being stuck on sign-in.
+- **Cost:** the public site deploys with the app, so a broken marketing page
+  ships through the product's pipeline. A stale cookie costs one extra
+  redirect.
+
+### The public hero shows the flow; the editor demo has its own section
+
+- **Why:** a first-time visitor should see the idea at a glance, then try
+  it. The hero is a large headline beside a sketch of a website and a phone,
+  joined to a Flowforge hub by lanes of flowing content (`FlowField`), over
+  irregular shapes. Draft rings leave the hub and arrive as published dots,
+  and the pointer publishes rings it passes. The live editor demo sits
+  lower on the page, editor on top and previews side by side below, with no
+  ambient motion to distract while typing. The canvas is hand-written, with
+  no particle library.
+- **Cost:** the hero is the one place where motion runs without a visitor's
+  action and where decorative shapes and dialog shadows appear outside
+  dialogs. It is limited to the public hero, stops off screen and under
+  reduced motion. The canvas is invisible to axe, so its faintness is
+  checked by eye.
+
+### Rich text is edited with Tiptap
+
+- **Why:** `RichTextEditor` in `packages/ui` wraps Tiptap (ProseMirror),
+  restyled to our tokens, with an ARIA toolbar. Phase 2's generated editor
+  needs a rich-text field too. `RichTextView` renders the same JSON as React
+  elements, never raw HTML, so content cannot inject markup. Inside the
+  editor, a document's headings render two levels down, so editable content
+  never adds a second `h1` to the page.
+- **Cost:** four Tiptap packages. The editor mounts only in the browser (it
+  creates random IDs while rendering, which the prerender rejects); the
+  server shows the same content read-only in the same frame.
+
+### Buttons are bold pills
+
+- **Why:** the old 8 px, medium-weight buttons read as timid next to the
+  bolder public site. Every button is now fully rounded and semibold, from
+  `Button` or `buttonClasses()`. Secondary buttons are solid `contrast` (ink
+  on light, near-white on dark) instead of an outline.
+- **Cost:** it changes every screen. A solid near-white button behind a dark
+  drawer lightened the drawer enough to take muted text below 4.5:1, so dark
+  `glass-strong` went from 90% to 96% opaque and dark `text-muted` from
+  `#8E99AD` to `#9AA5B8`.
+
+### The home page's motion is hand-written, not Framer Motion
+
+- **Why:** the brief for the redesign (FLO-56) suggested Framer Motion "if
+  the project supports it", and it did not. The motion the page needs is
+  small: a header that widens on scroll (an IntersectionObserver sentinel and
+  a class change), three reveals on first sight, lines that draw in
+  (`stroke-dashoffset`) and a dot that travels a path (`offset-path`). CSS
+  and a few observers do all of it, in the same style as `FlowField` and
+  `Tilt`.
+- **Cost:** no spring physics. Easing is `--ff-ease-out`. If a later screen
+  needs gestures or layout animation, revisit this.
+
+### A section can force the dark theme
+
+- **Why:** the home page's dashboard showcase is meant to be a contrasting
+  graphite band in both themes. The dark token block now also matches any
+  element with `data-theme="dark"`, not only `:root`. Tailwind's tokens are
+  `@theme inline`, so classes inside such an element pick up the dark values.
+- **Cost:** anything inside that element must be checked in both page
+  themes, and nothing may rely on `:root` alone for the theme. The `dark:`
+  variant already matched nested `data-theme="dark"`.
+
+### The editor demo became the playground
+
+- **Why:** FLO-56 asked for the demo to show structured content, not only
+  rich text. The playground edits an entry's fields (name, announcement,
+  headline, description, an image and a list of items) for a café, a
+  restaurant or a shop. The rich-text editor stays as the entry's "Page
+  text".
+- **Cost:** more state, kept in one reducer. It is still local: nothing is
+  saved or sent, and the page says so.
+
 ## Inherited from the generators
 
 These came from the project scaffolds rather than from a decision. They are

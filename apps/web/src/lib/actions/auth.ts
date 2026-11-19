@@ -57,7 +57,7 @@ async function startSession(
   return {
     data: {
       session: (await response.json()) as SessionDto,
-      redirectTo: safeNext(next) ?? "/",
+      redirectTo: safeNext(next) ?? "/start",
     },
   };
 }

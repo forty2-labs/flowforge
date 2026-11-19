@@ -24,6 +24,11 @@
   --color-ink-raised: var(--ff-bg-ink-raised);
   --color-primary: var(--ff-action-primary);
   --color-primary-hover: var(--ff-action-primary-hover);
+  --color-contrast: var(--ff-action-contrast);
+  --color-contrast-hover: var(--ff-action-contrast-hover);
+  --color-on-contrast: var(--ff-on-contrast);
+  --color-shape-cobalt: var(--ff-shape-cobalt);
+  --color-shape-teal: var(--ff-shape-teal);
   --color-primary-soft: var(--ff-action-primary-soft);
   --color-on-primary: var(--ff-on-primary);
   --color-on-primary-soft: var(--ff-on-primary-soft);
@@ -35,6 +40,10 @@
   --color-ai-soft: var(--ff-ai-soft);
   --color-highlight: var(--ff-highlight);
   --color-on-highlight: var(--ff-on-highlight);
+  --color-sample-forest: var(--ff-sample-forest);
+  --color-sample-ocean: var(--ff-sample-ocean);
+  --color-sample-ink: var(--ff-sample-ink);
+  --color-sample-clay: var(--ff-sample-clay);
 
   --color-app: var(--ff-bg-app);
   --color-surface: var(--ff-bg-surface);
@@ -95,6 +104,10 @@
   --text-display--line-height: var(--ff-text-display-line);
   --text-display--letter-spacing: var(--ff-text-display-tracking);
   --text-display--font-weight: 600;
+  --text-hero: var(--ff-text-hero-size);
+  --text-hero--line-height: var(--ff-text-hero-line);
+  --text-hero--letter-spacing: var(--ff-text-hero-tracking);
+  --text-hero--font-weight: 700;
   --text-stat: var(--ff-text-stat-size);
   --text-stat--line-height: var(--ff-text-stat-line);
   --text-stat--letter-spacing: var(--ff-text-stat-tracking);

@@ -51,6 +51,10 @@ may do is defined once, in
 
 Phases 2 to 4 depend on each other in order. Phases 5 and 6 only need phase 2.
 
+Alongside phase 1, a public site (home with a live editor demo, pricing,
+about and contact) introduces Flowforge to first-time visitors. Its pricing,
+team and social links are placeholders until they are settled.
+
 ## Scope decisions
 
 - Approval workflows, the content calendar, analytics, library search and
