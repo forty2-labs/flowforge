@@ -1,14 +1,17 @@
-import { buttonClasses, StatusMark } from "@flowforge/ui";
+import { buttonClasses } from "@flowforge/ui";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { EditorDemo } from "@/components/marketing/demo/editor-demo";
-import {
-  HeroFlow,
-  HeroShapes,
-  ModelIllustration,
-  PublishIllustration,
-  WriteIllustration,
-} from "@/components/marketing/illustrations";
+import { BusinessCards } from "@/components/marketing/home/business-cards";
+import { Channels } from "@/components/marketing/home/channels";
+import { Closing } from "@/components/marketing/home/closing";
+import { Dashboard } from "@/components/marketing/home/dashboard";
+import { Scale } from "@/components/marketing/home/scale";
+import { SectionHeading } from "@/components/marketing/home/section-heading";
+import { Structure } from "@/components/marketing/home/structure";
+import { Why } from "@/components/marketing/home/why";
+import { Workflow } from "@/components/marketing/home/workflow";
+import { HeroFlow, HeroShapes } from "@/components/marketing/illustrations";
 
 const DESCRIPTION =
   "Manage your website and mobile app content from one flexible platform. From your café menu to your online store, Flowforge keeps every digital experience connected.";
@@ -22,52 +25,6 @@ export const metadata: Metadata = {
     type: "website",
   },
 };
-
-const secondaryLink = buttonClasses({ variant: "secondary", size: "lg" });
-
-const STEPS = [
-  {
-    title: "Describe your content",
-    text: "Say what a menu item, a post or a product is made of: a title, a price, a photo. Flowforge builds the editor from that.",
-    Illustration: ModelIllustration,
-  },
-  {
-    title: "Write it once",
-    text: "Your team writes in one place. Drafts stay private until they are ready, and every page that needs the words uses the same copy.",
-    Illustration: WriteIllustration,
-  },
-  {
-    title: "Publish everywhere",
-    text: "One press of Publish updates your website and your app together. Nothing goes out of step.",
-    Illustration: PublishIllustration,
-  },
-];
-
-const AUDIENCES = [
-  {
-    who: "Cafés and restaurants",
-    what: "Menus, opening hours and specials that change with the week.",
-    example: "Spring menu, now serving",
-  },
-  {
-    who: "Studios and publishers",
-    what: "Articles, notes and portfolios with an editor everyone can use.",
-    example: "Notes from the print room: risograph in three colours",
-  },
-  {
-    who: "Shops",
-    what: "Product pages and collections that read the same on every screen.",
-    example: "The linen apron, back in oat and charcoal",
-  },
-];
-
-const ROLES = [
-  { role: "Owner", does: "Runs the workspace and its billing." },
-  { role: "Admin", does: "Invites people and sets up content." },
-  { role: "Editor", does: "Reviews and publishes anyone's work." },
-  { role: "Author", does: "Writes and edits their own drafts." },
-  { role: "Viewer", does: "Reads everything, changes nothing." },
-];
 
 const QUESTIONS = [
   {
@@ -129,105 +86,43 @@ export default function Home() {
       </section>
 
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-32 px-4 sm:gap-40 sm:px-6 lg:px-8">
-      <section id="workflow" aria-labelledby="how-title" className="flex scroll-mt-28 flex-col gap-10">
-        <h2 id="how-title" className="text-page text-fg sm:text-display">How it works</h2>
-        <ol aria-label="How it works" className="grid gap-10 md:grid-cols-3">
-          {STEPS.map(({ title, text, Illustration }, index) => (
-            <li key={title} className="flex flex-col gap-4 border-t border-line-strong pt-6">
-              <Illustration />
-              <h3 className="text-section text-fg">
-                <span className="mr-2 text-fg-secondary tabular-nums">{index + 1}.</span>
-                {title}
-              </h3>
-              <p className="max-w-80 text-body text-fg-secondary">{text}</p>
-            </li>
-          ))}
-        </ol>
-      </section>
+        <BusinessCards />
+        <Channels />
 
-      <section id="playground" aria-labelledby="demo-title" className="flex scroll-mt-28 flex-col gap-8">
-        <div className="flex max-w-2xl flex-col gap-3">
-          <h2 id="demo-title" className="text-page text-fg sm:text-display">Try it: write something, then publish</h2>
-          <p className="text-body text-fg-secondary">
-            Change the sample page below. The website and the phone show your
-            words as you type, and Publish makes them live on both.
-          </p>
-        </div>
-        <EditorDemo />
-      </section>
+        <section id="playground" aria-labelledby="playground-title" className="flex scroll-mt-28 flex-col gap-8">
+          <SectionHeading
+            id="playground"
+            eyebrow="Try it"
+            title="Edit once. See it everywhere."
+            intro="Change the sample page below. The website and the phone show your words as you type, and Publish makes them live on both."
+          />
+          <EditorDemo />
+        </section>
 
-      <section id="product" aria-labelledby="who-title" className="grid scroll-mt-28 gap-10 lg:grid-cols-[1fr_2fr]">
-        <h2 id="who-title" className="text-page text-fg sm:text-display">Made for businesses that publish every week</h2>
-        <ul className="flex flex-col">
-          {AUDIENCES.map((item) => (
-            <li key={item.who} className="grid gap-2 border-t border-line-strong py-6 sm:grid-cols-[1fr_1.4fr] sm:gap-8">
-              <div className="flex flex-col gap-1">
-                <h3 className="text-title text-fg">{item.who}</h3>
-                <p className="text-body text-fg-secondary">{item.what}</p>
-              </div>
-              <p className="font-serif text-article-title text-fg">{item.example}</p>
-            </li>
-          ))}
-        </ul>
-      </section>
+        <Structure />
+        <Dashboard />
+        <Workflow />
+        <Scale />
+        <Why />
 
-      <section aria-labelledby="teams-title" className="glass grid gap-10 rounded-lg p-6 sm:p-10 lg:grid-cols-2">
-        <div className="flex flex-col gap-4">
-          <h2 id="teams-title" className="text-page text-fg sm:text-display">Built for the whole team</h2>
-          <p className="max-w-md text-body text-fg-secondary">
-            Everyone gets the access their job needs. Every entry shows where it
-            stands, so nobody publishes by accident.
-          </p>
-          <ul aria-label="Where an entry stands" className="mt-2 grid grid-cols-[auto_1fr] gap-x-5 gap-y-3 text-body">
-            {(
-              [
-                ["draft", "Only your team can see it"],
-                ["changed", "Live, with edits waiting to go out"],
-                ["published", "Live on your website and app"],
-              ] as const
-            ).map(([status, meaning]) => (
-              <li key={status} className="col-span-2 grid grid-cols-subgrid items-center">
-                <StatusMark status={status} />
-                <span className="text-fg-muted">{meaning}</span>
-              </li>
+        <section aria-labelledby="questions-title" className="grid gap-10 lg:grid-cols-[1fr_2fr]">
+          <h2 id="questions-title" className="text-page text-fg sm:text-display">Questions</h2>
+          <div className="flex flex-col">
+            {QUESTIONS.map((item) => (
+              <details key={item.q} className="group border-t border-line-strong">
+                <summary className="flex min-h-14 cursor-pointer list-none items-center justify-between gap-4 py-3 text-title text-fg [&::-webkit-details-marker]:hidden">
+                  {item.q}
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true" className="flex-none text-fg-secondary transition-transform duration-[120ms] group-open:rotate-45 motion-reduce:transition-none">
+                    <path d="M12 5v14M5 12h14" />
+                  </svg>
+                </summary>
+                <p className="max-w-xl pb-5 text-body text-fg-secondary">{item.a}</p>
+              </details>
             ))}
-          </ul>
-        </div>
-        <dl className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-3 self-center text-body">
-          {ROLES.map((item) => (
-            <div key={item.role} className="contents">
-              <dt className="font-medium text-fg">{item.role}</dt>
-              <dd className="text-fg-muted">{item.does}</dd>
-            </div>
-          ))}
-        </dl>
-      </section>
+          </div>
+        </section>
 
-      <section aria-labelledby="questions-title" className="grid gap-10 lg:grid-cols-[1fr_2fr]">
-        <h2 id="questions-title" className="text-page text-fg sm:text-display">Questions</h2>
-        <div className="flex flex-col">
-          {QUESTIONS.map((item) => (
-            <details key={item.q} className="group border-t border-line-strong">
-              <summary className="flex min-h-14 cursor-pointer list-none items-center justify-between gap-4 py-3 text-title text-fg [&::-webkit-details-marker]:hidden">
-                {item.q}
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true" className="flex-none text-fg-secondary transition-transform duration-[120ms] group-open:rotate-45 motion-reduce:transition-none">
-                  <path d="M12 5v14M5 12h14" />
-                </svg>
-              </summary>
-              <p className="max-w-xl pb-5 text-body text-fg-secondary">{item.a}</p>
-            </details>
-          ))}
-        </div>
-      </section>
-
-      <section aria-labelledby="closing-title" className="flex flex-col items-start gap-5 border-t border-line-strong pt-16">
-        <h2 id="closing-title" className="max-w-3xl text-page text-fg sm:text-display">
-          Start with one page. Your website and app follow.
-        </h2>
-        <Link href="/signup" className={secondaryLink}>
-          Create your workspace
-        </Link>
-      </section>
+        <Closing />
       </div>
     </div>
   );

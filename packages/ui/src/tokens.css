@@ -35,6 +35,7 @@
   --ff-sample-forest: #1f6f4a;
   --ff-sample-ocean: #1d5f8a;
   --ff-sample-ink: #0e1726;
+  --ff-sample-clay: #9a4a2c;
 
   /* The ambient ground the glass sits on. It is what makes glass visible. */
   --ff-bg-app: #edf0ef;
@@ -218,7 +219,10 @@
   }
 }
 
-:root[data-theme="dark"] {
+:root[data-theme="dark"],
+/* A section can force the dark theme for itself (the home page's dashboard
+   showcase), whatever the page's theme. */
+[data-theme="dark"] {
   color-scheme: dark;
 
   --ff-action-primary: #4559e6;

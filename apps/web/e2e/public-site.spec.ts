@@ -167,9 +167,77 @@ test.describe("home", () => {
     await expect(page.getByTestId("site-bar")).toHaveAttribute("data-scrolled", "true");
   });
 
-  test("how it works has three steps in order", async ({ page }) => {
+  test("business cards show four kinds of business", async ({ page }) => {
     await page.goto("/");
-    await expect(page.getByRole("list", { name: "How it works" }).getByRole("listitem")).toHaveCount(3);
+    const section = page.locator("#product");
+    for (const name of ["Café", "Restaurant", "Retail", "Small business"]) {
+      await expect(section.getByRole("heading", { level: 3, name, exact: true })).toBeVisible();
+    }
+  });
+
+  test("channels show four endpoints and an API node", async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto("/");
+    const section = page.locator("#channels");
+    for (const name of ["Desktop website", "Mobile website", "iOS app", "Android app"]) {
+      await expect(section.getByText(name, { exact: true }).filter({ visible: true })).toBeVisible();
+    }
+    await expect(section.getByText("API", { exact: true }).first()).toBeVisible();
+    await section.scrollIntoViewIfNeeded();
+    await expect(section.getByTestId("connector").first()).toHaveAttribute("data-drawn", "true");
+  });
+
+  test("content structure switches between café and retail", async ({ page }) => {
+    await page.goto("/");
+    const section = page.locator("#structure");
+    await expect(section.getByText("Menu item", { exact: true })).toBeVisible();
+    await expect(section.getByText("Dietary information")).toBeVisible();
+    await section.getByRole("radio", { name: "Retail" }).check({ force: true });
+    await expect(section.getByText("Product", { exact: true })).toBeVisible();
+    await expect(section.getByText("Stock status")).toBeVisible();
+    await expect(section.getByText("Dietary information")).toHaveCount(0);
+  });
+
+  test("dashboard section is dark in both page themes", async ({ page }) => {
+    for (const scheme of ["light", "dark"] as const) {
+      await page.emulateMedia({ colorScheme: scheme });
+      await page.goto("/");
+      const background = await page.locator("#dashboard").evaluate((el) => getComputedStyle(el).backgroundColor);
+      expect(background, scheme).toBe("rgb(10, 15, 24)");
+    }
+  });
+
+  test("scale stepper moves through five stages with the keyboard", async ({ page }) => {
+    await page.goto("/");
+    const section = page.locator("#scale");
+    const first = section.getByRole("radio").first();
+    await first.focus();
+    for (let i = 0; i < 4; i++) await page.keyboard.press("ArrowRight");
+    await expect(section.getByRole("radio").nth(4)).toBeChecked();
+    await expect(section.getByTestId("scale-stage")).toHaveAttribute("data-stage", "5");
+  });
+
+  test("planned features are labelled coming", async ({ page }) => {
+    await page.goto("/");
+    expect(await page.getByText("Coming in the next release").count()).toBeGreaterThanOrEqual(2);
+  });
+
+  test("the workflow joins three steps with a path that draws in", async ({ page }) => {
+    await page.goto("/");
+    const section = page.locator("#workflow");
+    await expect(section.getByRole("list", { name: "From idea to published" }).getByRole("listitem")).toHaveCount(3);
+    await section.scrollIntoViewIfNeeded();
+    await expect(section.getByTestId("connector").first()).toHaveAttribute("data-drawn", "true");
+  });
+
+  test("every home section fits at 360 px", async ({ page }) => {
+    await page.setViewportSize({ width: 360, height: 800 });
+    await page.goto("/");
+    for (const id of ["product", "channels", "playground", "structure", "dashboard", "workflow", "scale"]) {
+      const fits = await page.locator(`#${id}`).evaluate((el) => el.scrollWidth <= el.clientWidth + 1);
+      expect(fits, id).toBe(true);
+    }
+    expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBeLessThanOrEqual(0);
   });
 
   test("FAQ answers expand", async ({ page }) => {
@@ -508,7 +576,7 @@ test.describe("brand refresh", () => {
 
   test("irregular shapes sit behind the hero", async ({ page }) => {
     await page.goto("/");
-    const shapes = page.getByTestId("hero-shapes");
+    const shapes = page.getByTestId("hero-shapes").first();
     await expect(shapes).toHaveAttribute("aria-hidden", "true");
     expect(await shapes.locator("path").count()).toBeGreaterThanOrEqual(2);
   });

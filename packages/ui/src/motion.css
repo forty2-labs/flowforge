@@ -167,3 +167,22 @@
     translate: none;
   }
 }
+
+/* Rows of a list that has just been swapped fade up, staggered by an
+   inline animation-delay. */
+@keyframes ff-row-in {
+  from {
+    opacity: 0;
+    translate: 0 4px;
+  }
+}
+
+.ff-row-in {
+  animation: ff-row-in var(--ff-motion-base) var(--ff-ease-out) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ff-row-in {
+    animation-name: ff-fade-in;
+  }
+}
