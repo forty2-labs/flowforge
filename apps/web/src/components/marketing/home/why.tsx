@@ -5,7 +5,7 @@ import { SectionHeading } from "./section-heading";
 // built to work.
 const REASONS = [
   ["Manage content centrally", "Menus, products and pages live in one place, not in each site."],
-  ["Websites and mobile apps", "The same content feeds every screen you run."],
+  ["Websites and mobile apps", "One set of content, built to feed every screen you run."],
   ["Structures you design", "Shape your content around your business, not a template."],
   ["Reuse across experiences", "Write an entry once and use it wherever it is needed."],
   ["Workspaces for each business", "Keep each business separate, with its own team and roles. Ready today."],

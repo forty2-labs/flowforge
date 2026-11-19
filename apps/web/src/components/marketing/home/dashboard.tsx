@@ -5,7 +5,8 @@ import { COMING, SectionHeading } from "./section-heading";
 // Powerful underneath, simple on the surface: a preview of the workspace,
 // on a graphite section that is dark in both page themes (it sets
 // data-theme itself, so every token inside takes its dark value). Four notes
-// point at the parts that matter. Team, workspaces and roles exist today;
+// point at the parts that matter. Its border sets it apart from a page
+// that is itself dark. Team, workspaces and roles exist today;
 // content types, entries and media arrive in the next release.
 
 // The notes sit in the gutters either side of the preview on wide screens,
@@ -79,7 +80,7 @@ export function Dashboard() {
       id="dashboard"
       data-theme="dark"
       aria-labelledby="dashboard-title"
-      className="flex scroll-mt-28 flex-col gap-12 rounded-xl bg-app px-5 py-14 text-fg sm:px-10 sm:py-20"
+      className="flex scroll-mt-28 flex-col gap-12 rounded-xl border border-line-strong bg-app px-5 py-14 text-fg sm:px-10 sm:py-20"
     >
       <div className="flex flex-wrap items-end justify-between gap-6">
         <SectionHeading

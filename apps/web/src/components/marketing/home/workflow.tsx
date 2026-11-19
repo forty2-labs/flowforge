@@ -4,7 +4,7 @@ import { StatusMark } from "@flowforge/ui";
 import { useRef, type ReactNode } from "react";
 import { Connector } from "./connector";
 import { useSeen } from "./reveal";
-import { SectionHeading } from "./section-heading";
+import { COMING, SectionHeading } from "./section-heading";
 
 // From idea to published: three steps, each with a small picture of the
 // screen it happens on, joined by a line that draws in when the steps are
@@ -14,7 +14,7 @@ import { SectionHeading } from "./section-heading";
 const STEPS: { title: string; text: string; vignette: ReactNode }[] = [
   {
     title: "Structure",
-    text: "Define the content your business needs. Create custom content types and organise your information.",
+    text: "Define the content your business needs: the types of entry you publish and the fields each one has.",
     vignette: (
       <span className="flex flex-col gap-1.5">
         {[
@@ -32,7 +32,7 @@ const STEPS: { title: string; text: string; vignette: ReactNode }[] = [
   },
   {
     title: "Create",
-    text: "Add and manage content from one workspace. Upload images, update information and manage entries.",
+    text: "Write and update entries in one workspace, with their images and the details that change week to week.",
     vignette: (
       <span className="flex gap-2.5 rounded-md border border-line bg-surface p-2.5">
         <span className="aspect-square w-14 flex-none rounded-sm bg-sample-forest" />
@@ -46,7 +46,7 @@ const STEPS: { title: string; text: string; vignette: ReactNode }[] = [
   },
   {
     title: "Publish",
-    text: "Deliver your content to websites and mobile apps. Every connected experience reads the same source.",
+    text: "Publish once, and every website and app connected to the workspace reads the same entry.",
     vignette: (
       <span className="flex flex-col gap-2 rounded-md border border-line bg-surface p-2.5">
         <StatusMark status="changed" className="text-fg-secondary" />
@@ -87,6 +87,7 @@ export function Workflow() {
           ))}
         </ol>
       </div>
+      <p className="text-label text-fg-secondary">{COMING}: content types, entries and publishing. Workspaces and teams are ready now.</p>
     </section>
   );
 }

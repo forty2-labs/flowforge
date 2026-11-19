@@ -231,6 +231,26 @@ test.describe("home", () => {
     await expect(section.getByTestId("scale-stage")).toHaveAttribute("data-stage", "5");
   });
 
+  test("channels and workflow do not describe the API or apps as available", async ({ page }) => {
+    await page.goto("/");
+    const main = page.getByRole("main");
+    for (const claim of ["Native apps read the same content", "Upload images, update information"]) {
+      await expect(main.getByText(claim)).toHaveCount(0);
+    }
+    for (const id of ["channels", "workflow"]) {
+      await expect(page.locator(`#${id}`).getByText(/Coming in the next release|on the roadmap/).first()).toBeVisible();
+    }
+  });
+
+  test("the dashboard band stands apart from the page in both themes", async ({ page }) => {
+    for (const scheme of ["light", "dark"] as const) {
+      await page.emulateMedia({ colorScheme: scheme });
+      await page.goto("/");
+      const edge = await page.locator("#dashboard").evaluate((el) => getComputedStyle(el).borderTopWidth);
+      expect(edge, scheme).toBe("1px");
+    }
+  });
+
   test("planned features are labelled coming", async ({ page }) => {
     await page.goto("/");
     expect(await page.getByText("Coming in the next release").count()).toBeGreaterThanOrEqual(2);
@@ -376,6 +396,18 @@ test.describe("playground", () => {
     await expect(d.web.getByTestId("preview-items")).toHaveCount(0);
     await expect(d.phone.getByTestId("preview-items")).toHaveCount(0);
     await expect(add).not.toHaveAttribute("aria-disabled", "true");
+  });
+
+  test("removing a row keeps keyboard focus in the list", async ({ page }) => {
+    const d = await openPlayground(page);
+    const rows = d.demo.getByRole("list", { name: "Menu items" }).getByRole("listitem");
+    await rows.first().getByRole("button", { name: /Remove/ }).focus();
+    await page.keyboard.press("Enter");
+    await expect(rows.first().getByRole("textbox", { name: /Name/ })).toBeFocused();
+    while ((await rows.count()) > 1) await rows.first().getByRole("button", { name: /Remove/ }).click();
+    await rows.first().getByRole("button", { name: /Remove/ }).focus();
+    await page.keyboard.press("Enter");
+    await expect(d.demo.getByRole("button", { name: "Add menu item" })).toBeFocused();
   });
 
   test("the image choice changes both previews", async ({ page }) => {

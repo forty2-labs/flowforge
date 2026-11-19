@@ -1,7 +1,7 @@
 "use client";
 
 import { Button, cx, RichTextEditor, TextField } from "@flowforge/ui";
-import { useId, useState, type Dispatch, type KeyboardEvent } from "react";
+import { useEffect, useId, useRef, useState, type Dispatch, type KeyboardEvent } from "react";
 import { BUSINESSES, MAX_ITEMS } from "./businesses";
 import { FeaturedImage } from "./images";
 import type { Action, State } from "./state";
@@ -30,6 +30,19 @@ export function EditorPanel({
   const sample = BUSINESSES[state.business];
   const { draft } = state;
   const full = draft.items.length >= MAX_ITEMS;
+  const list = useRef<HTMLUListElement>(null);
+  const addButton = useRef<HTMLButtonElement>(null);
+  // After a row is removed its button is gone, so focus moves to the row
+  // that took its place, the one before it, or Add when the list is empty.
+  const refocus = useRef<number | null>(null);
+  useEffect(() => {
+    const index = refocus.current;
+    if (index === null) return;
+    refocus.current = null;
+    const names = list.current?.querySelectorAll<HTMLInputElement>("input[data-item-name]") ?? [];
+    (names[Math.min(index, names.length - 1)] ?? addButton.current)?.focus();
+  }, [draft.items.length]);
+
   const edit = (patch: Extract<Action, { type: "edit" }>["patch"]) => dispatch({ type: "edit", patch });
 
   function onTabKey(event: KeyboardEvent<HTMLButtonElement>) {
@@ -129,10 +142,11 @@ export function EditorPanel({
           <span id={`${ids}-items`} className="text-label font-medium text-fg">
             {sample.items.plural}
           </span>
-          <ul aria-labelledby={`${ids}-items`} className="flex flex-col gap-2">
+          <ul ref={list} aria-labelledby={`${ids}-items`} className="flex flex-col gap-2">
             {draft.items.map((item, i) => (
               <li key={item.id} className="flex items-center gap-2">
                 <input
+                  data-item-name
                   aria-label={`Name of ${sample.items.singular} ${i + 1}`}
                   value={item.name}
                   onChange={(e) => dispatch({ type: "editItem", id: item.id, patch: { name: e.target.value } })}
@@ -148,7 +162,10 @@ export function EditorPanel({
                 <button
                   type="button"
                   aria-label={`Remove ${item.name.trim() || `${sample.items.singular} ${i + 1}`}`}
-                  onClick={() => dispatch({ type: "removeItem", id: item.id })}
+                  onClick={() => {
+                    refocus.current = i;
+                    dispatch({ type: "removeItem", id: item.id });
+                  }}
                   className="inline-flex h-11 w-11 flex-none items-center justify-center rounded-full text-fg-secondary hover:bg-sunken hover:text-fg"
                 >
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
@@ -159,6 +176,7 @@ export function EditorPanel({
             ))}
           </ul>
           <Button
+            ref={addButton}
             variant="ghost"
             size="sm"
             aria-disabled={full}

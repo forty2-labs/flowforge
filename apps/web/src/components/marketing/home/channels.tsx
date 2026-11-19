@@ -4,7 +4,7 @@ import { cx, StatusMark } from "@flowforge/ui";
 import { useRef, type ReactNode } from "react";
 import { Connector } from "./connector";
 import { useSeen } from "./reveal";
-import { SectionHeading } from "./section-heading";
+import { COMING, SectionHeading } from "./section-heading";
 
 // Create once, experience everywhere: the content workspace on the left,
 // the API in the middle, and four places the same content shows up. On wide
@@ -164,7 +164,7 @@ export function Channels() {
       </div>
 
       <p className="max-w-2xl text-body text-fg-secondary">
-        Native apps read the same content through the API. SDKs are on the roadmap.
+        {COMING}: the delivery API that websites and apps will read from. Native app SDKs are on the roadmap.
       </p>
     </section>
   );
