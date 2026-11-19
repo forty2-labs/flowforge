@@ -1,7 +1,6 @@
 import { buttonClasses } from "@flowforge/ui";
 import type { Metadata } from "next";
 import Link from "next/link";
-import { EditorDemo } from "@/components/marketing/demo/editor-demo";
 import { BusinessCards } from "@/components/marketing/home/business-cards";
 import { Channels } from "@/components/marketing/home/channels";
 import { Closing } from "@/components/marketing/home/closing";
@@ -12,6 +11,7 @@ import { Structure } from "@/components/marketing/home/structure";
 import { Why } from "@/components/marketing/home/why";
 import { Workflow } from "@/components/marketing/home/workflow";
 import { HeroFlow, HeroShapes } from "@/components/marketing/illustrations";
+import { Playground } from "@/components/marketing/playground/playground";
 
 const DESCRIPTION =
   "Manage your website and mobile app content from one flexible platform. From your café menu to your online store, Flowforge keeps every digital experience connected.";
@@ -94,9 +94,9 @@ export default function Home() {
             id="playground"
             eyebrow="Try it"
             title="Edit once. See it everywhere."
-            intro="Change the sample page below. The website and the phone show your words as you type, and Publish makes them live on both."
+            intro="Pick a business and change its page. The website and the app update as you type, and Publish sends the change to both."
           />
-          <EditorDemo />
+          <Playground />
         </section>
 
         <Structure />

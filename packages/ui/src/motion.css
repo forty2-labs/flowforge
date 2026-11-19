@@ -186,3 +186,32 @@
     animation-name: ff-fade-in;
   }
 }
+
+/* The playground's publish: a published dot runs along each line from the
+   editor to a screen. The line is set inline as offset-path. Reduced motion
+   never renders it. */
+@keyframes ff-travel {
+  from {
+    offset-distance: 0%;
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  to {
+    offset-distance: 100%;
+    opacity: 1;
+  }
+}
+
+.ff-travel {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 10px;
+  height: 10px;
+  border-radius: 9999px;
+  background-color: var(--ff-success);
+  offset-rotate: 0deg;
+  animation: ff-travel 900ms var(--ff-ease-out) both;
+}

@@ -104,7 +104,7 @@ test.describe("site chrome", () => {
     await page.waitForLoadState("networkidle");
     const banner = page.getByRole("banner");
     await expect(banner.getByRole("link", { name: "Pricing" })).toBeHidden();
-    const menu = page.getByRole("button", { name: "Menu" });
+    const menu = page.getByRole("button", { name: "Menu", exact: true });
     await menu.click();
     const dialog = page.getByRole("dialog", { name: "Menu" });
     await expect(dialog.getByRole("link", { name: "Pricing" })).toBeVisible();
@@ -269,25 +269,29 @@ test.describe("home", () => {
   });
 });
 
-test.describe("demo", () => {
-  const CAFE_TITLE = "Spring menu, now serving";
-
-  async function openDemo(page: Page, width = 1440) {
+test.describe("playground", () => {
+  async function openPlayground(page: Page, width = 1440) {
     await page.setViewportSize({ width, height: 900 });
     await page.goto("/");
     const demo = page.locator("#playground");
-    const editor = demo.getByRole("textbox", { name: "Page content" });
-    // The live editor replaces the server-rendered copy once it mounts.
-    await expect(editor).toHaveAttribute("contenteditable", "true");
+    await demo.scrollIntoViewIfNeeded();
     return {
       demo,
-      editor,
+      field: (name: string) => demo.getByRole("textbox", { name, exact: true }),
       web: demo.getByTestId("preview-web"),
       phone: demo.getByTestId("preview-phone"),
       status: demo.getByTestId("demo-status"),
       previewLabel: demo.getByTestId("preview-label"),
       live: demo.getByRole("status"),
+      publish: demo.getByRole("button", { name: "Publish" }),
     };
+  }
+
+  async function openPageText(page: Page, demo: import("@playwright/test").Locator) {
+    await demo.getByRole("tab", { name: "Page text" }).click();
+    const editor = demo.getByRole("textbox", { name: "Page text" });
+    await expect(editor).toHaveAttribute("contenteditable", "true");
+    return editor;
   }
 
   async function replaceAll(page: Page, editor: import("@playwright/test").Locator, text: string) {
@@ -297,28 +301,118 @@ test.describe("demo", () => {
     else await page.keyboard.press("Backspace");
   }
 
-  test("the editor sits above the website and phone previews", async ({ page }) => {
-    const d = await openDemo(page);
-    const editor = (await d.editor.boundingBox())!;
+  test("on desktop the editor sits beside the previews and is narrower", async ({ page }) => {
+    const d = await openPlayground(page);
+    const editor = (await d.demo.getByTestId("editor-panel").boundingBox())!;
     const web = (await d.web.boundingBox())!;
     const phone = (await d.phone.boundingBox())!;
-    expect(web.y).toBeGreaterThan(editor.y + editor.height);
+    expect(web.x).toBeGreaterThan(editor.x + editor.width);
     expect(phone.x).toBeGreaterThan(web.x + web.width - 1);
-    expect(Math.abs(phone.y - web.y)).toBeLessThan(80);
+    expect(editor.width).toBeLessThan(phone.x + phone.width - web.x);
   });
 
-  test("typing updates both previews", async ({ page }) => {
-    const d = await openDemo(page);
-    await replaceAll(page, d.editor, "Autumn menu");
-    await expect(d.web).toContainText("Autumn menu");
-    await expect(d.phone).toContainText("Autumn menu");
+  test("each field updates both previews", async ({ page }) => {
+    const d = await openPlayground(page);
+    for (const [name, value] of [
+      ["Business name", "Driftwood"],
+      ["Announcement", "Closed on Monday"],
+      ["Headline", "Late breakfast"],
+      ["Description", "Eggs until two"],
+    ] as const) {
+      await d.field(name).fill(value);
+      await expect(d.web).toContainText(value);
+      await expect(d.phone).toContainText(value);
+    }
     await expect(d.status).toHaveText("Unpublished changes");
-    await expect(d.previewLabel).toHaveText("Preview of unpublished changes");
+    await expect(d.previewLabel).toHaveText("Unpublished changes");
   });
 
-  test("formatting from the toolbar shows in the previews", async ({ page }) => {
-    const d = await openDemo(page);
-    await replaceAll(page, d.editor, "Soup of the day");
+  test("switching business loads its sample", async ({ page }) => {
+    const d = await openPlayground(page);
+    await d.field("Headline").fill("Something else");
+    // People click the visible label; the radio itself is visually hidden.
+    await d.demo.locator("label", { hasText: "Restaurant" }).click();
+    await expect(d.demo.getByRole("radio", { name: "Restaurant" })).toBeChecked();
+    await expect(d.web).toContainText("Olive & Ember");
+    await expect(d.phone).toContainText("Olive & Ember");
+    await expect(d.field("Business name")).toHaveValue("Olive & Ember");
+    await expect(d.status).toHaveText("Published to website and app");
+    await d.demo.locator("label", { hasText: "Retail" }).click();
+    await expect(d.demo.getByRole("list", { name: "Products" })).toBeVisible();
+  });
+
+  test("menu rows can be added and removed", async ({ page }) => {
+    const d = await openPlayground(page);
+    const rows = d.demo.getByRole("list", { name: "Menu items" }).getByRole("listitem");
+    const start = await rows.count();
+    await d.demo.getByRole("button", { name: "Add menu item" }).click();
+    await expect(rows).toHaveCount(start + 1);
+    await rows.last().getByRole("textbox", { name: /Name/ }).fill("Cheese scone");
+    await rows.last().getByRole("textbox", { name: /Price/ }).fill("2.80");
+    await expect(d.web).toContainText("Cheese scone");
+    await expect(d.phone).toContainText("2.80");
+    const add = d.demo.getByRole("button", { name: "Add menu item" });
+    while ((await rows.count()) < 5) await add.click();
+    await expect(add).toHaveAttribute("aria-disabled", "true");
+    // Pressing it at the limit does nothing. (Playwright waits on
+    // aria-disabled controls, so the click is forced.)
+    await add.click({ force: true });
+    await expect(rows).toHaveCount(5);
+    while ((await rows.count()) > 0) await rows.first().getByRole("button", { name: /Remove/ }).click();
+    await expect(d.web.getByTestId("preview-items")).toHaveCount(0);
+    await expect(d.phone.getByTestId("preview-items")).toHaveCount(0);
+    await expect(add).not.toHaveAttribute("aria-disabled", "true");
+  });
+
+  test("the image choice changes both previews", async ({ page }) => {
+    const d = await openPlayground(page);
+    await expect(d.web).toHaveAttribute("data-image", "0");
+    const second = d.demo.getByRole("radiogroup", { name: "Featured image" }).getByRole("radio").nth(1);
+    await second.check({ force: true });
+    await expect(d.web).toHaveAttribute("data-image", "1");
+    await expect(d.phone).toHaveAttribute("data-image", "1");
+  });
+
+  test("publish sends the change to both previews", async ({ page }) => {
+    const d = await openPlayground(page);
+    await d.field("Headline").fill("Autumn menu");
+    await d.publish.click();
+    await expect(d.status).toHaveText("Publishing…");
+    await expect(d.status).toHaveText("Published to website and app");
+    await expect(d.previewLabel).toHaveText("Published");
+    await expect(d.live).toHaveText("Published in this demo. Nothing was sent.");
+    await expect(d.publish).toHaveAttribute("aria-disabled", "true");
+  });
+
+  test("reduced motion publishes without the travel", async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    const d = await openPlayground(page);
+    await d.field("Headline").fill("Autumn menu");
+    await d.publish.click();
+    await expect(d.status).toHaveText("Published to website and app", { timeout: 300 });
+    await expect(d.demo.getByTestId("publish-travel")).toHaveCount(0);
+  });
+
+  test("empty fields fall back to a placeholder name", async ({ page }) => {
+    const d = await openPlayground(page);
+    for (const name of ["Business name", "Announcement", "Headline", "Description"]) await d.field(name).fill("");
+    await expect(d.web).toContainText("Your business");
+    await expect(d.phone).toContainText("Your business");
+    await expect(d.web.getByTestId("announcement")).toHaveCount(0);
+  });
+
+  test("reset restores the sample", async ({ page }) => {
+    const d = await openPlayground(page);
+    await d.field("Headline").fill("Autumn menu");
+    await d.demo.getByRole("button", { name: "Reset" }).click();
+    await expect(d.field("Business name")).toHaveValue("Harbour Café");
+    await expect(d.status).toHaveText("Published to website and app");
+  });
+
+  test("page text formats with the toolbar", async ({ page }) => {
+    const d = await openPlayground(page);
+    const editor = await openPageText(page, d.demo);
+    await replaceAll(page, editor, "Soup of the day");
     await page.keyboard.press("ControlOrMeta+A");
     const bold = d.demo.getByRole("toolbar", { name: "Formatting" }).getByRole("button", { name: "Bold" });
     await bold.click();
@@ -328,7 +422,8 @@ test.describe("demo", () => {
   });
 
   test("the formatting toolbar moves with arrow keys", async ({ page }) => {
-    const d = await openDemo(page);
+    const d = await openPlayground(page);
+    await openPageText(page, d.demo);
     const toolbar = d.demo.getByRole("toolbar", { name: "Formatting" });
     await toolbar.getByRole("button", { name: "Bold" }).focus();
     await page.keyboard.press("ArrowRight");
@@ -337,66 +432,22 @@ test.describe("demo", () => {
     await expect(toolbar.getByRole("button", { name: "Numbered list" })).toBeFocused();
   });
 
-  test("publish marks the page published", async ({ page }) => {
-    const d = await openDemo(page);
-    await replaceAll(page, d.editor, "Autumn menu");
-    await d.demo.getByRole("button", { name: "Publish" }).click();
-    await expect(d.status).toHaveText("Published");
-    await expect(d.previewLabel).toHaveText("Published");
-    await expect(d.live).toContainText("Published");
-  });
-
-  test("switching preset resets content and status", async ({ page }) => {
-    const d = await openDemo(page);
-    await replaceAll(page, d.editor, "Autumn menu");
-    // People click the visible label; the radio itself is visually hidden.
-    await d.demo.locator("label", { hasText: "Shop" }).click();
-    await expect(d.demo.getByRole("radio", { name: "Shop" })).toBeChecked();
-    await expect(d.status).toHaveText("Published");
-    await expect(d.editor).toContainText("The linen apron, back in stock");
-    await expect(d.web).toContainText("The linen apron, back in stock");
-    await expect(d.phone).toContainText("The linen apron, back in stock");
-  });
-
-  test("reset restores the preset", async ({ page }) => {
-    const d = await openDemo(page);
-    await replaceAll(page, d.editor, "Autumn menu");
-    await d.demo.getByRole("button", { name: "Reset" }).click();
-    await expect(d.editor).toContainText(CAFE_TITLE);
-    await expect(d.status).toHaveText("Published");
-  });
-
-  test("empty content shows Untitled", async ({ page }) => {
-    const d = await openDemo(page);
-    await replaceAll(page, d.editor, "");
-    await expect(d.web).toContainText("Untitled");
-    await expect(d.phone).toContainText("Untitled");
-  });
-
-  test("long words wrap at 360 px", async ({ page }) => {
-    const d = await openDemo(page, 360);
-    await replaceAll(page, d.editor, "a".repeat(200));
-    const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
-    expect(overflow).toBeLessThanOrEqual(0);
-  });
-
-  // The frames clip their content, so a word that does not wrap would be cut
-  // off rather than widen the page. Measure the text inside each preview.
-  test("long words wrap inside both previews", async ({ page }) => {
-    const d = await openDemo(page, 768);
-    await replaceAll(page, d.editor, "a".repeat(200));
-    await page.keyboard.press("Enter");
-    await page.keyboard.type("b".repeat(400));
+  test("long words wrap at 360 px and inside both previews", async ({ page }) => {
+    const d = await openPlayground(page, 360);
+    await d.field("Headline").fill("a".repeat(200));
+    await d.field("Business name").fill("b".repeat(120));
+    expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBeLessThanOrEqual(0);
+    await page.setViewportSize({ width: 1024, height: 900 });
     for (const preview of [d.web, d.phone]) {
-      for (const text of await preview.locator("h3, p").all()) {
-        const fits = await text.evaluate((el) => el.scrollWidth <= el.clientWidth);
+      for (const text of await preview.locator("h3, p, span").all()) {
+        const fits = await text.evaluate((el) => el.scrollWidth <= el.clientWidth + 1);
         expect(fits).toBe(true);
       }
     }
   });
 
   test("phone width switches previews with tabs", async ({ page }) => {
-    const d = await openDemo(page, 390);
+    const d = await openPlayground(page, 390);
     const website = d.demo.getByRole("tab", { name: "Website" });
     await expect(website).toHaveAttribute("aria-selected", "true");
     await website.focus();
@@ -408,24 +459,21 @@ test.describe("demo", () => {
     await expect(d.web).toBeHidden();
   });
 
-  test("demo works from the keyboard", async ({ page }) => {
-    const d = await openDemo(page);
-    // The formatting toolbar comes first; one Tab moves into the text.
-    await d.demo.getByRole("toolbar", { name: "Formatting" }).getByRole("button", { name: "Bold" }).focus();
-    await page.keyboard.press("Tab");
-    await expect(d.editor).toBeFocused();
-    await page.keyboard.type("Today: ");
+  test("playground works from the keyboard", async ({ page }) => {
+    const d = await openPlayground(page);
+    await d.field("Business name").focus();
+    await page.keyboard.press("End");
+    await page.keyboard.type(" Quayside");
     await expect(d.status).toHaveText("Unpublished changes");
-    const publish = d.demo.getByRole("button", { name: "Publish" });
-    for (let i = 0; i < 10 && !(await publish.evaluate((el) => el === document.activeElement)); i++) {
+    for (let i = 0; i < 30 && !(await d.publish.evaluate((el) => el === document.activeElement)); i++) {
       await page.keyboard.press("Tab");
     }
-    await expect(publish).toBeFocused();
+    await expect(d.publish).toBeFocused();
     await page.keyboard.press("Enter");
-    await expect(d.status).toHaveText("Published");
+    await expect(d.status).toHaveText("Published to website and app");
     // Publishing must not drop keyboard focus to the page.
-    await expect(publish).toBeFocused();
-    await expect(publish).toHaveAttribute("aria-disabled", "true");
+    await expect(d.publish).toBeFocused();
+    await expect(d.publish).toHaveAttribute("aria-disabled", "true");
   });
 });
 
