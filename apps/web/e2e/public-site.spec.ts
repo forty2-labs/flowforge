@@ -122,6 +122,20 @@ test.describe("site chrome", () => {
     }
   });
 
+  test("footer groups links by product, solutions, resources and company", async ({ page }) => {
+    await page.goto("/");
+    const footer = page.getByRole("contentinfo");
+    for (const group of ["Product", "Solutions", "Resources", "Company"]) {
+      await expect(footer.getByRole("heading", { name: group, exact: true })).toBeVisible();
+    }
+    await expect(footer.getByText("Flexible content infrastructure for every digital experience.")).toBeVisible();
+    // Resources have no pages yet, so they are named but not linked.
+    await expect(footer.getByRole("link", { name: /Documentation/ })).toHaveCount(0);
+    await expect(footer.getByText("Documentation")).toBeVisible();
+    await expect(footer.getByText("Coming soon").first()).toBeVisible();
+    await expect(footer.getByRole("link", { name: "Restaurants" })).toHaveAttribute("href", "/#product");
+  });
+
   test("privacy and terms pages exist", async ({ page }) => {
     for (const path of ["/privacy", "/terms"]) {
       const response = await page.goto(path);

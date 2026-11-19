@@ -140,22 +140,31 @@ line.
   for menus and toasts, 280 ms for dialogs and drawers. The one designed
   moment is the publish mark: the ring fills to a dot. Under
   `prefers-reduced-motion`, movement becomes a fade or nothing.
-- **The public hero is the one exception** to several of these rules, and
-  only there:
-  - A sketch of a website and a phone, joined to a Flowforge hub by lanes of
-    flowing content (`FlowField`): draft rings leave the hub and fill into
-    published dots on their way. The pointer publishes rings it passes, and
-    the visual tilts gently with the pointer (`Tilt`). All of it stands
-    still under reduced motion.
-  - Irregular shapes (`HeroShapes`, filled with the `shape-cobalt` and
-    `shape-teal` tokens) sit behind the stage. They are texture, not a
-    gradient, and carry no meaning.
-  - The hub and the sketched frames use `shadow-dialog` to lift off the
-    shapes.
+- **The public home page is the one exception** to several of these rules,
+  and only there:
+  - **Hero:** a sketch of a website and a phone, joined to a Flowforge hub by
+    lanes of flowing content (`FlowField`). Draft rings leave the hub and
+    fill into published dots on their way. The pointer publishes rings it
+    passes, and the visual tilts gently with the pointer (`Tilt`). The frames
+    float by 4 px (`ff-float`) and the outline shape drifts slowly
+    (`ff-drift`).
+  - **Shapes:** irregular shapes (`HeroShapes`, filled with the
+    `shape-cobalt` and `shape-teal` tokens) sit behind the hero and, mirrored,
+    behind the closing panel. They are texture, not a gradient, and carry no
+    meaning.
+  - **Shadows:** the hub, the sketched frames and the closing panel use
+    `shadow-dialog` to lift off the shapes.
+  - **Scroll reveals, in three places only:** the channels diagram, the
+    dashboard preview and the workflow path rise or draw in once, the first
+    time they are seen (`Reveal`, `Connector`). Every other section is
+    static.
+  - **Playground publish:** a published dot runs along each line from the
+    editor to the website and the phone (`ff-travel`), then the status fills.
+  - **Dark section:** the dashboard showcase sets `data-theme="dark"` on
+    itself, so it is graphite in both page themes. It must still pass AA in
+    both.
 
-  The live editor demo (`RichTextEditor` above a website and a phone
-  preview) is its own section further down the home page, without ambient
-  motion.
+  Everything here stands still under reduced motion.
 
   Do not use any of these inside the app.
 

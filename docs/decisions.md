@@ -295,6 +295,38 @@ the end of the relevant section.
   `glass-strong` went from 90% to 96% opaque and dark `text-muted` from
   `#8E99AD` to `#9AA5B8`.
 
+### The home page's motion is hand-written, not Framer Motion
+
+- **Why:** the brief for the redesign (FLO-56) suggested Framer Motion "if
+  the project supports it", and it did not. The motion the page needs is
+  small: a header that widens on scroll (an IntersectionObserver sentinel and
+  a class change), three reveals on first sight, lines that draw in
+  (`stroke-dashoffset`) and a dot that travels a path (`offset-path`). CSS
+  and a few observers do all of it, in the same style as `FlowField` and
+  `Tilt`.
+- **Cost:** no spring physics. Easing is `--ff-ease-out`. If a later screen
+  needs gestures or layout animation, revisit this.
+
+### A section can force the dark theme
+
+- **Why:** the home page's dashboard showcase is meant to be a contrasting
+  graphite band in both themes. The dark token block now also matches any
+  element with `data-theme="dark"`, not only `:root`. Tailwind's tokens are
+  `@theme inline`, so classes inside such an element pick up the dark values.
+- **Cost:** anything inside that element must be checked in both page
+  themes, and nothing may rely on `:root` alone for the theme. The `dark:`
+  variant already matched nested `data-theme="dark"`.
+
+### The editor demo became the playground
+
+- **Why:** FLO-56 asked for the demo to show structured content, not only
+  rich text. The playground edits an entry's fields (name, announcement,
+  headline, description, an image and a list of items) for a café, a
+  restaurant or a shop. The rich-text editor stays as the entry's "Page
+  text".
+- **Cost:** more state, kept in one reducer. It is still local: nothing is
+  saved or sent, and the page says so.
+
 ## Inherited from the generators
 
 These came from the project scaffolds rather than from a decision. They are
