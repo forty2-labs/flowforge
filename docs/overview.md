@@ -66,5 +66,5 @@ team and social links are placeholders until they are settled.
 
 - Emails are plain text. Without `RESEND_API_KEY` they are only written to
   the API log; the invitation link is always shown to the inviter as well.
-- Google sign-in and sign-in rate limiting are not built.
+- Sign-in rate limiting is not built.
 - Dialog and toast components are not built.

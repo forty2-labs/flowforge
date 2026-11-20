@@ -26,11 +26,15 @@ URL Vercel injects as `API_URL`, and `api` talks to Supabase Postgres.
 | `WEB_ORIGIN` | `api` (CORS) | **You set it.** Required: the API won't start in production without it. |
 | `RESEND_API_KEY` | `api` (email) | **You set it**, from Resend → API Keys, with sending access only. Optional: without it, emails are only written to the log and the API warns at startup. |
 | `MAIL_FROM` | `api` (email) | **You set it**, for example `Flowforge <team@mail.example.com>`. The domain must be verified in Resend. |
+| `SUPABASE_URL` | `api` and `web` (Google sign-in) | Injected by the Supabase integration. |
+| `SUPABASE_ANON_KEY` | `api` and `web` (Google sign-in) | Injected by the Supabase integration. Safe to expose, but Flowforge only reads it on the server. |
+| `SUPABASE_JWT_SECRET` | `api` (Google sign-in) | Injected by the integration for projects on the legacy shared secret. Optional: tokens signed with the project's signing keys are checked against its published keys either way. |
 | `DATABASE_URL` | `api` and Prisma | Overrides both `POSTGRES_*` URLs. Used locally from `.env`. **Don't set it in Vercel** unless the database isn't connected through the integration. |
 
-The integration also adds `POSTGRES_PRISMA_URL`, `POSTGRES_USER`,
-`SUPABASE_URL`, the Supabase API keys and similar. Flowforge doesn't use
-them.
+The integration also adds `POSTGRES_PRISMA_URL`, `POSTGRES_USER`, the
+`NEXT_PUBLIC_SUPABASE_*` copies, the service role key and similar. Flowforge
+doesn't use them. The service role key in particular must never be read by
+`web`.
 
 The fallbacks are in [apps/api/src/env.ts](../apps/api/src/env.ts) and
 [apps/api/prisma.config.ts](../apps/api/prisma.config.ts).
@@ -131,6 +135,36 @@ harmless.
 4. If something fails, go to **Logs**, filter by environment and by the
    `api` or `web` service, and match the error below.
 
+## Step 6: Turn on Google sign-in
+
+Supabase Auth runs only the Google step; the account and session are
+Flowforge's own (see [decisions.md](decisions.md)). Do this once per Supabase
+project.
+
+1. In Google Cloud Console, create an OAuth client of type **Web
+   application**. Under **Authorised redirect URIs**, add
+   `https://<project-ref>.supabase.co/auth/v1/callback`. Supabase shows this
+   URL on the Google provider page.
+2. In Supabase, open **Authentication → Sign In / Providers → Google**, turn
+   it on and paste the client ID and secret.
+3. In **Authentication → URL Configuration**, set **Site URL** to the
+   production origin and add these **Redirect URLs**:
+   - `https://<production-domain>/auth/callback**`
+   - `https://*-<team-slug>.vercel.app/auth/callback**` for previews
+   - `http://localhost:3000/auth/callback**` on the development project only
+
+   Supabase refuses to return to any other address, so a missing entry shows
+   up as a redirect to the Site URL instead of a sign-in.
+4. In **Sign In / Providers → Email**, turn off **Enable email provider**.
+   Flowforge never creates Supabase email users, and leaving it on lets
+   anyone create Supabase accounts that the API then rejects. Leave **Allow
+   new users to sign up** (under User Signups) on: it applies to every
+   provider, so turning it off blocks each person's first Google sign-in.
+
+Check it from the sign-in page: **Continue with Google** should return signed
+in. A Google account whose address already has a Flowforge password ends up
+in that same account.
+
 ## Troubleshooting
 
 | Error in the logs | Cause | Fix |
@@ -166,4 +200,8 @@ Supabase → Project Settings → Database → SSL Configuration and update
 Nothing here changes local development. The root `.env` sets `DATABASE_URL`
 to the docker-compose Postgres, which takes priority over the `POSTGRES_*`
 variables. Never put Supabase credentials in `.env` or anywhere else in the
-repository.
+repository. The one exception is Google sign-in on a **development** Supabase
+project: to try the flow on `localhost`, put its URL and anon key in the root
+`.env` for the API and in `apps/web/.env.local` for the web app (Next.js
+reads only its own folder's env files). Neither file is committed. Without
+them the Google button reports that it isn't set up.

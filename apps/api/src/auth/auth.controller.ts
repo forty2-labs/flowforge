@@ -5,6 +5,7 @@ import { env } from '../env.js';
 import { CurrentUser, Public, type AuthedRequest, type AuthUser } from './auth.decorators.js';
 import {
   ForgotPasswordDto,
+  GoogleSignInDto,
   ResetPasswordDto,
   SignInDto,
   SignUpDto,
@@ -14,6 +15,7 @@ import { SESSION_COOKIE } from './auth.guard.js';
 import { AuthService, SESSION_TTL_MS } from './auth.service.js';
 import { EmailVerificationService } from './email-verification.service.js';
 import { PasswordResetService } from './password-reset.service.js';
+import { SupabaseAuthService } from './supabase-auth.service.js';
 
 @Controller('auth')
 export class AuthController {
@@ -21,6 +23,7 @@ export class AuthController {
     private readonly auth: AuthService,
     private readonly passwordReset: PasswordResetService,
     private readonly emailVerification: EmailVerificationService,
+    private readonly supabase: SupabaseAuthService,
   ) {}
 
   @Public()
@@ -42,6 +45,22 @@ export class AuthController {
     @Res({ passthrough: true }) response: Response,
   ): Promise<SessionDto> {
     const { token, user } = await this.auth.signIn(dto);
+    setSessionCookie(response, token);
+    return this.auth.describeSession(user);
+  }
+
+  // Signs in or signs up with a Google account, using the access token Supabase
+  // Auth issued after the Google sign-in. The Supabase session ends there: from
+  // here on the person has an ordinary ff_session.
+  @Public()
+  @Post('google')
+  @HttpCode(200)
+  async google(
+    @Body() dto: GoogleSignInDto,
+    @Res({ passthrough: true }) response: Response,
+  ): Promise<SessionDto> {
+    const profile = await this.supabase.googleProfile(dto.accessToken);
+    const { token, user } = await this.auth.signInWithGoogle(profile);
     setSessionCookie(response, token);
     return this.auth.describeSession(user);
   }

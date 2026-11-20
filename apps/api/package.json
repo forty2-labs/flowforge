@@ -38,6 +38,7 @@
     "class-validator": "^0.14.1",
     "cookie-parser": "^1.4.7",
     "dotenv": "^17",
+    "jose": "6.2.13",
     "next": "16.4.6",
     "pg": "^8",
     "reflect-metadata": "^0.2.2",

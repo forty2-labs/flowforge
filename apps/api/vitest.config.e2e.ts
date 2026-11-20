@@ -14,6 +14,12 @@ export default defineConfig({
         'postgresql://flowforge:flowforge@localhost:5432/flowforge_test',
       // Never send real email from tests, even if the root .env has a key.
       RESEND_API_KEY: '',
+      // Google sign-in checks tokens the tests sign with this secret. The
+      // Supabase user lookup is replaced in the test module, so nothing is
+      // sent to this URL.
+      SUPABASE_URL: 'https://flowforge-test.supabase.co',
+      SUPABASE_ANON_KEY: 'test-anon-key',
+      SUPABASE_JWT_SECRET: 'test-only-supabase-jwt-secret-0123456789',
     },
     fileParallelism: false,
   },

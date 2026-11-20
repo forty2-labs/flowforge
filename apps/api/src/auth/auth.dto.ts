@@ -55,3 +55,11 @@ export class ResetPasswordDto {
   @MaxLength(200)
   password: string;
 }
+
+export class GoogleSignInDto {
+  // The Supabase access token from the OAuth callback.
+  @IsString()
+  @MinLength(1)
+  @MaxLength(8192)
+  accessToken: string;
+}

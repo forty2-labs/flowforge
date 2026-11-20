@@ -60,20 +60,26 @@ on the Next.js server, calls the API the same way a page does, and returns
 either an error message for the form or a redirect.
 
 Sign-in is the one special case: the action reads the session token from the
-API's response and sets it as a cookie on the web app's own origin.
+API's response and sets it as a cookie on the web app's own origin. Google
+sign-in does the same from the route handler at `/auth/callback`, after
+Supabase Auth has run the Google step and the API has turned Supabase's
+access token into an ordinary session.
 
 ## Database
 
 The schema is [apps/api/prisma/schema.prisma](../apps/api/prisma/schema.prisma).
-Phase 1 has five tables:
+The tables:
 
 | Table | Holds |
 | --- | --- |
-| User | Account with a hashed password |
+| User | Account, with a hashed password unless it only signs in with Google |
+| AuthIdentity | Links a user to a Google account by Google's own id |
 | Session | One row per signed-in browser, storing a hash of the session token |
 | Workspace | Name and unique slug |
 | Membership | Links a user to a workspace with a role |
 | Invitation | Email, role, expiry and a hash of the invite token |
+| PasswordReset | A hash of a reset link's token, its expiry and whether it was used |
+| EmailVerification | A hash of a confirmation link's token and its expiry |
 
 ## Loading boundaries in the web app
 
