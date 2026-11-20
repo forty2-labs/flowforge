@@ -5,15 +5,20 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { signIn, signUp, type SignUpInput } from "@/lib/actions/auth";
+import { googleErrorMessage } from "@/lib/google-sign-in";
 import { queryKeys } from "@/lib/query/keys";
 import { requestErrorMessage, runAction } from "@/lib/query/request";
+import { GoogleSignIn } from "./google-sign-in";
 
 // The reference pattern for a TanStack Query mutation over a server action.
 export function AuthForm({ mode }: { mode: "signin" | "signup" }) {
   const isSignUp = mode === "signup";
   const router = useRouter();
   const queryClient = useQueryClient();
-  const next = useSearchParams().get("next") ?? "";
+  const searchParams = useSearchParams();
+  const next = searchParams.get("next") ?? "";
+  // Set by /auth/callback when a Google sign-in came back without a session.
+  const googleError = googleErrorMessage(searchParams.get("error"));
 
   const auth = useMutation({
     mutationFn: (input: SignUpInput) =>
@@ -47,12 +52,9 @@ export function AuthForm({ mode }: { mode: "signin" | "signup" }) {
   const otherHref = next ? `${other}?next=${encodeURIComponent(next)}` : other;
 
   return (
-    <form action={action} className="flex flex-col gap-[18px]" aria-labelledby="auth-heading">
+    <div className="flex flex-col gap-[18px]">
       <div className="flex flex-col gap-1.5">
-        <h1
-          id="auth-heading"
-          className="text-page"
-        >
+        <h1 id="auth-heading" className="text-page">
           {isSignUp ? "Create your account" : "Sign in"}
         </h1>
         <p className="text-body text-fg-secondary">
@@ -63,51 +65,69 @@ export function AuthForm({ mode }: { mode: "signin" | "signup" }) {
         </p>
       </div>
 
-      {auth.error && <Alert tone="error">{requestErrorMessage(auth.error)}</Alert>}
+      {googleError && !auth.error && <Alert tone="error">{googleError}</Alert>}
 
-      {isSignUp && (
+      <GoogleSignIn next={next} />
+
+      <div className="flex items-center gap-3 text-label text-fg-muted">
+        <span aria-hidden="true" className="h-px flex-1 bg-line" />
+        or with your email
+        <span aria-hidden="true" className="h-px flex-1 bg-line" />
+      </div>
+
+      <form
+        action={action}
+        className="flex flex-col gap-[18px]"
+        aria-labelledby="auth-heading"
+      >
+        {auth.error && (
+          <Alert tone="error">{requestErrorMessage(auth.error)}</Alert>
+        )}
+
+        {isSignUp && (
+          <TextField
+            label="Your name"
+            name="name"
+            autoComplete="name"
+            required
+            maxLength={80}
+            defaultValue={auth.variables?.name}
+          />
+        )}
         <TextField
-          label="Your name"
-          name="name"
-          autoComplete="name"
+          label="Work email"
+          name="email"
+          type="email"
+          autoComplete="email"
           required
-          maxLength={80}
-          defaultValue={auth.variables?.name}
+          defaultValue={auth.variables?.email}
         />
-      )}
-      <TextField
-        label="Work email"
-        name="email"
-        type="email"
-        autoComplete="email"
-        required
-        defaultValue={auth.variables?.email}
-      />
-      <TextField
-        label="Password"
-        name="password"
-        type="password"
-        autoComplete={isSignUp ? "new-password" : "current-password"}
-        labelAside={
-          isSignUp ? undefined : (
-            <Link href="/forgot-password" className="text-body font-medium">
-              Forgot password?
-            </Link>
-          )
-        }
-        required
-        minLength={isSignUp ? 8 : undefined}
-        hint={isSignUp ? "At least 8 characters." : undefined}
-      />
-      <Button type="submit" size="lg" loading={pending}>
-        {isSignUp
-          ? pending
-            ? "Creating account…"
-            : "Create account"
-          : pending
-            ? "Signing in…"
-            : "Sign in"}
-      </Button>
-    </form>
+        <TextField
+          label="Password"
+          name="password"
+          type="password"
+          autoComplete={isSignUp ? "new-password" : "current-password"}
+          labelAside={
+            isSignUp ? undefined : (
+              <Link href="/forgot-password" className="text-body font-medium">
+                Forgot password?
+              </Link>
+            )
+          }
+          required
+          minLength={isSignUp ? 8 : undefined}
+          hint={isSignUp ? "At least 8 characters." : undefined}
+        />
+        <Button type="submit" size="lg" loading={pending}>
+          {isSignUp
+            ? pending
+              ? "Creating account…"
+              : "Create account"
+            : pending
+              ? "Signing in…"
+              : "Sign in"}
+        </Button>
+      </form>
+    </div>
   );
 }

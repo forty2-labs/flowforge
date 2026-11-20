@@ -37,4 +37,23 @@ export const env = {
     // Resend's shared sender only delivers to the Resend account's own address.
     from: process.env.MAIL_FROM || 'Flowforge <onboarding@resend.dev>',
   },
+  supabase: supabaseConfig(),
 };
+
+export interface SupabaseConfig {
+  url: string;
+  anonKey: string;
+  // The legacy shared secret. When set, HS256 tokens are accepted too; tokens
+  // signed with the project's signing keys are always checked against the
+  // keys it publishes.
+  jwtSecret?: string;
+}
+
+// Optional: without a URL and anon key, Google sign-in answers 503 and
+// password sign-in works as before.
+function supabaseConfig(): SupabaseConfig | undefined {
+  const url = process.env.SUPABASE_URL?.replace(/\/+$/, '');
+  const anonKey = process.env.SUPABASE_ANON_KEY;
+  if (!url || !anonKey) return undefined;
+  return { url, anonKey, jwtSecret: process.env.SUPABASE_JWT_SECRET || undefined };
+}

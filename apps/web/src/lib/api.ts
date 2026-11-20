@@ -28,11 +28,16 @@ export class ApiRequestError extends Error {
 
 // The browser only ever talks to this Next.js server; the session cookie is
 // forwarded to the API from here.
-export async function apiRequest(
-  path: string,
-  init: { method?: string; body?: unknown } = {},
-): Promise<Response> {
-  const token = (await cookies()).get(SESSION_COOKIE)?.value;
+export interface ApiInit {
+  method?: string;
+  body?: unknown;
+  // Use this session instead of the request's cookie, for a call made right
+  // after starting a session in the same request.
+  sessionToken?: string;
+}
+
+export async function apiRequest(path: string, init: ApiInit = {}): Promise<Response> {
+  const token = init.sessionToken ?? (await cookies()).get(SESSION_COOKIE)?.value;
   const headers: Record<string, string> = {};
   if (token) headers.cookie = `${SESSION_COOKIE}=${token}`;
   if (init.body !== undefined) headers["content-type"] = "application/json";
@@ -49,10 +54,7 @@ export async function apiRequest(
   return response;
 }
 
-export async function api<T>(
-  path: string,
-  init: { method?: string; body?: unknown } = {},
-): Promise<T> {
+export async function api<T>(path: string, init: ApiInit = {}): Promise<T> {
   const response = await apiRequest(path, init);
   if (response.status === 204) return undefined as T;
   return (await response.json()) as T;

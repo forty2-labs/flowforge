@@ -106,6 +106,31 @@ the end of the relevant section.
   Moving to a managed auth provider is a separate decision, worth revisiting
   if MFA or SSO is needed.
 
+### Google sign-in goes through Supabase Auth, but sessions stay ours
+
+- **Why:** Supabase already hosts the database, and its Auth runs the Google
+  OAuth exchange (PKCE, the Google client, redirect allowlists) without a
+  second provider. It is used for that one step only. The web app's callback
+  sends Supabase's access token to `POST /auth/google`, which checks its
+  signature, issuer, audience and expiry, finds or creates the `User`, and
+  starts an ordinary `ff_session`. The Supabase session is then signed out, so
+  `AuthGuard`, `WorkspaceGuard` and everything after them are unchanged.
+  Whether Google verified the email is read from Supabase's identity record,
+  not the token's `user_metadata`, which the token's holder can edit. Accounts
+  are linked by Google's own `sub` in `AuthIdentity`, not the Supabase user id,
+  so they survive a move to another Supabase project.
+- **Linking:** a Google sign-in whose email matches an existing account joins
+  it only if Google verified the address; otherwise it is refused with a 409.
+  If the existing account had never verified its email, its password, sessions
+  and pending links are removed when Google links, because whoever set that
+  password never proved they own the address.
+- **Cost:** one login method now depends on Supabase Auth being up, and on
+  each environment's Google provider and redirect URLs being set up by hand.
+  Each Google sign-in makes one call to Supabase from the API. A person whose
+  unverified password account is claimed by Google loses that password and
+  can set a new one by resetting it. A Google-only account can add a password
+  the same way.
+
 ### Email goes through Resend's HTTP API, not Supabase
 
 - **Why:** Supabase Auth only emails its own auth users and caps its built-in
