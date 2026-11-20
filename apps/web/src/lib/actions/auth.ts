@@ -1,17 +1,12 @@
 "use server";
 
 import type { EmailVerifiedDto, SessionDto } from "@flowforge/types";
-import { cookies } from "next/headers";
-import {
-  actionResult,
-  api,
-  apiRequest,
-  messageFrom,
-  SESSION_COOKIE,
-  SESSION_MAX_AGE_SECONDS,
-} from "../api";
+import { cookies, headers } from "next/headers";
+import { actionResult, api, apiRequest, messageFrom, SESSION_COOKIE } from "../api";
 import type { ActionResult } from "../form-state";
 import { safeNext } from "../session";
+import { adoptSession } from "../session-cookie";
+import { createSupabase } from "../supabase";
 
 export interface SignInInput {
   email: string;
@@ -40,20 +35,7 @@ async function startSession(
   } catch (error) {
     return { error: messageFrom(error) };
   }
-  const token = response.headers
-    .getSetCookie()
-    .map((cookie) => cookie.split(";")[0])
-    .find((pair) => pair.startsWith(`${SESSION_COOKIE}=`))
-    ?.slice(SESSION_COOKIE.length + 1);
-  if (!token) return { error: "The API did not start a session." };
-
-  (await cookies()).set(SESSION_COOKIE, token, {
-    httpOnly: true,
-    sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
-    maxAge: SESSION_MAX_AGE_SECONDS,
-    path: "/",
-  });
+  if (!(await adoptSession(response))) return { error: "The API did not start a session." };
   return {
     data: {
       session: (await response.json()) as SessionDto,
@@ -82,6 +64,33 @@ export async function signUp(input: SignUpInput): Promise<ActionResult<AuthSucce
     },
     input.next,
   );
+}
+
+// Called from GoogleSignIn, which sends the browser to the returned Google
+// sign-in page. Supabase Auth runs that step and comes back to /auth/callback,
+// which finishes signing in.
+export async function startGoogleSignIn(next: string): Promise<ActionResult<{ url: string }>> {
+  const supabase = await createSupabase();
+  if (!supabase) return { error: "Google sign-in isn’t set up here yet." };
+
+  // Server actions only run for same-origin requests, so this is our origin.
+  const origin = (await headers()).get("origin");
+  if (!origin) return { error: "Couldn’t start Google sign-in. Try again." };
+  const callback = new URL("/auth/callback", origin);
+  const destination = safeNext(next);
+  if (destination) callback.searchParams.set("next", destination);
+
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: "google",
+    options: {
+      redirectTo: callback.toString(),
+      skipBrowserRedirect: true,
+      // Lets someone with several Google accounts choose, even after signing out.
+      queryParams: { prompt: "select_account" },
+    },
+  });
+  if (error || !data.url) return { error: "Couldn’t start Google sign-in. Try again." };
+  return { data: { url: data.url } };
 }
 
 // Called from ForgotPasswordForm. The API answers the same whether or not

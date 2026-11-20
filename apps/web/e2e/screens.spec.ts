@@ -89,6 +89,16 @@ for (const theme of THEMES) for (const width of WIDTHS) {
     await page.goto("/verify-email/not-a-real-token");
     await check(page, dir, "01d-verify-email");
 
+    // What /auth/callback shows when Google's address matches an account it can't join.
+    await page.goto("/signin?error=conflict");
+    await expect(page.getByText("Google hasn’t confirmed the address")).toBeVisible();
+    await check(page, dir, "01e-signin-google-refused");
+    // Without Supabase configured locally, the button explains instead of leaving.
+    if (!process.env.SUPABASE_URL) {
+      await page.getByRole("button", { name: "Continue with Google" }).click();
+      await expect(page.getByText("Google sign-in isn’t set up here yet.")).toBeVisible();
+    }
+
     await page.goto("/signup");
     await check(page, dir, "02-signup");
     await page.getByLabel("Your name").fill("Maya Ortiz");

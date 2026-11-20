@@ -1,18 +1,33 @@
 import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
+import { decodeJwt, SignJWT } from 'jose';
 import request from 'supertest';
 import { App } from 'supertest/types.js';
 import { AppModule } from './../src/app.module.js';
+import {
+  SupabaseUserClient,
+  type SupabaseUser,
+} from './../src/auth/supabase-auth.service.js';
 import { configureApp } from './../src/configure-app.js';
 import { MailerService, type Mail } from './../src/mail/mailer.service.js';
 import { PrismaService } from './../src/prisma/prisma.service.js';
+
+// Stands in for Supabase's GET /auth/v1/user, keyed by the token's subject.
+const supabaseUsers = new Map<string, SupabaseUser>();
+const fakeSupabaseUsers = {
+  get: async (_config: unknown, accessToken: string) =>
+    supabaseUsers.get(decodeJwt(accessToken).sub ?? '') ?? null,
+};
 
 describe('Foundations (e2e)', () => {
   let app: INestApplication<App>;
   let prisma: PrismaService;
 
   beforeAll(async () => {
-    const moduleFixture = await Test.createTestingModule({ imports: [AppModule] }).compile();
+    const moduleFixture = await Test.createTestingModule({ imports: [AppModule] })
+      .overrideProvider(SupabaseUserClient)
+      .useValue(fakeSupabaseUsers)
+      .compile();
     app = moduleFixture.createNestApplication();
     configureApp(app);
     await app.init();
@@ -21,8 +36,9 @@ describe('Foundations (e2e)', () => {
 
   beforeEach(async () => {
     await prisma.$executeRawUnsafe(
-      'TRUNCATE "EmailVerification", "PasswordReset", "Invitation", "Membership", "Session", "Workspace", "User" CASCADE',
+      'TRUNCATE "AuthIdentity", "EmailVerification", "PasswordReset", "Invitation", "Membership", "Session", "Workspace", "User" CASCADE',
     );
+    supabaseUsers.clear();
   });
 
   afterAll(async () => {
@@ -410,6 +426,192 @@ describe('Foundations (e2e)', () => {
       expect(reset.body.user.emailVerified).toBe(true);
       // The sign-up link is no longer needed.
       await verify(signUpLink).expect(404);
+    });
+  });
+
+  describe('Google sign-in', () => {
+    const ISSUER = `${process.env.SUPABASE_URL}/auth/v1`;
+    const SECRET = process.env.SUPABASE_JWT_SECRET!;
+    let sent: Mail[];
+
+    beforeEach(() => {
+      sent = [];
+      vi.spyOn(app.get(MailerService), 'send').mockImplementation(async (mail) => {
+        sent.push(mail);
+        return 'logged';
+      });
+    });
+
+    afterEach(() => {
+      vi.restoreAllMocks();
+    });
+
+    interface GoogleAccount {
+      email: string;
+      googleSub?: string;
+      name?: string;
+      verified?: boolean;
+    }
+
+    // Registers the account with the fake Supabase and signs a token for it,
+    // as Supabase does after a Google sign-in.
+    const googleToken = async (
+      account: GoogleAccount,
+      jwt: { secret?: string; issuer?: string; expiresIn?: string; audience?: string } = {},
+    ) => {
+      const supabaseId = `sb-${account.googleSub ?? account.email}`;
+      supabaseUsers.set(supabaseId, {
+        id: supabaseId,
+        email: account.email,
+        identities: [
+          {
+            provider: 'google',
+            identity_data: {
+              sub: account.googleSub ?? `g-${account.email}`,
+              email: account.email,
+              email_verified: account.verified ?? true,
+              full_name: account.name ?? 'Maya Okafor',
+            },
+          },
+        ],
+      });
+      return new SignJWT({ email: account.email, role: 'authenticated' })
+        .setProtectedHeader({ alg: 'HS256' })
+        .setSubject(supabaseId)
+        .setIssuer(jwt.issuer ?? ISSUER)
+        .setAudience(jwt.audience ?? 'authenticated')
+        .setIssuedAt()
+        .setExpirationTime(jwt.expiresIn ?? '1h')
+        .sign(new TextEncoder().encode(jwt.secret ?? SECRET));
+    };
+
+    const google = (accessToken: string, agent = request.agent(app.getHttpServer())) =>
+      agent.post('/auth/google').send({ accessToken });
+
+    it('signs up a new person who lands signed in, verified and without a password', async () => {
+      const browser = request.agent(app.getHttpServer());
+      const answer = await google(
+        await googleToken({ email: 'Maya@Northstar.studio', name: 'Maya Okafor' }),
+        browser,
+      ).expect(200);
+      expect(answer.body.user).toMatchObject({
+        name: 'Maya Okafor',
+        email: 'maya@northstar.studio',
+        emailVerified: true,
+      });
+      expect((await browser.get('/auth/me').expect(200)).body.user.email).toBe(
+        'maya@northstar.studio',
+      );
+      const user = await prisma.user.findUniqueOrThrow({ where: { email: 'maya@northstar.studio' } });
+      expect(user.passwordHash).toBeNull();
+      expect(sent).toHaveLength(0);
+
+      // No password to sign in with, and the answer gives nothing away.
+      const refused = await request(app.getHttpServer())
+        .post('/auth/signin')
+        .send({ email: 'maya@northstar.studio', password: 'anything-at-all' })
+        .expect(401);
+      expect(refused.body.message).toBe('Email or password is incorrect.');
+    });
+
+    it('signs a returning person in to the same account', async () => {
+      const first = await google(await googleToken({ email: 'maya@northstar.studio' })).expect(200);
+      const second = await google(await googleToken({ email: 'maya@northstar.studio' })).expect(200);
+      expect(second.body.user.id).toBe(first.body.user.id);
+      expect(await prisma.user.count()).toBe(1);
+      expect(await prisma.authIdentity.count()).toBe(1);
+    });
+
+    it('links a verified Google email to an existing verified account', async () => {
+      const password = await signUp('Maya Okafor', 'maya@northstar.studio');
+      const before = (await password.get('/auth/me').expect(200)).body.user.id;
+
+      const answer = await google(await googleToken({ email: 'maya@northstar.studio' })).expect(200);
+      expect(answer.body.user.id).toBe(before);
+      expect(await prisma.user.count()).toBe(1);
+
+      // The password still works, and so does the earlier session.
+      await password.get('/auth/me').expect(200);
+      await request(app.getHttpServer())
+        .post('/auth/signin')
+        .send({ email: 'maya@northstar.studio', password: 'northstar2026' })
+        .expect(200);
+    });
+
+    it('takes over an unverified account for the Google owner and drops its password', async () => {
+      // Someone signed up with Maya's address but never confirmed it.
+      const squatter = await signUp('Not Maya', 'maya@northstar.studio', { verified: false });
+
+      const answer = await google(await googleToken({ email: 'maya@northstar.studio' })).expect(200);
+      expect(answer.body.user.emailVerified).toBe(true);
+      await squatter.get('/auth/me').expect(401);
+      await request(app.getHttpServer())
+        .post('/auth/signin')
+        .send({ email: 'maya@northstar.studio', password: 'northstar2026' })
+        .expect(401);
+    });
+
+    it('refuses to link an unverified Google email to an existing account', async () => {
+      await signUp('Maya Okafor', 'maya@northstar.studio');
+      const refused = await google(
+        await googleToken({ email: 'maya@northstar.studio', verified: false }),
+      ).expect(409);
+      expect(refused.body.message).toMatch(/Sign in with your password/);
+      expect(await prisma.authIdentity.count()).toBe(0);
+    });
+
+    it('creates an unverified account for an unverified Google email and emails a link', async () => {
+      const answer = await google(
+        await googleToken({ email: 'tom@northstar.studio', verified: false }),
+      ).expect(200);
+      expect(answer.body.user.emailVerified).toBe(false);
+      expect(sent.map((mail) => mail.to)).toEqual(['tom@northstar.studio']);
+    });
+
+    it('lets a Google sign-up accept an invitation to its address', async () => {
+      const maya = await signUp('Maya Okafor', 'maya@northstar.studio');
+      await maya.post('/workspaces').send({ name: 'Northstar Studio' }).expect(201);
+      const invitation = await maya
+        .post('/workspaces/northstar-studio/invitations')
+        .send({ email: 'tom@northstar.studio', role: 'EDITOR' })
+        .expect(201);
+      const token = (invitation.body.acceptUrl as string).split('/invite/')[1];
+
+      const tom = request.agent(app.getHttpServer());
+      await google(await googleToken({ email: 'tom@northstar.studio', name: 'Tom' }), tom).expect(
+        200,
+      );
+      const accepted = await tom.post(`/invitations/${token}/accept`).expect(200);
+      expect(accepted.body).toMatchObject({ slug: 'northstar-studio', role: 'EDITOR' });
+    });
+
+    it('rejects forged, expired and foreign tokens', async () => {
+      const account = { email: 'maya@northstar.studio' };
+      const forged = await googleToken(account, { secret: 'not-the-project-secret-0123456789' });
+      const expired = await googleToken(account, { expiresIn: '-1m' });
+      const otherProject = await googleToken(account, {
+        issuer: 'https://someone-else.supabase.co/auth/v1',
+      });
+      const wrongAudience = await googleToken(account, { audience: 'anon' });
+      for (const token of [forged, expired, otherProject, wrongAudience, 'not-a-jwt']) {
+        await google(token).expect(401);
+      }
+      expect(await prisma.user.count()).toBe(0);
+    });
+
+    it('rejects a valid token that Supabase no longer accepts or that is not from Google', async () => {
+      const revoked = await googleToken({ email: 'maya@northstar.studio' });
+      supabaseUsers.clear();
+      await google(revoked).expect(401);
+
+      const passwordOnly = await googleToken({ email: 'tom@northstar.studio' });
+      supabaseUsers.set('sb-tom@northstar.studio', {
+        id: 'sb-tom@northstar.studio',
+        email: 'tom@northstar.studio',
+        identities: [{ provider: 'email', identity_data: { email: 'tom@northstar.studio' } }],
+      });
+      await google(passwordOnly).expect(401);
+      expect(await prisma.user.count()).toBe(0);
     });
   });
 });
